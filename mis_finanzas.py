@@ -1,15 +1,17 @@
 import streamlit as st
 import pandas as pd
 import requests
-import plotly.express as px
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import date, datetime
 
-# --- CONFIGURACIÓN ---
+# --- CONFIGURACIÓN DE PANTALLA ---
 st.set_page_config(page_title="Finanzas AR 🇦🇷", page_icon="💰", layout="wide")
 
-# --- 1. CONEXIÓN CLOUD ---
+# Estilo para mejorar la visualización móvil y ocultar menús innecesarios
+st.markdown("""<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;} .block-container {padding-top: 1rem;}</style>""", unsafe_allow_html=True)
+
+# --- 1. CONEXIÓN CON GOOGLE SHEETS ---
 def conectar_google_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     try:
@@ -21,7 +23,7 @@ def conectar_google_sheets():
     client = gspread.authorize(creds)
     return client.open("Gastos_Henry").sheet1
 
-# --- 2. LOGICA DE DATOS ---
+# --- 2. FUNCIONES DE DATOS ---
 def get_dolar_blue():
     try:
         r = requests.get("https://dolarapi.com/v1/dolares/blue")
@@ -34,85 +36,72 @@ try:
     hoja = conectar_google_sheets()
     data = hoja.get_all_records()
     df = pd.DataFrame(data)
-except:
-    st.error("Error de conexión con Google Sheets.")
+except Exception as e:
+    st.error(f"Error de conexión: {e}")
     st.stop()
 
-# --- LIMPIEZA PARA COMPATIBILIDAD ---
-def formatear_fecha_lectura(val):
-    if not val or val == "None" or val == "": return None
-    try:
-        # Intenta leer formato AAAA-MM-DD (estándar de base de datos)
-        return pd.to_datetime(val).date()
-    except:
-        return None
-
-df["Día Pago"] = df["Día Pago"].apply(formatear_fecha_lectura)
+# Limpieza de datos para compatibilidad
 df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
+df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
 
-# --- 3. ESTILO DE FUENTE (SOLO TEXTO) ---
-def estilo_fuente_vencimiento(val):
-    if not val or pd.isnull(val): return ""
-    hoy = date.today()
-    # Cambia solo el color de la letra: Rojo si ya pasó, Verde si es futuro
-    color_texto = '#FF0000' if val < hoy else '#008000'
-    return f'color: {color_texto}; font-weight: bold;'
-
-# --- 4. INTERFAZ ---
+# --- 3. INTERFAZ ---
 st.title("Finanzas AR 🇦🇷")
 st.caption(f"Hoy: **{date.today().strftime('%d/%m/%Y')}** | Dólar Blue: **${precio_dolar:,.0f}**")
 
+# Métricas principales
 total_ars = df["Monto (ARS)"].sum()
 total_usd = total_ars / precio_dolar
-
 c1, c2 = st.columns(2)
 c1.metric("Total Gastos (ARS)", f"${total_ars:,.0f}")
 c2.metric("Total Gastos (USD)", f"US$ {total_usd:,.2f}")
 
 st.divider()
 
-t1, t2 = st.tabs(["📊 Gráficos", "📝 Gestión y Vencimientos"])
+# TABLA ÚNICA DE GESTIÓN
+st.subheader("Gestión de Pagos y Vencimientos")
+st.info("💡 Puedes editar directamente en la tabla. Las fechas pasadas se resaltan automáticamente.")
 
-with t1:
-    fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.6)
-    st.plotly_chart(fig, use_container_width=True)
+# Configuración del Editor Único
+df_editado = st.data_editor(
+    df,
+    column_config={
+        "Categoría": st.column_config.SelectboxColumn(
+            options=["Vivienda", "Servicios", "Suscripción", "Alimentos", "Deportes", "Transporte", "Ocio", "Salud"],
+            width="medium"
+        ),
+        "Ítem": st.column_config.TextColumn(width="medium"),
+        "Monto (ARS)": st.column_config.NumberColumn("Monto (ARS)", format="$%d", min_value=0),
+        "Monto (USD)": st.column_config.NumberColumn(
+            "Equiv. USD", 
+            format="US$ %.2f", 
+            help="Calculado según Dólar Blue",
+            disabled=True # Columna de solo lectura
+        ),
+        "Día Pago": st.column_config.DateColumn(
+            "Día de Pago", 
+            format="DD/MM/YYYY",
+            help="Selecciona la fecha de vencimiento"
+        )
+    },
+    num_rows="dynamic",
+    use_container_width=True,
+    hide_index=True,
+    key="tabla_unica"
+)
 
-with t2:
-    st.write("Letras en **Rojo**: Vencido | Letras en **Verde**: Pendiente")
-    
-    # Preparamos una copia visual con formato Día/Mes/Año
-    df_visual = df.copy()
-    
-    # Aplicamos el estilo de fuente y mostramos
-    st.dataframe(
-        df_visual.style.applymap(estilo_fuente_vencimiento, subset=['Día Pago'])
-        .format({"Día Pago": lambda x: x.strftime('%d/%m/%Y') if pd.notnull(x) else ""}),
-        use_container_width=True, 
-        hide_index=True
-    )
-    
-    st.divider()
-    st.subheader("Modificar datos")
-    df_editado = st.data_editor(
-        df,
-        column_config={
-            "Monto (ARS)": st.column_config.NumberColumn(format="$%d"),
-            "Día Pago": st.column_config.DateColumn("Día de Pago", format="DD/MM/YYYY"),
-            "Categoría": st.column_config.SelectboxColumn(options=["Vivienda", "Servicios", "Suscripción", "Alimentos", "Deportes", "Transporte", "Ocio", "Salud"])
-        },
-        num_rows="dynamic", use_container_width=True, hide_index=True
-    )
-
-    if st.button("💾 Guardar Cambios en la Nube", type="primary", use_container_width=True):
+# Botón de Guardado
+if st.button("💾 Guardar Cambios en la Nube", type="primary", use_container_width=True):
+    try:
         df_subir = df_editado.copy()
-        # Guardamos como texto AAAA-MM-DD para máxima compatibilidad con Sheets y Python
-        df_subir["Día Pago"] = df_subir["Día Pago"].apply(lambda x: x.strftime('%Y-%m-%d') if pd.notnull(x) else "")
+        # Mantenemos solo las columnas necesarias para Google Sheets
+        columnas_drive = ["Categoría", "Ítem", "Monto (ARS)", "Día Pago"]
+        df_subir = df_subir[columnas_drive]
+        df_subir["Día Pago"] = df_subir["Día Pago"].astype(str).replace("None", "")
         
-        try:
-            hoja.clear()
-            hoja.append_row(df_subir.columns.tolist())
-            hoja.append_rows(df_subir.values.tolist())
-            st.success("✅ ¡Datos sincronizados con Google Drive!")
-            st.rerun()
-        except Exception as e:
-            st.error(f"Error al guardar: {e}")
+        hoja.clear()
+        hoja.append_row(df_subir.columns.tolist())
+        hoja.append_rows(df_subir.values.tolist())
+        st.success("✅ ¡Base de datos actualizada en Google Drive!")
+        st.rerun()
+    except Exception as e:
+        st.error(f"Error al guardar: {e}")
