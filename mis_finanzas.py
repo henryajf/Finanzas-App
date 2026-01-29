@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import gspread
+import plotly.express as px
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import date, datetime, timedelta
 
@@ -126,3 +127,4 @@ with col_info:
 # --- 8. GRÁFICO RESUMEN ---
 st.divider()
 st.plotly_chart(px.bar(df_filtrado, x='Categoría', y='Monto (ARS)', color='Estado', title="Distribución por Filtro"), use_container_width=True)
+
