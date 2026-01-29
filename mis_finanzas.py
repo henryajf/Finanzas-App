@@ -3,105 +3,126 @@ import pandas as pd
 import requests
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
-# --- CONFIGURACIÓN DE PANTALLA ---
-st.set_page_config(page_title="Finanzas AR 🇦🇷", page_icon="💰", layout="wide")
+# --- 1. CONFIGURACIÓN Y ESTILO CUSTOM ---
+st.set_page_config(page_title="Finanzas AR 🇦🇷", page_icon="💳", layout="wide")
 
-# Estilo para mejorar la visualización móvil y ocultar menús innecesarios
-st.markdown("""<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;} .block-container {padding-top: 1rem;}</style>""", unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    .metric-card {
+        background-color: #1E1E1E;
+        padding: 20px;
+        border-radius: 15px;
+        border-left: 5px solid #00D1FF;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
+    .stMetric {
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+    }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)
 
-# --- 1. CONEXIÓN CON GOOGLE SHEETS ---
+# --- 2. CONEXIONES Y DATOS ---
 def conectar_google_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     try:
         creds = ServiceAccountCredentials.from_json_keyfile_name("mis-credenciales.json", scope)
     except:
-        import json
         info_json = st.secrets["gcp_service_account"]
         creds = ServiceAccountCredentials.from_json_keyfile_dict(info_json, scope)
-    client = gspread.authorize(creds)
-    return client.open("Gastos_Henry").sheet1
+    return gspread.authorize(creds).open("Gastos_Henry").sheet1
 
-# --- 2. FUNCIONES DE DATOS ---
 def get_dolar_blue():
     try:
-        r = requests.get("https://dolarapi.com/v1/dolares/blue")
-        return float(r.json()['venta'])
-    except: return 1500.0
+        return float(requests.get("https://dolarapi.com/v1/dolares/blue").json()['venta'])
+    except: return 1485.0
 
 precio_dolar = get_dolar_blue()
 
 try:
     hoja = conectar_google_sheets()
-    data = hoja.get_all_records()
-    df = pd.DataFrame(data)
-except Exception as e:
-    st.error(f"Error de conexión: {e}")
-    st.stop()
+    df = pd.DataFrame(hoja.get_all_records())
+    df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
+    df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
+except:
+    st.error("Error cargando datos."); st.stop()
 
-# Limpieza de datos para compatibilidad
-df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
-df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
+# --- 3. LÓGICA DE ESTADOS Y ALERTAS ---
+def calcular_estado(fecha):
+    if not fecha or pd.isnull(fecha): return "⚪ Sin Fecha"
+    hoy = date.today()
+    if fecha < hoy: return "🔴 Vencido"
+    if fecha <= hoy + timedelta(days=3): return "🟡 Vence Pronto"
+    return "🟢 Al Día"
 
-# --- 3. INTERFAZ ---
+df["Estado"] = df["Día Pago"].apply(calcular_estado)
+
+# --- 4. DASHBOARD SUPERIOR (KPIs Premium) ---
 st.title("Finanzas AR 🇦🇷")
-st.caption(f"Hoy: **{date.today().strftime('%d/%m/%Y')}** | Dólar Blue: **${precio_dolar:,.0f}**")
+st.caption(f"📅 {date.today().strftime('%d de %B, %Y')}  |  💵 Blue: ${precio_dolar:,.0f}")
 
-# Métricas principales
-total_ars = df["Monto (ARS)"].sum()
-total_usd = total_ars / precio_dolar
-c1, c2 = st.columns(2)
-c1.metric("Total Gastos (ARS)", f"${total_ars:,.0f}")
-c2.metric("Total Gastos (USD)", f"US$ {total_usd:,.2f}")
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Gastos Totales (ARS)", f"${df['Monto (ARS)'].sum():,.0f}", delta="Mensual")
+with col2:
+    st.metric("Gastos Totales (USD)", f"US$ {df['Monto (ARS)'].sum()/precio_dolar:,.2f}", delta_color="off")
+with col3:
+    vencidos = len(df[df["Estado"] == "🔴 Vencido"])
+    st.metric("Pagos Vencidos", vencidos, delta=f"{vencidos} pendientes", delta_color="inverse")
+
+# --- 5. ALERTAS INTELIGENTES ---
+if vencidos > 0:
+    st.warning(f"⚠️ Tienes **{vencidos}** pagos vencidos. Revisa la tabla abajo.")
 
 st.divider()
 
-# TABLA ÚNICA DE GESTIÓN
-st.subheader("Gestión de Pagos y Vencimientos")
-st.info("💡 Puedes editar directamente en la tabla. Las fechas pasadas se resaltan automáticamente.")
+# --- 6. FILTROS Y TABLA GESTIÓN ---
+st.subheader("📊 Gestión y Filtros Dinámicos")
+c_f1, c_f2 = st.columns(2)
+with c_f1:
+    filtro_cat = st.multiselect("Filtrar por Categoría", options=df["Categoría"].unique())
+with c_f2:
+    filtro_est = st.multiselect("Filtrar por Estado", options=df["Estado"].unique())
 
-# Configuración del Editor Único
+# Aplicar filtros
+df_filtrado = df.copy()
+if filtro_cat: df_filtrado = df_filtrado[df_filtrado["Categoría"].isin(filtro_cat)]
+if filtro_est: df_filtrado = df_filtrado[df_filtrado["Estado"].isin(filtro_est)]
+
+# Editor de datos optimizado
 df_editado = st.data_editor(
-    df,
+    df_filtrado,
     column_config={
-        "Categoría": st.column_config.SelectboxColumn(
-            options=["Vivienda", "Servicios", "Suscripción", "Alimentos", "Deportes", "Transporte", "Ocio", "Salud"],
-            width="medium"
-        ),
-        "Ítem": st.column_config.TextColumn(width="medium"),
-        "Monto (ARS)": st.column_config.NumberColumn("Monto (ARS)", format="$%d", min_value=0),
-        "Monto (USD)": st.column_config.NumberColumn(
-            "Equiv. USD", 
-            format="US$ %.2f", 
-            help="Calculado según Dólar Blue",
-            disabled=True # Columna de solo lectura
-        ),
-        "Día Pago": st.column_config.DateColumn(
-            "Día de Pago", 
-            format="DD/MM/YYYY",
-            help="Selecciona la fecha de vencimiento"
-        )
+        "Estado": st.column_config.TextColumn("Estado", disabled=True),
+        "Monto (ARS)": st.column_config.NumberColumn("Monto (ARS)", format="$%d"),
+        "Día Pago": st.column_config.DateColumn("Día de Pago", format="DD/MM/YY"),
+        "Categoría": st.column_config.SelectboxColumn(options=["Vivienda", "Servicios", "Suscripción", "Alimentos", "Deportes", "Transporte", "Ocio", "Salud"])
     },
-    num_rows="dynamic",
-    use_container_width=True,
-    hide_index=True,
-    key="tabla_unica"
+    num_rows="dynamic", use_container_width=True, hide_index=True
 )
 
-# Botón de Guardado
-if st.button("💾 Guardar Cambios en la Nube", type="primary", use_container_width=True):
-    try:
-        df_subir = df_editado.copy()
-        # Mantenemos solo las columnas necesarias para Google Sheets
-        columnas_drive = ["Categoría", "Ítem", "Monto (ARS)", "Día Pago"]
-        df_subir = df_subir[columnas_drive]
-        df_subir["Día Pago"] = df_subir["Día Pago"].astype(str).replace("None", "")
-        
+# --- 7. ACCIONES ---
+col_save, col_info = st.columns([1, 3])
+with col_save:
+    if st.button("✔️ Guardar y Sincronizar", type="primary", use_container_width=True):
+        # Unir cambios filtrados con los no filtrados para no perder datos
+        df.update(df_editado)
+        df_subir = df.drop(columns=["Estado"])
+        df_subir["Día Pago"] = df_subir["Día Pago"].astype(str).replace("NaT", "")
         hoja.clear()
         hoja.append_row(df_subir.columns.tolist())
         hoja.append_rows(df_subir.values.tolist())
-        st.success("✅ ¡Base de datos actualizada en Google Drive!")
+        st.success("☁️ Sincronizado")
         st.rerun()
-    except Exception as e:
-        st.error(f"Error al guardar: {e}")
+
+with col_info:
+    st.caption(f"Última actualización: {datetime.now().strftime('%H:%M:%S')}")
+
+# --- 8. GRÁFICO RESUMEN ---
+st.divider()
+st.plotly_chart(px.bar(df_filtrado, x='Categoría', y='Monto (ARS)', color='Estado', title="Distribución por Filtro"), use_container_width=True)
