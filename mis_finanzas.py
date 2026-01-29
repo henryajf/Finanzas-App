@@ -4,15 +4,12 @@ import requests
 import plotly.express as px
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
+from datetime import date
 
-# --- CONFIGURACIÓN DE PANTALLA ---
+# --- CONFIGURACIÓN ---
 st.set_page_config(page_title="Finanzas AR 🇦🇷", page_icon="💰", layout="wide")
 
-hide_st_style = """<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;} .block-container {padding-top: 1rem;}</style>"""
-st.markdown(hide_st_style, unsafe_allow_html=True)
-
-# --- 1. CONEXIÓN CON GOOGLE SHEETS ---
+# --- 1. CONEXIÓN CLOUD ---
 def conectar_google_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     try:
@@ -22,98 +19,89 @@ def conectar_google_sheets():
         info_json = st.secrets["gcp_service_account"]
         creds = ServiceAccountCredentials.from_json_keyfile_dict(info_json, scope)
     client = gspread.authorize(creds)
-    sheet = client.open("Gastos_Henry").sheet1
-    return sheet
+    return client.open("Gastos_Henry").sheet1
 
-# --- 2. FUNCIONES DE DATOS ---
+# --- 2. LOGICA DE DATOS ---
 def get_dolar_blue():
     try:
-        url = "https://dolarapi.com/v1/dolares/blue"
-        r = requests.get(url)
+        r = requests.get("https://dolarapi.com/v1/dolares/blue")
         return float(r.json()['venta'])
-    except:
-        return 1485.00
+    except: return 1500.0 # Valor de respaldo
 
-def cargar_datos(sheet):
-    data = sheet.get_all_records()
-    if not data:
-        return pd.DataFrame(columns=["Categoría", "Ítem", "Monto (ARS)", "Monto (USD)", "Día Pago"])
-    df_temp = pd.DataFrame(data)
-    # Convertimos la columna de fecha a formato fecha de Python para el editor
-    if "Día Pago" in df_temp.columns:
-        df_temp["Día Pago"] = pd.to_datetime(df_temp["Día Pago"], errors='coerce').dt.date
-    return df_temp
-
-# --- INICIO ---
 precio_dolar = get_dolar_blue()
 
 try:
     hoja = conectar_google_sheets()
-    df = cargar_datos(hoja)
-    st.toast("☁️ Sincronizado con Google Drive")
-except Exception as e:
-    st.error(f"⚠️ Error de conexión: {e}")
+    data = hoja.get_all_records()
+    df = pd.DataFrame(data)
+except:
+    st.error("No se pudo cargar la base de datos. Verifica tu Google Sheets.")
     st.stop()
 
-# Cálculos automáticos
+# Convertir a formato fecha y limpiar montos
 df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
-df["Monto (USD)"] = df["Monto (ARS)"] / precio_dolar
-df = df[["Categoría", "Ítem", "Monto (ARS)", "Monto (USD)", "Día Pago"]]
+df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
 
-# --- INTERFAZ ---
-st.title("Finanzas AR 🇦🇷") # Título actualizado
-st.caption(f"Cotización Dólar Blue: **${precio_dolar:,.0f}**")
+# --- 3. FUNCIÓN DE COLOR (SEMÁFORO) ---
+def color_vencimiento(val):
+    if val is None or pd.isnull(val):
+        return ""
+    hoy = date.today()
+    if val < hoy:
+        return 'background-color: #ffcccc; color: #990000; font-weight: bold' # Rojo suave
+    else:
+        return 'background-color: #ccffcc; color: #006600; font-weight: bold' # Verde suave
 
-# Métricas
+# --- 4. INTERFAZ ---
+st.title("Finanzas AR 🇦🇷")
+st.caption(f"Hoy es: **{date.today().strftime('%d/%m/%Y')}** | Dólar Blue: **${precio_dolar:,.0f}**")
+
 total_ars = df["Monto (ARS)"].sum()
 total_usd = total_ars / precio_dolar
+
 c1, c2 = st.columns(2)
-c1.metric("Total Pesos", f"${total_ars:,.0f}")
-c2.metric("Total USD", f"US$ {total_usd:,.0f}")
+c1.metric("Total Gastos (ARS)", f"${total_ars:,.0f}")
+c2.metric("Total Gastos (USD)", f"US$ {total_usd:,.2f}")
 
 st.divider()
 
-tab1, tab2 = st.tabs(["📊 Gráficos", "📝 Editar Gastos"])
+t1, t2 = st.tabs(["📊 Gráficos de Gastos", "📝 Gestión y Vencimientos"])
 
-with tab1:
-    gastos_cat = df.groupby("Categoría")["Monto (ARS)"].sum().reset_index()
-    fig = px.pie(gastos_cat, values='Monto (ARS)', names='Categoría', hole=0.6)
-    fig.update_layout(legend=dict(orientation="h", y=-0.1))
-    st.plotly_chart(fig, use_container_width=True)
+with t1:
+    if total_ars > 0:
+        fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.6)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No hay datos para mostrar gráficos.")
 
-with tab2:
-    st.caption("Usa el calendario para seleccionar la fecha de pago:")
+with t2:
+    st.subheader("Planilla de Pagos")
+    st.write("🔴 Rojo: Vencido | 🟢 Verde: A tiempo")
     
+    # Aplicamos el estilo de colores a la visualización
+    df_styled = df.style.applymap(color_vencimiento, subset=['Día Pago'])
+    
+    # Nota: El editor de datos (st.data_editor) no soporta colores de fondo dinámicos 
+    # de la misma forma que st.dataframe, así que mostramos la tabla con colores arriba.
+    st.dataframe(df_styled, use_container_width=True, hide_index=True)
+    
+    st.divider()
+    st.write("### Modificar Datos")
     df_editado = st.data_editor(
         df,
         column_config={
             "Monto (ARS)": st.column_config.NumberColumn(format="$%d"),
-            "Monto (USD)": st.column_config.NumberColumn(format="$%.2f", disabled=True),
-            "Día Pago": st.column_config.DateColumn(
-                "Día de Pago", 
-                format="DD/MM/YYYY", # Cómo se ve en la app
-                help="Selecciona la fecha de vencimiento"
-            ),
-            "Categoría": st.column_config.SelectboxColumn(
-                options=["Vivienda", "Servicios", "Suscripción", "Alimentos", "Deportes", "Transporte", "Ocio", "Salud"]
-            )
+            "Día Pago": st.column_config.DateColumn("Día de Pago", format="DD/MM/YYYY"),
+            "Categoría": st.column_config.SelectboxColumn(options=["Vivienda", "Servicios", "Suscripción", "Alimentos", "Deportes", "Transporte", "Ocio", "Salud"])
         },
-        num_rows="dynamic",
-        use_container_width=True,
-        hide_index=True
+        num_rows="dynamic", use_container_width=True, hide_index=True, key="editor"
     )
-    
-    if st.button("💾 Guardar en Google Drive", type="primary", use_container_width=True):
+
+    if st.button("💾 Guardar Cambios en la Nube", type="primary", use_container_width=True):
         df_subir = df_editado.copy()
-        df_subir = df_subir.drop(columns=["Monto (USD)"])
-        # Convertimos las fechas a texto para que Google Sheets las acepte sin errores
         df_subir["Día Pago"] = df_subir["Día Pago"].astype(str)
-        
-        try:
-            hoja.clear()
-            hoja.append_row(df_subir.columns.tolist())
-            hoja.append_rows(df_subir.values.tolist())
-            st.success("✅ ¡Sincronizado!")
-            st.rerun()
-        except Exception as e:
-            st.error(f"Error: {e}")
+        hoja.clear()
+        hoja.append_row(df_subir.columns.tolist())
+        hoja.append_rows(df_subir.values.tolist())
+        st.success("✅ ¡Actualizado en Google Drive!")
+        st.rerun()
