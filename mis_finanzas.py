@@ -35,34 +35,28 @@ try:
     data = hoja.get_all_records()
     df = pd.DataFrame(data)
 except:
-    st.error("Error de conexión.")
+    st.error("Error de conexión con Google Sheets.")
     st.stop()
 
-# --- ARREGLO DE FECHAS (Importante para que se vean) ---
-def limpiar_fecha(val):
-    if not val or val == "None": return None
+# --- LIMPIEZA PARA COMPATIBILIDAD ---
+def formatear_fecha_lectura(val):
+    if not val or val == "None" or val == "": return None
     try:
-        # Si ya es una fecha AAAA-MM-DD
-        return datetime.strptime(str(val), "%Y-%m-%d").date()
+        # Intenta leer formato AAAA-MM-DD (estándar de base de datos)
+        return pd.to_datetime(val).date()
     except:
-        try:
-            # Si es formato "26-1", le agregamos el año 2026
-            dia, mes = str(val).split('-')
-            return date(2026, int(mes), int(dia))
-        except:
-            return None
+        return None
 
-df["Día Pago"] = df["Día Pago"].apply(limpiar_fecha)
+df["Día Pago"] = df["Día Pago"].apply(formatear_fecha_lectura)
 df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
 
-# --- 3. ESTILO DE SEMÁFORO ---
-def color_vencimiento(val):
+# --- 3. ESTILO DE FUENTE (SOLO TEXTO) ---
+def estilo_fuente_vencimiento(val):
     if not val or pd.isnull(val): return ""
     hoy = date.today()
-    # Rojo si ya pasó, Verde si es hoy o futuro
-    color = '#ffcccc' if val < hoy else '#ccffcc'
-    texto = '#990000' if val < hoy else '#006600'
-    return f'background-color: {color}; color: {texto}; font-weight: bold'
+    # Cambia solo el color de la letra: Rojo si ya pasó, Verde si es futuro
+    color_texto = '#FF0000' if val < hoy else '#008000'
+    return f'color: {color_texto}; font-weight: bold;'
 
 # --- 4. INTERFAZ ---
 st.title("Finanzas AR 🇦🇷")
@@ -84,12 +78,18 @@ with t1:
     st.plotly_chart(fig, use_container_width=True)
 
 with t2:
-    st.write("🔴 Rojo: Vencido | 🟢 Verde: Pendiente")
+    st.write("Letras en **Rojo**: Vencido | Letras en **Verde**: Pendiente")
     
-    # Tabla con colores (Solo visualización)
-    df_ver = df.copy()
-    df_ver["Día Pago"] = df_ver["Día Pago"].apply(lambda x: x.strftime('%d/%m/%Y') if x else "Sin fecha")
-    st.dataframe(df.style.applymap(color_vencimiento, subset=['Día Pago']), use_container_width=True, hide_index=True)
+    # Preparamos una copia visual con formato Día/Mes/Año
+    df_visual = df.copy()
+    
+    # Aplicamos el estilo de fuente y mostramos
+    st.dataframe(
+        df_visual.style.applymap(estilo_fuente_vencimiento, subset=['Día Pago'])
+        .format({"Día Pago": lambda x: x.strftime('%d/%m/%Y') if pd.notnull(x) else ""}),
+        use_container_width=True, 
+        hide_index=True
+    )
     
     st.divider()
     st.subheader("Modificar datos")
@@ -105,9 +105,14 @@ with t2:
 
     if st.button("💾 Guardar Cambios en la Nube", type="primary", use_container_width=True):
         df_subir = df_editado.copy()
-        df_subir["Día Pago"] = df_subir["Día Pago"].astype(str)
-        hoja.clear()
-        hoja.append_row(df_subir.columns.tolist())
-        hoja.append_rows(df_subir.values.tolist())
-        st.success("¡Datos sincronizados!")
-        st.rerun()
+        # Guardamos como texto AAAA-MM-DD para máxima compatibilidad con Sheets y Python
+        df_subir["Día Pago"] = df_subir["Día Pago"].apply(lambda x: x.strftime('%Y-%m-%d') if pd.notnull(x) else "")
+        
+        try:
+            hoja.clear()
+            hoja.append_row(df_subir.columns.tolist())
+            hoja.append_rows(df_subir.values.tolist())
+            st.success("✅ ¡Datos sincronizados con Google Drive!")
+            st.rerun()
+        except Exception as e:
+            st.error(f"Error al guardar: {e}")
