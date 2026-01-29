@@ -4,7 +4,7 @@ import requests
 import plotly.express as px
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import date
+from datetime import date, datetime
 
 # --- CONFIGURACIÓN ---
 st.set_page_config(page_title="Finanzas AR 🇦🇷", page_icon="💰", layout="wide")
@@ -26,7 +26,7 @@ def get_dolar_blue():
     try:
         r = requests.get("https://dolarapi.com/v1/dolares/blue")
         return float(r.json()['venta'])
-    except: return 1500.0 # Valor de respaldo
+    except: return 1500.0
 
 precio_dolar = get_dolar_blue()
 
@@ -35,26 +35,38 @@ try:
     data = hoja.get_all_records()
     df = pd.DataFrame(data)
 except:
-    st.error("No se pudo cargar la base de datos. Verifica tu Google Sheets.")
+    st.error("Error de conexión.")
     st.stop()
 
-# Convertir a formato fecha y limpiar montos
-df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
-df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
+# --- ARREGLO DE FECHAS (Importante para que se vean) ---
+def limpiar_fecha(val):
+    if not val or val == "None": return None
+    try:
+        # Si ya es una fecha AAAA-MM-DD
+        return datetime.strptime(str(val), "%Y-%m-%d").date()
+    except:
+        try:
+            # Si es formato "26-1", le agregamos el año 2026
+            dia, mes = str(val).split('-')
+            return date(2026, int(mes), int(dia))
+        except:
+            return None
 
-# --- 3. FUNCIÓN DE COLOR (SEMÁFORO) ---
+df["Día Pago"] = df["Día Pago"].apply(limpiar_fecha)
+df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
+
+# --- 3. ESTILO DE SEMÁFORO ---
 def color_vencimiento(val):
-    if val is None or pd.isnull(val):
-        return ""
+    if not val or pd.isnull(val): return ""
     hoy = date.today()
-    if val < hoy:
-        return 'background-color: #ffcccc; color: #990000; font-weight: bold' # Rojo suave
-    else:
-        return 'background-color: #ccffcc; color: #006600; font-weight: bold' # Verde suave
+    # Rojo si ya pasó, Verde si es hoy o futuro
+    color = '#ffcccc' if val < hoy else '#ccffcc'
+    texto = '#990000' if val < hoy else '#006600'
+    return f'background-color: {color}; color: {texto}; font-weight: bold'
 
 # --- 4. INTERFAZ ---
 st.title("Finanzas AR 🇦🇷")
-st.caption(f"Hoy es: **{date.today().strftime('%d/%m/%Y')}** | Dólar Blue: **${precio_dolar:,.0f}**")
+st.caption(f"Hoy: **{date.today().strftime('%d/%m/%Y')}** | Dólar Blue: **${precio_dolar:,.0f}**")
 
 total_ars = df["Monto (ARS)"].sum()
 total_usd = total_ars / precio_dolar
@@ -65,28 +77,22 @@ c2.metric("Total Gastos (USD)", f"US$ {total_usd:,.2f}")
 
 st.divider()
 
-t1, t2 = st.tabs(["📊 Gráficos de Gastos", "📝 Gestión y Vencimientos"])
+t1, t2 = st.tabs(["📊 Gráficos", "📝 Gestión y Vencimientos"])
 
 with t1:
-    if total_ars > 0:
-        fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.6)
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("No hay datos para mostrar gráficos.")
+    fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.6)
+    st.plotly_chart(fig, use_container_width=True)
 
 with t2:
-    st.subheader("Planilla de Pagos")
-    st.write("🔴 Rojo: Vencido | 🟢 Verde: A tiempo")
+    st.write("🔴 Rojo: Vencido | 🟢 Verde: Pendiente")
     
-    # Aplicamos el estilo de colores a la visualización
-    df_styled = df.style.applymap(color_vencimiento, subset=['Día Pago'])
-    
-    # Nota: El editor de datos (st.data_editor) no soporta colores de fondo dinámicos 
-    # de la misma forma que st.dataframe, así que mostramos la tabla con colores arriba.
-    st.dataframe(df_styled, use_container_width=True, hide_index=True)
+    # Tabla con colores (Solo visualización)
+    df_ver = df.copy()
+    df_ver["Día Pago"] = df_ver["Día Pago"].apply(lambda x: x.strftime('%d/%m/%Y') if x else "Sin fecha")
+    st.dataframe(df.style.applymap(color_vencimiento, subset=['Día Pago']), use_container_width=True, hide_index=True)
     
     st.divider()
-    st.write("### Modificar Datos")
+    st.subheader("Modificar datos")
     df_editado = st.data_editor(
         df,
         column_config={
@@ -94,7 +100,7 @@ with t2:
             "Día Pago": st.column_config.DateColumn("Día de Pago", format="DD/MM/YYYY"),
             "Categoría": st.column_config.SelectboxColumn(options=["Vivienda", "Servicios", "Suscripción", "Alimentos", "Deportes", "Transporte", "Ocio", "Salud"])
         },
-        num_rows="dynamic", use_container_width=True, hide_index=True, key="editor"
+        num_rows="dynamic", use_container_width=True, hide_index=True
     )
 
     if st.button("💾 Guardar Cambios en la Nube", type="primary", use_container_width=True):
@@ -103,5 +109,5 @@ with t2:
         hoja.clear()
         hoja.append_row(df_subir.columns.tolist())
         hoja.append_rows(df_subir.values.tolist())
-        st.success("✅ ¡Actualizado en Google Drive!")
+        st.success("¡Datos sincronizados!")
         st.rerun()
