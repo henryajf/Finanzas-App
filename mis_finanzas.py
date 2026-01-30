@@ -93,7 +93,7 @@ df_editado = st.data_editor(
         "Categoría": st.column_config.SelectboxColumn(options=categorias_pro),
         "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d"),
         "Monto (USD)": st.column_config.NumberColumn("USD", format="US$ %.2f", disabled=True),
-        "Día Pago": st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
+        "Día Pago": st.column_config.DateColumn("Vence", format="DD/MM/YY"),
         "Estado": st.column_config.TextColumn("Estado", disabled=True)
     },
     num_rows="dynamic", use_container_width=True, hide_index=True
