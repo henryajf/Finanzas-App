@@ -4,96 +4,112 @@ import requests
 import gspread
 import plotly.express as px
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
-# --- 1. CONFIGURACIÓN Y ESTILO ---
+# --- 1. CONFIGURACIÓN DE PANTALLA ---
 st.set_page_config(page_title="Finanzas AR 🇦🇷", page_icon="💳", layout="wide")
 
-# Diccionario de Iconos con nombre para el selector
-ICONOS_MAP = {
-    "🏠 Vivienda": "🏠", "⚡ Servicios": "⚡", "📺 Suscripción": "📺", 
-    "🛒 Alimentos": "🛒", "🚗 Transporte": "🚗", "💳 Tarjetas": "💳", 
-    "📈 Inversiones": "📈", "👪 Familia": "👪", "🏥 Salud": "🏥", "🎭 Ocio": "🎭"
-}
+st.markdown("""
+    <style>
+    .stMetric { background-color: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; border-left: 5px solid #6200EE; }
+    #MainMenu {visibility: hidden;} footer {visibility: hidden;}
+    .block-container {padding-top: 2rem;}
+    </style>
+    """, unsafe_allow_html=True)
 
-# --- 2. LOGICA DE DATOS ---
+# --- 2. CONEXIÓN Y DATOS ---
 def conectar_google_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     try:
+        creds = ServiceAccountCredentials.from_json_keyfile_name("mis-credenciales.json", scope)
+    except:
         info_json = st.secrets["gcp_service_account"]
         creds = ServiceAccountCredentials.from_json_keyfile_dict(info_json, scope)
-        return gspread.authorize(creds).open("Gastos_Henry").sheet1
-    except:
-        st.error("Error de conexión con Google Sheets."); st.stop()
+    return gspread.authorize(creds).open("Gastos_Henry").sheet1
 
 def get_dolar_blue():
     try:
-        return float(requests.get("https://dolarapi.com/v1/dolares/blue").json()['venta'])
-    except: return 1520.0 # Valor estimado actual en CABA
+        r = requests.get("https://dolarapi.com/v1/dolares/blue")
+        return float(r.json()['venta'])
+    except: return 1500.0
 
 precio_dolar = get_dolar_blue()
-hoja = conectar_google_sheets()
-data = hoja.get_all_records()
-df = pd.DataFrame(data)
 
-# Limpieza de datos
-df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
-df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
+try:
+    hoja = conectar_google_sheets()
+    data = hoja.get_all_records()
+    df = pd.DataFrame(data)
+    
+    # Limpieza y conversión de datos
+    df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
+    df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
+except Exception as e:
+    st.error(f"Error de conexión: {e}")
+    st.stop()
+
+# --- 3. LÓGICA DE ESTADOS (CORRECCIÓN DE ERROR NAT) ---
+def determinar_estado(x):
+    if pd.isna(x) or x is None:
+        return "⚪ Sin Fecha"
+    hoy = date.today()
+    if x < hoy:
+        return "🔴 Vencido"
+    return "🟢 Al Día"
+
+df["Estado"] = df["Día Pago"].apply(determinar_estado)
 df["Monto (USD)"] = df["Monto (ARS)"] / precio_dolar
 
-# --- 3. DASHBOARD SUPERIOR (ESTILO DONA CENTRAL) ---
+# --- 4. DASHBOARD SUPERIOR ---
 st.title("Finanzas AR 🇦🇷")
-total_ars = df["Monto (ARS)"].sum()
+st.caption(f"📅 Hoy: {date.today().strftime('%d/%m/%Y')} | 💵 Dólar Blue: ${precio_dolar:,.0f}")
 
-fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.75, color_discrete_sequence=px.colors.qualitative.Pastel)
-fig.add_annotation(text=f"TOTAL<br>${total_ars:,.0f}", x=0.5, y=0.5, font_size=24, font_color="white", showarrow=False)
-fig.update_layout(showlegend=False, height=280, margin=dict(t=0, b=0, l=0, r=0))
-st.plotly_chart(fig, use_container_width=True)
+total_ars = df["Monto (ARS)"].sum()
+total_usd = total_ars / precio_dolar
+
+col1, col2 = st.columns(2)
+with col1: st.metric("Total Gastado (ARS)", f"${total_ars:,.0f}")
+with col2: st.metric("Equivalente (USD)", f"US$ {total_usd:,.2f}")
 
 st.divider()
 
-# --- 4. GESTIÓN DE GASTOS (TABLA COMPACTA CON ICONOS) ---
-st.subheader("📝 Control de Pagos")
+# --- 5. GRÁFICO DE DONA ---
+if total_ars > 0:
+    fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.7, 
+                 color_discrete_sequence=px.colors.qualitative.Pastel)
+    fig.add_annotation(text=f"Total<br>${total_ars:,.0f}", x=0.5, y=0.5, font_size=20, showarrow=False)
+    fig.update_layout(showlegend=True, legend=dict(orientation="h", y=-0.1))
+    st.plotly_chart(fig, use_container_width=True)
 
-# Preparamos la columna para mostrar solo el icono en la tabla
-df_vista = df.copy()
-# Buscamos el icono correspondiente al texto guardado
-df_vista["Cat."] = df_vista["Categoría"].apply(lambda x: next((v for k, v in ICONOS_MAP.items() if x in k), "❓"))
+st.divider()
 
-# Configuración del editor de datos
+# --- 6. PLANILLA ÚNICA DE GESTIÓN ---
+st.subheader("📝 Gestión de Gastos")
+
+categorias_pro = ["Vivienda", "Servicios", "Suscripción", "Alimentos", "Transporte", "Tarjetas", "Inversiones", "Familia", "Salud", "Ocio"]
+
 df_editado = st.data_editor(
-    df_vista,
+    df,
     column_config={
-        "Cat.": st.column_config.SelectboxColumn(
-            "Cat.",
-            options=list(ICONOS_MAP.keys()), # Aquí eliges "🏠 Vivienda"
-            width="small",
-            help="Selecciona la categoría usando los iconos"
-        ),
-        "Categoría": None, # Ocultamos la columna técnica de texto
-        "Ítem": st.column_config.TextColumn("Ítem", width="medium"),
-        "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d", width="small"),
-        "Monto (USD)": st.column_config.NumberColumn("USD", format="U$S %.2f", disabled=True, width="small"),
-        "Día Pago": st.column_config.DateColumn("Venc.", format="DD/MM", width="small"), # Fecha ultra angosta
+        "Categoría": st.column_config.SelectboxColumn(options=categorias_pro),
+        "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d"),
+        "Monto (USD)": st.column_config.NumberColumn("USD", format="US$ %.2f", disabled=True),
+        "Día Pago": st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
+        "Estado": st.column_config.TextColumn("Estado", disabled=True)
     },
-    column_order=("Cat.", "Ítem", "Monto (ARS)", "Monto (USD)", "Día Pago"),
     num_rows="dynamic", use_container_width=True, hide_index=True
 )
 
-# --- 5. GUARDADO INTELIGENTE ---
-if st.button("✔️ Sincronizar Cambios", type="primary", use_container_width=True):
-    df_save = df_editado.copy()
-    # Limpiamos el nombre de la categoría (quitamos el emoji para guardar solo el texto o mantenerlo limpio)
-    df_save["Categoría"] = df_save["Cat."].apply(lambda x: x.split(" ")[-1] if " " in x else x)
-    
-    df_subir = df_save[["Categoría", "Ítem", "Monto (ARS)", "Día Pago"]]
-    df_subir["Día Pago"] = df_subir["Día Pago"].astype(str).replace(["NaT", "None", "nan"], "")
-    
+# --- 7. BOTÓN DE SINCRONIZACIÓN ---
+if st.button("✔️ Guardar Cambios en la Nube", type="primary", use_container_width=True):
     try:
+        # Solo subimos las columnas originales para mantener limpio el Google Sheets
+        df_subir = df_editado[["Categoría", "Ítem", "Monto (ARS)", "Día Pago"]]
+        df_subir["Día Pago"] = df_subir["Día Pago"].astype(str).replace(["NaT", "None", "nan"], "")
+        
         hoja.clear()
         hoja.append_row(df_subir.columns.tolist())
         hoja.append_rows(df_subir.values.tolist())
-        st.success("✅ Base de datos actualizada")
+        st.success("✅ ¡Sincronizado correctamente!")
         st.rerun()
     except Exception as e:
         st.error(f"Error al guardar: {e}")
