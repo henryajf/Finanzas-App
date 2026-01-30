@@ -17,6 +17,13 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# Diccionario de Iconos para el Selector
+ICONOS_MAP = {
+    "🏠 Vivienda": "🏠", "⚡ Servicios": "⚡", "📺 Suscripción": "📺", 
+    "🛒 Alimentos": "🛒", "🚗 Transporte": "🚗", "💳 Tarjetas": "💳", 
+    "📈 Inversiones": "📈", "👪 Familia": "👪", "🏥 Salud": "🏥", "🎭 Ocio": "🎭"
+}
+
 # --- 2. CONEXIÓN Y DATOS ---
 def conectar_google_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -47,7 +54,7 @@ except Exception as e:
     st.error(f"Error de conexión: {e}")
     st.stop()
 
-# --- 3. LÓGICA DE ESTADOS (CORRECCIÓN DE ERROR NAT) ---
+# --- 3. LÓGICA DE ESTADOS ---
 def determinar_estado(x):
     if pd.isna(x) or x is None:
         return "⚪ Sin Fecha"
@@ -58,6 +65,9 @@ def determinar_estado(x):
 
 df["Estado"] = df["Día Pago"].apply(determinar_estado)
 df["Monto (USD)"] = df["Monto (ARS)"] / precio_dolar
+
+# Mapeo de iconos para la vista de tabla
+df["Cat."] = df["Categoría"].apply(lambda x: next((v for k, v in ICONOS_MAP.items() if x in k), "❓"))
 
 # --- 4. DASHBOARD SUPERIOR ---
 st.title("Finanzas AR 🇦🇷")
@@ -77,33 +87,42 @@ if total_ars > 0:
     fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.7, 
                  color_discrete_sequence=px.colors.qualitative.Pastel)
     fig.add_annotation(text=f"Total<br>${total_ars:,.0f}", x=0.5, y=0.5, font_size=20, showarrow=False)
-    fig.update_layout(showlegend=True, legend=dict(orientation="h", y=-0.1))
+    fig.update_layout(showlegend=False, height=300, margin=dict(t=0, b=0, l=0, r=0))
     st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-# --- 6. PLANILLA ÚNICA DE GESTIÓN ---
+# --- 6. PLANILLA ÚNICA DE GESTIÓN (Compacta) ---
 st.subheader("📝 Gestión de Gastos")
-
-categorias_pro = ["Vivienda", "Servicios", "Suscripción", "Alimentos", "Transporte", "Tarjetas", "Inversiones", "Familia", "Salud", "Ocio"]
 
 df_editado = st.data_editor(
     df,
     column_config={
-        "Categoría": st.column_config.SelectboxColumn(options=categorias_pro),
-        "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d"),
-        "Monto (USD)": st.column_config.NumberColumn("USD", format="US$ %.2f", disabled=True),
-        "Día Pago": st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
-        "Estado": st.column_config.TextColumn("Estado", disabled=True)
+        "Cat.": st.column_config.SelectboxColumn(
+            "Icono", 
+            options=list(ICONOS_MAP.keys()), 
+            width="small",
+            help="🏠Vivienda | ⚡Servicios | 📺Suscrip. | 🛒Alimentos | 🚗Transp. | 💳Tarjetas | 📈Invers. | 👪Familia | 🏥Salud | 🎭Ocio"
+        ),
+        "Categoría": None, # Oculta la columna de texto técnica
+        "Ítem": st.column_config.TextColumn("Ítem", width="medium"),
+        "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d", width="small"),
+        "Monto (USD)": st.column_config.NumberColumn("USD", format="U$S %.2f", disabled=True, width="small"),
+        "Día Pago": st.column_config.DateColumn("Venc.", format="DD/MM", width="small"),
+        "Estado": st.column_config.TextColumn("Estado", disabled=True, width="small")
     },
+    column_order=("Cat.", "Ítem", "Monto (ARS)", "Monto (USD)", "Día Pago", "Estado"),
     num_rows="dynamic", use_container_width=True, hide_index=True
 )
 
 # --- 7. BOTÓN DE SINCRONIZACIÓN ---
 if st.button("✔️ Guardar Cambios en la Nube", type="primary", use_container_width=True):
     try:
-        # Solo subimos las columnas originales para mantener limpio el Google Sheets
-        df_subir = df_editado[["Categoría", "Ítem", "Monto (ARS)", "Día Pago"]]
+        df_save = df_editado.copy()
+        # Restauramos el nombre de categoría limpio antes de subir
+        df_save["Categoría"] = df_save["Cat."].apply(lambda x: x.split(" ")[-1] if " " in x else x)
+        
+        df_subir = df_save[["Categoría", "Ítem", "Monto (ARS)", "Día Pago"]]
         df_subir["Día Pago"] = df_subir["Día Pago"].astype(str).replace(["NaT", "None", "nan"], "")
         
         hoja.clear()
