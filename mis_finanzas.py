@@ -17,7 +17,7 @@ ICONOS_MAP = {
     "📈 Inversiones": "📈", "👪 Familia": "👪", "🏥 Salud": "🏥", "🎭 Ocio": "🎭"
 }
 
-# --- 2. CONEXIÓN CON CACHÉ ---
+# --- 2. CONEXIÓN CON CACHÉ (Anti-Error 429) ---
 @st.cache_resource
 def obtener_cliente_gspread():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -55,16 +55,25 @@ def get_dolar_blue():
 precio_dolar = get_dolar_blue()
 df = cargar_datos_gsheet()
 
-# Cálculos de Totales
+# Cálculo de Totales Reales
 total_ars = df["Monto (ARS)"].sum()
 total_usd = total_ars / precio_dolar
 pend_ars = df[df["Pagado"] == False]["Monto (ARS)"].sum()
 pend_usd = pend_ars / precio_dolar
 
-# Columna de Peso y Conversión
-df["%"] = df["Monto (ARS)"] / total_ars if total_ars > 0 else 0
+# Lógica de la Barra de Estado (%)
+# El valor debe estar entre 0 y 1 para que Streamlit dibuje la barra correctamente
+df["Peso (%)"] = df["Monto (ARS)"] / total_ars if total_ars > 0 else 0
+
 df["Monto (USD)"] = df["Monto (ARS)"] / precio_dolar
 df["Cat."] = df["Categoría"].apply(lambda x: next((v for k, v in ICONOS_MAP.items() if x in k), "❓"))
+
+def determinar_estado(row):
+    if row["Pagado"]: return "✅ Listo"
+    if pd.isna(row["Día Pago"]): return "⚪ Sin Fecha"
+    return "🔴 Vencido" if row["Día Pago"] < date.today() else "🟢 Al Día"
+
+df["Estado"] = df.apply(determinar_estado, axis=1)
 
 # Ordenar: Pendientes arriba
 df = df.sort_values(by=["Pagado", "Día Pago"], ascending=[True, True])
@@ -73,18 +82,18 @@ df = df.sort_values(by=["Pagado", "Día Pago"], ascending=[True, True])
 st.title("Finanzas AR 🇦🇷")
 st.caption(f"📅 Hoy: {date.today().strftime('%d/%m/%Y')} | 💵 Tasa Dólar Blue: **${precio_dolar:,.0f}**")
 
-# Métricas Totales y Pendientes
+# Métricas de Gastos Totales y Pendientes
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total Gastos (ARS)", f"${total_ars:,.0f}")
 c2.metric("Total Gastos (USD)", f"U$S {total_usd:,.2f}")
-c3.metric("Pendiente ARS", f"${pend_ars:,.0f}", delta=f"{len(df[df['Pagado']==False])} ítems", delta_color="inverse")
-c4.metric("Pendiente USD", f"U$S {pend_usd:,.2f}")
+c3.metric("Pendiente (ARS)", f"${pend_ars:,.0f}")
+c4.metric("Pendiente (USD)", f"U$S {pend_usd:,.2f}")
 
 st.divider()
 
-# Gráfico de Dona Central
+# Gráfico de Dona
 fig = px.pie(df, values='Monto (ARS)', names='Categoría', hole=0.7, color_discrete_sequence=px.colors.qualitative.Pastel)
-fig.add_annotation(text=f"Gastos<br>${total_ars:,.0f}", x=0.5, y=0.5, font_size=20, showarrow=False)
+fig.add_annotation(text=f"Total<br>${total_ars:,.0f}", x=0.5, y=0.5, font_size=20, showarrow=False)
 fig.update_layout(showlegend=False, height=280, margin=dict(t=0, b=0, l=0, r=0))
 st.plotly_chart(fig, use_container_width=True)
 
@@ -99,10 +108,10 @@ df_editado = st.data_editor(
         "Categoría": None,
         "Ítem": st.column_config.TextColumn("Ítem", width="medium"),
         "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d", width="small"),
-        "%": st.column_config.ProgressColumn(
+        "Peso (%)": st.column_config.ProgressColumn(
             "Peso (%)", 
-            help="Peso relativo sobre el total de gastos",
-            format="%.1f%%", 
+            help="Impacto de este gasto sobre el total del 100%",
+            format="%.1f%%", # Muestra decimales para que no se vea como 0%
             min_value=0, 
             max_value=1
         ),
@@ -110,7 +119,7 @@ df_editado = st.data_editor(
         "Día Pago": st.column_config.DateColumn("Venc.", format="DD/MM", width="small"),
         "Estado": st.column_config.TextColumn("Estado", disabled=True, width="small")
     },
-    column_order=("Pagado", "Cat.", "Ítem", "Monto (ARS)", "%", "Monto (USD)", "Día Pago", "Estado"),
+    column_order=("Pagado", "Cat.", "Ítem", "Monto (ARS)", "Peso (%)", "Monto (USD)", "Día Pago", "Estado"),
     num_rows="dynamic", use_container_width=True, hide_index=True
 )
 
@@ -128,7 +137,7 @@ if st.button("✔️ Guardar y Sincronizar", type="primary", use_container_width
         hoja.clear()
         hoja.append_row(df_subir.columns.tolist())
         hoja.append_rows(df_subir.values.tolist())
-        st.success("✅ ¡Base de datos actualizada!")
+        st.success("✅ ¡Actualizado!")
         st.rerun()
     except Exception as e:
         st.error(f"Error: {e}")
