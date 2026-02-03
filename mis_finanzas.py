@@ -11,7 +11,6 @@ st.set_page_config(page_title="Finanzas AR 🇦🇷", page_icon="💳", layout="
 
 st.markdown("""<style>.stMetric { background-color: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; border-left: 5px solid #6200EE; }</style>""", unsafe_allow_html=True)
 
-# Mapa de Iconos para que coincida con tu Sheets
 ICONOS_MAP = {
     "🏠 Vivienda": "🏠", "⚡ Servicios": "⚡", "📺 Suscripción": "📺", 
     "🛒 Alimentos": "🛒", "🚗 Transporte": "🚗", "💳 Tarjetas": "💳", 
@@ -36,21 +35,19 @@ def cargar_datos_gsheet():
     data_raw = hoja.get_all_values()
     if not data_raw or len(data_raw) < 2: return pd.DataFrame()
     
-    # Encabezados manuales para evitar errores de duplicados o vacíos
     df = pd.DataFrame(data_raw[1:], columns=["Categoría", "Ítem", "Monto (ARS)", "Día Pago", "Pagado"])
     
-    # Limpieza Quirúrgica de Datos
     df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors='coerce').fillna(0)
     df["Día Pago"] = pd.to_datetime(df["Día Pago"], errors='coerce').dt.date
-    # Detectamos TRUE/FALSE de tu Sheets
     df["Pagado"] = df["Pagado"].apply(lambda x: str(x).upper() in ["TRUE", "VERDADERO", "✅"])
     
     return df
 
 def get_dolar_blue():
     try:
+        # Tasa de referencia actualizada
         return float(requests.get("https://dolarapi.com/v1/dolares/blue").json()['venta'])
-    except: return 1450.0 # Valor de respaldo según tu dashboard
+    except: return 1450.0
 
 # --- 3. PROCESAMIENTO ---
 precio_dolar = get_dolar_blue()
@@ -63,20 +60,18 @@ if not df_base.empty:
     pend_ars = df[df["Pagado"] == False]["Monto (ARS)"].sum()
     pend_usd = pend_ars / precio_dolar
 
-    # Lógica de Porcentaje del 100%
+    # Lógica de Porcentaje y Conversión
     df["Peso (%)"] = df["Monto (ARS)"] / total_ars if total_ars > 0 else 0
     df["USD"] = df["Monto (ARS)"] / precio_dolar
     
-    # Extraemos el icono de la columna Categoría
     def limpiar_icono(cat):
         cat_str = str(cat)
         for nombre, icono in ICONOS_MAP.items():
             if icono in cat_str: return icono
         return "❓"
     
-    df["Icono"] = df["Categoría"].apply(limpiar_icono)
+    df["Cat."] = df["Categoría"].apply(limpiar_icono)
     
-    # Estado visual seguro para evitar el TypeError anterior
     def obtener_estado_seguro(row):
         if row["Pagado"]: return "✅ Listo"
         if pd.isna(row["Día Pago"]): return "⚪ Sin Fecha"
@@ -92,7 +87,6 @@ else:
 st.title("Finanzas AR 🇦🇷")
 st.caption(f"📅 {date.today().strftime('%d/%m/%Y')} | 💵 Tasa Dólar Blue: **${precio_dolar:,.0f}**")
 
-# Las 4 métricas que no deben faltar
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total Gastos (ARS)", f"${total_ars:,.0f}")
 c2.metric("Total Gastos (USD)", f"U$S {total_usd:,.2f}")
@@ -109,27 +103,32 @@ if not df.empty:
     st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("📝 Gestión de Gastos")
+    
+    # CONFIGURACIÓN DE TABLA CON AUTOSIZE
     df_editado = st.data_editor(
         df,
         column_config={
-            "Pagado": st.column_config.CheckboxColumn("¿Listo?", width="small"),
-            "Icono": st.column_config.TextColumn("Cat.", width="small"),
-            "Categoría": None, # Oculta la columna técnica
-            "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d", width="small"),
+            "Pagado": st.column_config.CheckboxColumn("¿Listo?"),
+            "Cat.": st.column_config.TextColumn("Cat."),
+            "Categoría": None,
+            "Ítem": st.column_config.TextColumn("Ítem"),
+            "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$%d"),
+            "USD": st.column_config.NumberColumn("USD", format="U$S %.2f", disabled=True), # USD al lado de ARS
             "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0, max_value=1),
-            "USD": st.column_config.NumberColumn("USD", format="U$S %.2f", disabled=True, width="small"),
-            "Día Pago": st.column_config.DateColumn("Venc.", format="DD/MM", width="small"),
-            "Estado": st.column_config.TextColumn("Estado", disabled=True, width="small")
+            "Día Pago": st.column_config.DateColumn("Venc.", format="DD/MM"),
+            "Estado": st.column_config.TextColumn("Estado", disabled=True)
         },
-        column_order=("Pagado", "Icono", "Ítem", "Monto (ARS)", "Peso (%)", "USD", "Día Pago", "Estado"),
-        num_rows="dynamic", use_container_width=True, hide_index=True
+        # Reorden de columnas: ARS -> USD -> Peso (%)
+        column_order=("Pagado", "Cat.", "Ítem", "Monto (ARS)", "USD", "Peso (%)", "Día Pago", "Estado"),
+        num_rows="dynamic", 
+        use_container_width=True, 
+        hide_index=True
     )
 
 # --- 6. GUARDADO ---
 if st.button("✔️ Guardar y Sincronizar", type="primary", use_container_width=True):
     try:
         df_save = df_editado.copy()
-        # Mantenemos el formato de tu Sheets al guardar
         df_subir = df_save[["Categoría", "Ítem", "Monto (ARS)", "Día Pago", "Pagado"]]
         df_subir["Día Pago"] = df_subir["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
         
