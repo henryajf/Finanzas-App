@@ -20,35 +20,23 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 # 2. SESSION STATE — dark mode + navegación
 # ─────────────────────────────────────────────
-if "dark"    not in st.session_state: st.session_state.dark    = False
 if "screen"  not in st.session_state: st.session_state.screen  = "inicio"
 if "sel_cat" not in st.session_state: st.session_state.sel_cat = None
 
-dark = st.session_state.dark
+dark = True  # siempre oscuro
 
 # ─────────────────────────────────────────────
-# 3. TEMA DINÁMICO
+# 3. TEMA — OSCURO FIJO
 # ─────────────────────────────────────────────
-if dark:
-    BG       = "#0a0a0a"
-    SURFACE  = "#161616"
-    SURFACE2 = "#1a1a1a"
-    BORDER   = "rgba(255,255,255,0.07)"
-    TEXT     = "#f5f5f5"
-    MUTED    = "#666666"
-    SHADOW   = "0 2px 16px rgba(0,0,0,.5)"
-    PLOTBG   = "rgba(0,0,0,0)"
-    LEGENDC  = "#888"
-else:
-    BG       = "#f5f5f5"
-    SURFACE  = "#ffffff"
-    SURFACE2 = "#fafafa"
-    BORDER   = "#ebebeb"
-    TEXT     = "#1a1a1a"
-    MUTED    = "#999999"
-    SHADOW   = "0 2px 12px rgba(0,0,0,.06)"
-    PLOTBG   = "rgba(0,0,0,0)"
-    LEGENDC  = "#999"
+BG       = "#0a0a0a"
+SURFACE  = "#161616"
+SURFACE2 = "#1a1a1a"
+BORDER   = "rgba(255,255,255,0.07)"
+TEXT     = "#f5f5f5"
+MUTED    = "#666666"
+SHADOW   = "0 2px 16px rgba(0,0,0,.5)"
+PLOTBG   = "rgba(0,0,0,0)"
+LEGENDC  = "#888"
 
 ACCENT = "#009ee3"
 GREEN  = "#00a650"
@@ -555,34 +543,47 @@ for i in range(16):
     y2 = 16 + math.sin(rad) * 14
     sun_rays += f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#f6b40e" stroke-width="2" stroke-linecap="round"/>'
 
-flag_opacity = "0.10" if dark else "0.12"
-
 st.markdown(f"""
 <div class="app-header">
 
-  <!-- Bandera decorativa -->
-  <div style="position:absolute;right:0;top:0;bottom:0;width:200px;
-    display:flex;flex-direction:column;opacity:{flag_opacity};
-    pointer-events:none;border-radius:0 0 0 40px;overflow:hidden">
-    <div style="flex:1;background:#74acdf"></div>
-    <div style="flex:1;background:#ffffff;position:relative;
-      display:flex;align-items:center;justify-content:center">
-      <!-- Sol de Mayo SVG -->
-      <svg width="32" height="32" viewBox="0 0 32 32">
+  <!-- Bandera Argentina: franjas con mask CSS para bordes completamente difuminados -->
+  <div style="
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 280px;
+    pointer-events: none;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 0 0 50px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0,0,0,0.15) 20%,
+      rgba(0,0,0,0.28) 45%,
+      rgba(0,0,0,0.28) 70%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0,0,0,0.15) 20%,
+      rgba(0,0,0,0.28) 45%,
+      rgba(0,0,0,0.28) 70%,
+      transparent 100%
+    );
+  ">
+    <div style="flex:1;background:linear-gradient(135deg,#4a8dbf,#74acdf)"></div>
+    <div style="flex:1;background:#c8c8c8;display:flex;align-items:center;justify-content:center">
+      <svg width="36" height="36" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
         {sun_rays}
-        <circle cx="16" cy="16" r="5.5" fill="#f6b40e"/>
-        <circle cx="16" cy="16" r="3.5" fill="#85340a" opacity="0.4"/>
+        <circle cx="16" cy="16" r="5.5" fill="#d4960e"/>
+        <circle cx="16" cy="16" r="3.2" fill="#a06808" opacity="0.6"/>
       </svg>
     </div>
-    <div style="flex:1;background:#74acdf"></div>
+    <div style="flex:1;background:linear-gradient(135deg,#74acdf,#4a8dbf)"></div>
   </div>
-
-  <!-- Fade gradiente sobre la bandera -->
-  <div style="position:absolute;right:0;top:0;bottom:0;width:200px;
-    background:linear-gradient(to right,
-      {'rgba(10,10,10,1)' if dark else 'rgba(245,245,245,1)'} 0%,
-      {'rgba(10,10,10,0)' if dark else 'rgba(245,245,245,0)'} 45%);
-    pointer-events:none;z-index:1"></div>
 
   <!-- Contenido del header -->
   <div style="position:relative;z-index:2">
@@ -599,14 +600,6 @@ st.markdown(f"""
 
 </div>
 """, unsafe_allow_html=True)
-
-# ── DARK MODE TOGGLE ─────────────────────────
-col_dm, _ = st.columns([1, 8])
-with col_dm:
-    lbl = "☀️ Claro" if dark else "🌙 Oscuro"
-    if st.button(lbl, type="secondary"):
-        st.session_state.dark = not dark
-        st.rerun()
 
 # ── NAVEGACIÓN ──────────────────────────────
 nav_col1, nav_col2, nav_col3 = st.columns(3)
