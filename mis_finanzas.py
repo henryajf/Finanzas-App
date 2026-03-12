@@ -18,30 +18,48 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────
-# 2. SESSION STATE — dark mode + navegación
+# 2. SESSION STATE
 # ─────────────────────────────────────────────
-if "screen"  not in st.session_state: st.session_state.screen  = "inicio"
-if "sel_cat" not in st.session_state: st.session_state.sel_cat = None
-
-dark = True  # siempre oscuro
+if "screen" not in st.session_state: st.session_state.screen = "inicio"
 
 # ─────────────────────────────────────────────
 # 3. TEMA — OSCURO FIJO
 # ─────────────────────────────────────────────
-BG       = "#0a0a0a"
-SURFACE  = "#161616"
-SURFACE2 = "#1a1a1a"
-BORDER   = "rgba(255,255,255,0.07)"
-TEXT     = "#f5f5f5"
-MUTED    = "#666666"
-SHADOW   = "0 2px 16px rgba(0,0,0,.5)"
-PLOTBG   = "rgba(0,0,0,0)"
-LEGENDC  = "#888"
+BG      = "#0a0a0a"
+SURFACE = "#141414"
+SURF2   = "#1a1a1a"
+BORDER  = "rgba(255,255,255,0.07)"
+BORDER2 = "rgba(255,255,255,0.04)"
+TEXT    = "#f0f0f0"
+MUTED   = "#555555"
+MUTED2  = "#888888"
+SHADOW  = "0 2px 20px rgba(0,0,0,.6)"
+PLOTBG  = "rgba(0,0,0,0)"
+ACCENT  = "#009ee3"
+GREEN   = "#00c853"
+RED     = "#f23d4f"
+ORANGE  = "#ff9c00"
+YELLOW  = "#fbbf24"
 
-ACCENT = "#009ee3"
-GREEN  = "#00a650"
-RED    = "#f23d4f"
-ORANGE = "#ff9c00"
+CAT_COLORS = {
+    "⚡":"#009ee3","🔌":"#009ee3",
+    "🏠":"#00a650","🛒":"#22c55e",
+    "🚗":"#ff9c00","🚌":"#ff9c00",
+    "💳":"#a855f7","📺":"#ec4899",
+    "📈":"#0ea5e9","🏥":"#14b8a6",
+    "🎭":"#f59e0b","👪":"#8b5cf6",
+    "🍔":"#ef4444","🏋":"#22d3ee",
+}
+
+def cat_color(cat):
+    for emoji, color in CAT_COLORS.items():
+        if emoji in str(cat): return color
+    return "#6b7280"
+
+PALETTE = [
+    "#009ee3","#00a650","#a855f7","#ec4899","#ff9c00",
+    "#f59e0b","#14b8a6","#0ea5e9","#ef4444","#8b5cf6","#6b7280","#34d399",
+]
 
 # ─────────────────────────────────────────────
 # 4. CSS GLOBAL
@@ -53,15 +71,17 @@ st.markdown(f"""
 :root {{
   --bg:      {BG};
   --surface: {SURFACE};
+  --surf2:   {SURF2};
   --border:  {BORDER};
   --text:    {TEXT};
   --muted:   {MUTED};
+  --muted2:  {MUTED2};
   --accent:  {ACCENT};
   --green:   {GREEN};
   --red:     {RED};
   --orange:  {ORANGE};
   --shadow:  {SHADOW};
-  --radius:  16px;
+  --r:       16px;
 }}
 
 html, body, [class*="css"], .stApp {{
@@ -79,278 +99,206 @@ html, body, [class*="css"], .stApp {{
 .block-container {{ padding: 0 !important; max-width: 100% !important; }}
 
 /* ── WRAPPER ── */
-.main-wrap {{
-  max-width: 980px;
+.wrap {{
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 0 20px 32px;
+  padding: 0 24px 48px;
 }}
 
 /* ── HEADER ── */
-.app-header {{
+.hdr {{
   display: flex; justify-content: space-between; align-items: center;
-  padding: 22px 0 16px;
+  padding: 24px 0 18px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 20px;
-  position: relative;
-  overflow: hidden;
+  margin-bottom: 0;
+  position: relative; overflow: hidden;
 }}
-
-/* Bandera Argentina — decorativa, tenue */
-.arg-flag {{
-  position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 220px;
-  display: flex; flex-direction: column;
-  opacity: {'0.06' if dark else '0.07'};
-  pointer-events: none;
-  border-radius: 0 0 0 32px;
-  overflow: hidden;
-}}
-.flag-stripe-top    {{ flex: 1; background: #74acdf; }}
-.flag-stripe-middle {{ flex: 1; background: #ffffff; position: relative; }}
-.flag-stripe-bottom {{ flex: 1; background: #74acdf; }}
-
-/* Sol de Mayo — centro de la franja blanca */
-.flag-sun {{
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 28px; height: 28px;
-}}
-.sun-circle {{
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: #f6b40e;
-}}
-.sun-ray {{
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 2px; height: 14px;
-  background: #f6b40e;
-  border-radius: 2px;
-  transform-origin: bottom center;
-}}
-
-/* Versión sutil con gradiente fade a la izquierda */
-.arg-flag-fade {{
-  position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 220px;
-  background: linear-gradient(
-    to right,
-    {'rgba(10,10,10,1)' if dark else 'rgba(245,245,245,1)'} 0%,
-    {'rgba(10,10,10,0)' if dark else 'rgba(245,245,245,0)'} 30%
-  );
-  pointer-events: none;
-  z-index: 1;
-}}
-
-.header-brand {{
+.hdr-brand {{
   font-size: 22px; font-weight: 800; color: var(--text);
   letter-spacing: -.03em; position: relative; z-index: 2;
 }}
-.header-brand span {{ color: var(--accent); }}
-.header-date {{
-  font-size: 12px; color: var(--muted); font-weight: 500;
-  margin-top: 2px; position: relative; z-index: 2;
+.hdr-brand span {{ color: var(--accent); }}
+.hdr-date {{
+  font-size: 11px; color: var(--muted2); font-weight: 500;
+  margin-top: 3px; position: relative; z-index: 2;
 }}
 .dolar-chip {{
-  background: {'rgba(0,158,227,.08)' if dark else '#e8f5fc'};
-  border: 1px solid rgba(0,158,227,.22);
+  background: rgba(0,158,227,.08);
+  border: 1px solid rgba(0,158,227,.2);
   border-radius: 12px; padding: 8px 16px; text-align: center;
+  position: relative; z-index: 2;
 }}
-.dolar-label {{ font-size: 9px; color: var(--muted); letter-spacing: .08em;
+.dolar-lbl {{ font-size: 9px; color: var(--muted2); letter-spacing: .08em;
   text-transform: uppercase; font-weight: 700; }}
 .dolar-val {{ font-size: 18px; font-weight: 800; color: var(--accent); margin-top: 1px; }}
 
-/* ── NAV TABS (simula bottom nav en escritorio) ── */
-.nav-tabs {{
-  display: flex; gap: 8px; margin-bottom: 20px;
+/* ── NAV ── */
+.nav-bar {{
+  display: flex; gap: 6px;
+  padding: 14px 0 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
 }}
-.nav-tab {{
-  flex: 1; padding: 10px 0; border: 1px solid var(--border);
-  border-radius: 12px; background: var(--surface);
+.nav-btn {{
+  padding: 9px 22px; border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
   font-family: inherit; font-size: 13px; font-weight: 700;
-  color: var(--muted); cursor: pointer; text-align: center;
-  transition: all .2s; box-shadow: var(--shadow);
+  color: var(--muted2); cursor: pointer;
+  transition: all .2s; letter-spacing: .01em;
 }}
-.nav-tab.active {{
+.nav-btn:hover {{ border-color: var(--accent); color: var(--accent); }}
+.nav-btn.active {{
   background: var(--accent); color: #fff;
   border-color: var(--accent);
-  box-shadow: 0 4px 14px rgba(0,158,227,.3);
+  box-shadow: 0 4px 16px rgba(0,158,227,.3);
+}}
+
+/* ── GRID MÉTRICAS ── */
+.metrics {{
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+  margin-bottom: 20px;
+}}
+.mcard {{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  position: relative; overflow: hidden;
+}}
+.mcard::before {{
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  border-radius: var(--r) var(--r) 0 0;
+}}
+.mc-a::before {{ background: linear-gradient(90deg,{ACCENT},transparent); }}
+.mc-g::before {{ background: linear-gradient(90deg,{GREEN},transparent); }}
+.mc-r::before {{ background: linear-gradient(90deg,{RED},transparent); }}
+.mc-o::before {{ background: linear-gradient(90deg,{ORANGE},transparent); }}
+.mlbl {{
+  font-size: 9px; font-weight: 700; color: var(--muted);
+  letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px;
+}}
+.mval {{
+  font-size: 24px; font-weight: 800; color: var(--text);
+  letter-spacing: -.02em; line-height: 1;
+}}
+.msub {{ font-size: 11px; color: var(--muted2); margin-top: 5px; }}
+.mpct {{ font-size: 28px; font-weight: 800; color: {ACCENT}; }}
+.pbar {{
+  height: 4px; background: rgba(255,255,255,.06);
+  border-radius: 4px; overflow: hidden; margin-top: 10px;
+}}
+.pfill {{
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg,{ACCENT},#00c9ff);
 }}
 
 /* ── CARDS ── */
 .card {{
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 20px;
-  margin-bottom: 14px;
+  border-radius: var(--r);
+  margin-bottom: 16px;
+  overflow: hidden;
 }}
-.card-title {{
-  font-size: 11px; font-weight: 700; color: var(--muted);
-  letter-spacing: .06em; text-transform: uppercase; margin-bottom: 14px;
-}}
-
-/* ── HERO CATEGORY CARD ── */
-.cat-hero {{
-  text-align: center;
-  padding: 28px 20px 20px;
-  margin-bottom: 14px;
-  border-radius: var(--radius);
-  border: 1.5px solid;
-  box-shadow: var(--shadow);
-}}
-.cat-hero-icon {{
-  width: 64px; height: 64px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 30px; margin: 0 auto 12px;
-}}
-.cat-hero-label {{
-  font-size: 12px; font-weight: 700; color: var(--muted);
-  letter-spacing: .05em; text-transform: uppercase; margin-bottom: 6px;
-}}
-.cat-hero-total {{
-  font-size: 34px; font-weight: 800; color: var(--text);
-  letter-spacing: -.02em; line-height: 1;
-}}
-.cat-hero-sub {{ font-size: 12px; color: var(--muted); margin-top: 6px; }}
-
-/* ── MINI STATS ── */
-.mini-stats {{
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px;
-}}
-.mini-stat {{
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 14px 10px; text-align: center;
-  box-shadow: var(--shadow);
-}}
-.mini-stat-val {{ font-size: 24px; font-weight: 800; line-height: 1; }}
-.mini-stat-label {{
+.card-pad {{ padding: 20px; }}
+.ctitle {{
   font-size: 10px; font-weight: 700; color: var(--muted);
-  letter-spacing: .05em; text-transform: uppercase; margin-top: 5px;
-}}
-
-/* ── LISTA CATEGORÍAS ── */
-.cat-list-card {{
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow);
-  overflow: hidden; margin-bottom: 14px;
-}}
-.cat-row {{
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background .15s;
-}}
-.cat-row:last-child {{ border-bottom: none; }}
-.cat-row:hover {{ background: {'rgba(255,255,255,0.03)' if dark else '#fafafa'}; }}
-.cat-icon {{
-  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 20px;
-}}
-.cat-name {{ flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }}
-.cat-amount {{ font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; }}
-.cat-arrow {{ color: var(--muted); font-size: 18px; margin-left: 4px; }}
-
-/* ── LISTA GASTOS ── */
-.gasto-row {{
-  display: flex; align-items: center; gap: 12px;
-  padding: 13px 20px;
-  border-bottom: 1px solid var(--border);
-  transition: opacity .15s;
-}}
-.gasto-row:last-child {{ border-bottom: none; }}
-.gasto-check {{
-  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-}}
-.gasto-info {{ flex: 1; min-width: 0; }}
-.gasto-name {{
-  font-size: 14px; font-weight: 600; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}}
-.gasto-meta {{ font-size: 11px; color: var(--muted); margin-top: 2px; }}
-.gasto-right {{ text-align: right; flex-shrink: 0; }}
-.gasto-monto {{ font-size: 14px; font-weight: 700; color: var(--text); }}
-.pill {{
-  display: inline-block; padding: 2px 9px; border-radius: 20px;
-  font-size: 10px; font-weight: 700; margin-top: 3px;
+  letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px;
 }}
 
 /* ── ALERTAS ── */
-.alerta {{
-  padding: 11px 16px; border-radius: 12px; font-size: 13px;
+.alert {{
+  padding: 12px 16px; border-radius: 12px; font-size: 13px;
   font-weight: 500; margin-bottom: 10px;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: flex-start; gap: 10px; line-height: 1.4;
 }}
-.alerta-red  {{
-  background: {'rgba(242,61,79,.1)' if dark else '#fff0f1'};
-  border: 1px solid rgba(242,61,79,.2); color: #c0392b;
+.alert-r {{ background:rgba(242,61,79,.08); border:1px solid rgba(242,61,79,.2); color:#ff8a94; }}
+.alert-o {{ background:rgba(255,156,0,.08); border:1px solid rgba(255,156,0,.2);  color:#ffc066; }}
+
+/* ── LISTA DE ITEMS (solo lectura) ── */
+.item-row {{
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid {BORDER2};
+  transition: background .12s;
 }}
-.alerta-warn {{
-  background: {'rgba(255,156,0,.1)' if dark else '#fff8ee'};
-  border: 1px solid rgba(255,156,0,.2); color: #b7681a;
+.item-row:last-child {{ border-bottom: none; }}
+.item-row:hover {{ background: rgba(255,255,255,.02); }}
+.item-icon {{
+  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}}
+.item-body {{ flex: 1; min-width: 0; }}
+.item-name {{
+  font-size: 14px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}}
+.item-meta {{ font-size: 11px; color: var(--muted2); margin-top: 2px; }}
+.item-right {{ text-align: right; flex-shrink: 0; }}
+.item-monto {{ font-size: 15px; font-weight: 800; color: var(--text); }}
+.item-monto-paid {{ color: var(--muted2); text-decoration: line-through; font-weight: 600; }}
+.pill {{
+  display: inline-block; padding: 3px 9px;
+  border-radius: 20px; font-size: 10px; font-weight: 700;
+  margin-top: 4px; letter-spacing: .02em;
 }}
 
-/* ── PROGRESS ── */
-.progress-bar {{
-  height: 5px; background: var(--border); border-radius: 4px;
-  overflow: hidden; margin-top: 12px;
+/* ── VENCIMIENTO DESTACADO ── */
+.venc-badge {{
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 6px;
+  margin-top: 3px;
 }}
-.progress-fill {{
-  height: 100%; border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent), #00c9ff);
-}}
+.venc-hoy {{ background:rgba(242,61,79,.15); color:{RED}; }}
+.venc-prox {{ background:rgba(255,156,0,.12); color:{ORANGE}; }}
+.venc-ok   {{ background:rgba(0,200,83,.08);  color:{GREEN}; }}
+.venc-past {{ background:rgba(242,61,79,.18); color:{RED}; border:1px solid rgba(242,61,79,.3); }}
 
-/* ── SPLIT METRICS ── */
-.split-metrics {{
-  display: flex; justify-content: center; gap: 28px;
-  margin-top: 16px; padding-top: 14px;
-  border-top: 1px solid var(--border);
+/* ── CATEGORIA HEADER (en lista agrupada) ── */
+.cat-section-hdr {{
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px 8px;
+  border-bottom: 1px solid {BORDER2};
+  background: rgba(255,255,255,.015);
 }}
-.split-item {{ text-align: center; }}
-.split-label {{
-  font-size: 9px; font-weight: 700; color: var(--muted);
-  letter-spacing: .07em; text-transform: uppercase; margin-bottom: 4px;
+.cat-section-emoji {{
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink:0;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
 }}
-.split-val {{ font-size: 16px; font-weight: 800; }}
+.cat-section-name {{ font-size: 12px; font-weight: 700; color: var(--muted2); flex:1; }}
+.cat-section-total {{ font-size: 13px; font-weight: 800; }}
 
 /* ── TABS ── */
 .stTabs [data-baseweb="tab-list"] {{
   background: transparent !important;
-  border-bottom: 2px solid var(--border) !important;
+  border-bottom: 1px solid var(--border) !important;
   gap: 0 !important; padding: 0 !important;
 }}
 .stTabs [data-baseweb="tab"] {{
-  background: transparent !important; color: var(--muted) !important;
+  background: transparent !important; color: var(--muted2) !important;
   font-family: 'Plus Jakarta Sans',sans-serif !important;
   font-size: 13px !important; font-weight: 700 !important;
   border-bottom: 2px solid transparent !important;
-  padding: 11px 18px !important; margin-bottom: -2px !important;
+  padding: 11px 18px !important; margin-bottom: -1px !important;
 }}
 .stTabs [aria-selected="true"] {{
-  color: var(--accent) !important;
-  border-bottom-color: var(--accent) !important;
+  color: {ACCENT} !important; border-bottom-color: {ACCENT} !important;
 }}
 .stTabs [data-baseweb="tab-highlight"] {{ display: none !important; }}
-.stTabs [data-baseweb="tab-panel"] {{ padding: 14px 0 0 !important; }}
+.stTabs [data-baseweb="tab-panel"] {{ padding: 16px 0 0 !important; }}
 
 /* ── DATA EDITOR ── */
 [data-testid="stDataEditorContainer"] {{
   background: var(--surface) !important;
-  border: none !important; border-radius: 0 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important; overflow: hidden !important;
 }}
 
 /* ── BOTONES ── */
 .stButton > button[kind="primary"] {{
-  background: var(--accent) !important; color: #fff !important;
+  background: {ACCENT} !important; color: #fff !important;
   border: none !important; border-radius: 12px !important;
   padding: 13px 24px !important;
   font-family: 'Plus Jakarta Sans',sans-serif !important;
@@ -360,73 +308,51 @@ html, body, [class*="css"], .stApp {{
 }}
 .stButton > button[kind="primary"]:hover {{
   background: #0088c7 !important; transform: translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(0,158,227,.35) !important;
 }}
 .stButton > button[kind="secondary"] {{
-  background: var(--surface) !important; color: var(--muted) !important;
-  border: 1.5px solid var(--border) !important; border-radius: 12px !important;
+  background: var(--surface) !important; color: var(--muted2) !important;
+  border: 1px solid var(--border) !important; border-radius: 12px !important;
   font-family: 'Plus Jakarta Sans',sans-serif !important;
   font-size: 13px !important; font-weight: 600 !important;
   transition: all .2s !important;
 }}
 .stButton > button[kind="secondary"]:hover {{
-  border-color: var(--accent) !important; color: var(--accent) !important;
+  border-color: {ACCENT} !important; color: {ACCENT} !important;
 }}
+
+/* ── RESUMEN LATERAL ── */
+.res-row {{
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid {BORDER2}; font-size: 13px;
+}}
+.res-row:last-child {{ border-bottom: none; }}
+.res-k {{ color: var(--muted2); font-weight: 500; }}
 
 /* ── RESPONSIVE ── */
-@media (max-width: 768px) {{
-  .main-wrap {{ padding: 0 12px 24px; }}
-  .cat-row {{ padding: 12px 14px; gap: 10px; }}
-  .cat-icon {{ width: 38px; height: 38px; font-size: 18px; }}
-  .cat-name {{ font-size: 13px; }}
-  .cat-amount {{ font-size: 13px; }}
+@media (max-width:860px) {{
+  .metrics {{ grid-template-columns: repeat(2,1fr); }}
 }}
-
-hr {{ display: none !important; }}
-[data-testid="stVerticalBlock"] > div {{ gap: 0 !important; }}
+@media (max-width:560px) {{
+  .metrics {{ grid-template-columns: 1fr 1fr; gap:8px; }}
+  .mval {{ font-size:18px; }}
+  .wrap {{ padding:0 12px 32px; }}
+}}
+hr {{ display:none !important; }}
+[data-testid="stVerticalBlock"] > div {{ gap:0 !important; }}
 </style>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# 5. COLORES POR CATEGORÍA
-# ─────────────────────────────────────────────
-CAT_COLORS = {
-    "⚡":"#009ee3", "🔌":"#009ee3",
-    "🏠":"#00a650", "🛒":"#00a650",
-    "🚗":"#ff9c00", "🚌":"#ff9c00",
-    "💳":"#a855f7", "📺":"#ec4899",
-    "📈":"#0ea5e9", "🏥":"#14b8a6",
-    "🎭":"#f59e0b", "👪":"#8b5cf6",
-    "🍔":"#ef4444", "🏋":"#22d3ee",
-}
-DONUT_PALETTE = [
-    "#009ee3","#00a650","#a855f7","#ec4899","#ff9c00",
-    "#f59e0b","#14b8a6","#0ea5e9","#ef4444","#8b5cf6","#6b7280","#34d399",
-]
-
-def cat_color(cat):
-    for emoji, color in CAT_COLORS.items():
-        if emoji in str(cat):
-            return color
-    return "#6b7280"
-
-# ─────────────────────────────────────────────
-# 6. CONEXIÓN A GOOGLE SHEETS
+# 5. CONEXIÓN Y DATOS
 # ─────────────────────────────────────────────
 @st.cache_resource
 def get_gspread():
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive",
-    ]
+    scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
     try:
         creds = ServiceAccountCredentials.from_json_keyfile_name("mis-credenciales.json", scope)
     except Exception:
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(
-            st.secrets["gcp_service_account"], scope
-        )
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
     return gspread.authorize(creds)
-
 
 @st.cache_data(ttl=600)
 def cargar_datos():
@@ -434,29 +360,22 @@ def cargar_datos():
         hoja = get_gspread().open("Gastos_Henry").sheet1
         data = hoja.get_all_values()
     except Exception as e:
-        st.error(f"❌ No se pudo conectar con Google Sheets: {e}")
+        st.error(f"❌ Error conectando con Google Sheets: {e}")
         return pd.DataFrame()
-
     data = [r for r in data if any(str(c).strip() for c in r)]
     if not data or len(data) < 2:
         return pd.DataFrame()
-
-    headers = ["Categoría", "Ítem", "Monto (ARS)", "Día Pago", "Pagado"]
+    headers = ["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]
     primera = str(data[0][0]).strip().lower()
     filas   = data[1:] if primera in ["categoría","categoria","cat","category"] else data
     filas   = [r + [""] * (5 - len(r)) for r in filas if len(r) >= 2]
-    if not filas:
-        return pd.DataFrame()
-
+    if not filas: return pd.DataFrame()
     df = pd.DataFrame(filas, columns=headers)
     df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors="coerce").fillna(0)
     df["Día Pago"]    = pd.to_datetime(df["Día Pago"], errors="coerce").dt.date
-    df["Pagado"]      = df["Pagado"].apply(
-        lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","✅","SI","SÍ","1"]
-    )
+    df["Pagado"]      = df["Pagado"].apply(lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","✅","SI","SÍ","1"])
     df = df[~((df["Monto (ARS)"] == 0) & (df["Ítem"].str.strip() == ""))]
     return df.reset_index(drop=True)
-
 
 @st.cache_data(ttl=300)
 def get_dolar():
@@ -466,7 +385,7 @@ def get_dolar():
         return 1450.0
 
 # ─────────────────────────────────────────────
-# 7. HELPERS
+# 6. HELPERS
 # ─────────────────────────────────────────────
 def fmt_ars(n):
     s = f"{n:,.0f}".replace(",","X").replace(".",",").replace("X",".")
@@ -480,14 +399,27 @@ def fmt_k(n):
 def fmt_usd(n, d):
     return f"U$S {n/d:,.0f}" if d > 0 else "U$S —"
 
-def get_estado(row):
-    if row["Pagado"]:             return ("✅ Listo",    GREEN,  "rgba(0,166,80,.12)"  if dark else "#e8f8ef")
-    if pd.isna(row["Día Pago"]): return ("⚪ Sin Fecha", MUTED,  "rgba(0,0,0,.05)"    if dark else "#f5f5f5")
-    if row["Día Pago"] < date.today():
-        return ("🔴 Vencido",  RED,    "rgba(242,61,79,.12)" if dark else "#fff0f1")
-    if row["Día Pago"] <= date.today() + timedelta(days=3):
-        return ("🟡 Próximo",  ORANGE, "rgba(255,156,0,.12)" if dark else "#fff8ee")
-    return ("🟢 Al Día", GREEN,  "rgba(0,166,80,.12)"  if dark else "#e8f8ef")
+def dias_para_vencer(dia_pago):
+    if pd.isna(dia_pago): return None
+    return (dia_pago - date.today()).days
+
+def venc_badge(row):
+    if row["Pagado"]:
+        return f'<span class="pill" style="background:rgba(0,200,83,.1);color:{GREEN}">✅ Pagado</span>'
+    dia = row["Día Pago"]
+    if pd.isna(dia):
+        return f'<span class="pill" style="background:rgba(255,255,255,.05);color:{MUTED2}">⚪ Sin fecha</span>'
+    diff = dias_para_vencer(dia)
+    fmt_dia = dia.strftime("%-d %b")
+    if diff < 0:
+        return f'<span class="pill" style="background:rgba(242,61,79,.15);color:{RED};border:1px solid rgba(242,61,79,.3)">🔴 Vencido · {fmt_dia}</span>'
+    if diff == 0:
+        return f'<span class="pill" style="background:rgba(242,61,79,.12);color:{RED}">🔴 Hoy · {fmt_dia}</span>'
+    if diff <= 3:
+        return f'<span class="pill" style="background:rgba(255,156,0,.12);color:{ORANGE}">🟡 {diff}d · {fmt_dia}</span>'
+    if diff <= 10:
+        return f'<span class="pill" style="background:rgba(251,191,36,.08);color:{YELLOW}">🟡 {diff}d · {fmt_dia}</span>'
+    return f'<span class="pill" style="background:rgba(0,200,83,.08);color:{GREEN}">🟢 {fmt_dia}</span>'
 
 def procesar(df_base, dolar):
     df    = df_base.copy()
@@ -495,11 +427,10 @@ def procesar(df_base, dolar):
     df["Peso (%)"] = (df["Monto (ARS)"] / total).fillna(0) if total > 0 else 0
     df["USD"]      = (df["Monto (ARS)"] / dolar).round(2)  if dolar > 0 else 0
     df["Cat."]     = df["Categoría"].apply(lambda x: str(x).strip() or "—")
-    df["Estado"]   = df.apply(lambda r: get_estado(r)[0], axis=1)
     return df.sort_values(["Pagado","Día Pago"], ascending=[True,True], na_position="last")
 
 # ─────────────────────────────────────────────
-# 8. CARGA
+# 7. CARGA
 # ─────────────────────────────────────────────
 dolar   = get_dolar()
 df_base = cargar_datos()
@@ -507,449 +438,348 @@ df_base = cargar_datos()
 if not df_base.empty:
     df         = procesar(df_base, dolar)
     total_ars  = df["Monto (ARS)"].sum()
-    pagado_ars = df[df["Pagado"] == True]["Monto (ARS)"].sum()
+    pagado_ars = df[df["Pagado"]==True]["Monto (ARS)"].sum()
     pend_ars   = total_ars - pagado_ars
     pct        = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
     vencidos   = df[(df["Pagado"]==False) & df["Día Pago"].notna() & (df["Día Pago"] < date.today())]
     proximos   = df[(df["Pagado"]==False) & df["Día Pago"].notna() &
                     (df["Día Pago"] >= date.today()) &
                     (df["Día Pago"] <= date.today() + timedelta(days=3))]
-    por_cat    = (df.groupby("Cat.")["Monto (ARS)"].sum()
-                  .reset_index().sort_values("Monto (ARS)", ascending=False))
+    por_cat    = df.groupby("Cat.")["Monto (ARS)"].sum().reset_index().sort_values("Monto (ARS)", ascending=False)
 else:
     df = por_cat = pd.DataFrame()
     total_ars = pagado_ars = pend_ars = pct = 0
     vencidos = proximos = pd.DataFrame()
 
 # ─────────────────────────────────────────────
-# 9. RENDER
+# 8. RENDER — HEADER
 # ─────────────────────────────────────────────
-st.markdown('<div class="main-wrap">', unsafe_allow_html=True)
-
-# ── HEADER ──────────────────────────────────
-meses = ["enero","febrero","marzo","abril","mayo","junio",
-         "julio","agosto","septiembre","octubre","noviembre","diciembre"]
-hoy   = date.today()
-hoy_str = f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
-
-# SVG del Sol de Mayo — 16 rayos
+# Sol de Mayo SVG
 sun_rays = ""
 for i in range(16):
     angle = i * (360/16) - 90
-    rad   = math.radians(angle)
+    rad = math.radians(angle)
     x1 = 16 + math.cos(rad) * 7
     y1 = 16 + math.sin(rad) * 7
     x2 = 16 + math.cos(rad) * 14
     y2 = 16 + math.sin(rad) * 14
-    sun_rays += f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#f6b40e" stroke-width="2" stroke-linecap="round"/>'
+    sun_rays += f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#d4960e" stroke-width="1.8" stroke-linecap="round"/>'
+
+meses   = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
+hoy     = date.today()
+hoy_str = f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
+
+st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
 st.markdown(f"""
-<div class="app-header">
-
-  <!-- Bandera Argentina: franjas con mask CSS para bordes completamente difuminados -->
+<div class="hdr">
+  <!-- Bandera Argentina difuminada -->
   <div style="
-    position: absolute;
-    right: 0; top: 0; bottom: 0;
-    width: 280px;
-    pointer-events: none;
-    z-index: 0;
-    display: flex;
-    flex-direction: column;
-    border-radius: 0 0 0 50px;
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0,0,0,0.15) 20%,
-      rgba(0,0,0,0.28) 45%,
-      rgba(0,0,0,0.28) 70%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0,0,0,0.15) 20%,
-      rgba(0,0,0,0.28) 45%,
-      rgba(0,0,0,0.28) 70%,
-      transparent 100%
-    );
+    position:absolute; right:0; top:0; bottom:0; width:280px;
+    pointer-events:none; z-index:0;
+    display:flex; flex-direction:column;
+    border-radius:0 0 0 50px; overflow:hidden;
+    -webkit-mask-image: linear-gradient(to right,
+      transparent 0%, rgba(0,0,0,.12) 22%,
+      rgba(0,0,0,.26) 50%, rgba(0,0,0,.26) 72%, transparent 100%);
+    mask-image: linear-gradient(to right,
+      transparent 0%, rgba(0,0,0,.12) 22%,
+      rgba(0,0,0,.26) 50%, rgba(0,0,0,.26) 72%, transparent 100%);
   ">
-    <div style="flex:1;background:linear-gradient(135deg,#4a8dbf,#74acdf)"></div>
-    <div style="flex:1;background:#c8c8c8;display:flex;align-items:center;justify-content:center">
-      <svg width="36" height="36" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <div style="flex:1;background:linear-gradient(135deg,#3d87c0,#74acdf)"></div>
+    <div style="flex:1;background:#b0b0b0;display:flex;align-items:center;justify-content:center">
+      <svg width="34" height="34" viewBox="0 0 32 32">
         {sun_rays}
         <circle cx="16" cy="16" r="5.5" fill="#d4960e"/>
-        <circle cx="16" cy="16" r="3.2" fill="#a06808" opacity="0.6"/>
+        <circle cx="16" cy="16" r="3.2" fill="#9a6608" opacity="0.55"/>
       </svg>
     </div>
-    <div style="flex:1;background:linear-gradient(135deg,#74acdf,#4a8dbf)"></div>
+    <div style="flex:1;background:linear-gradient(135deg,#74acdf,#3d87c0)"></div>
   </div>
 
-  <!-- Contenido del header -->
   <div style="position:relative;z-index:2">
-    <div class="header-brand">Finanzas <span>AR</span></div>
-    <div class="header-date">{hoy_str}</div>
+    <div class="hdr-brand">Finanzas <span>AR</span></div>
+    <div class="hdr-date">{hoy_str}</div>
   </div>
-
-  <div style="display:flex;gap:10px;align-items:center;position:relative;z-index:2">
+  <div style="position:relative;z-index:2">
     <div class="dolar-chip">
-      <div class="dolar-label">USD Blue</div>
+      <div class="dolar-lbl">USD Blue</div>
       <div class="dolar-val">${dolar:,.0f}</div>
     </div>
   </div>
-
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAVEGACIÓN ──────────────────────────────
-nav_col1, nav_col2, nav_col3 = st.columns(3)
-with nav_col1:
-    if st.button("🏠  Inicio",  type="primary" if st.session_state.screen == "inicio"  else "secondary", use_container_width=True):
-        st.session_state.screen = "inicio"
-        st.rerun()
-with nav_col2:
-    if st.button("📋  Gastos",  type="primary" if st.session_state.screen == "gastos"  else "secondary", use_container_width=True):
-        st.session_state.screen = "gastos"
-        st.rerun()
-with nav_col3:
-    cat_label = f"🔍  {st.session_state.sel_cat}" if st.session_state.sel_cat else "🔍  Detalle"
-    if st.button(cat_label, type="primary" if st.session_state.screen == "detalle" else "secondary",
-                 use_container_width=True, disabled=st.session_state.sel_cat is None):
-        st.session_state.screen = "detalle"
-        st.rerun()
-
-st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-
 # ─────────────────────────────────────────────
+# 9. NAVEGACIÓN
+# ─────────────────────────────────────────────
+screen = st.session_state.screen
+nav1, nav2, nav3 = st.columns([1, 1, 8])
+with nav1:
+    if st.button("🏠  Inicio", type="primary" if screen=="inicio" else "secondary", use_container_width=True):
+        st.session_state.screen = "inicio"; st.rerun()
+with nav2:
+    if st.button("📋  Gastos", type="primary" if screen=="gastos" else "secondary", use_container_width=True):
+        st.session_state.screen = "gastos"; st.rerun()
+
+st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+
+# ═════════════════════════════════════════════
 # PANTALLA: INICIO
-# ─────────────────────────────────────────────
+# ═════════════════════════════════════════════
 if st.session_state.screen == "inicio":
 
-    col_main, col_side = st.columns([1.6, 1], gap="medium")
+    # ── ALERTAS ──────────────────────────────
+    if not vencidos.empty:
+        items_html = " · ".join([f"<strong>{r['Ítem']}</strong> ({fmt_ars(r['Monto (ARS)'])})" for _,r in vencidos.iterrows()])
+        st.markdown(f'<div class="alert alert-r">🔴&nbsp; {len(vencidos)} pago{"s" if len(vencidos)>1 else ""} vencido{"s" if len(vencidos)>1 else ""} — {items_html}</div>', unsafe_allow_html=True)
 
-    with col_main:
-        # Alertas
-        if not vencidos.empty:
-            items = ", ".join(vencidos["Ítem"].astype(str).tolist())
-            st.markdown(f'<div class="alerta alerta-red">🔴 <strong>{len(vencidos)} vencido{"s" if len(vencidos)>1 else ""}</strong> — {items}</div>', unsafe_allow_html=True)
-        if not proximos.empty:
-            items = ", ".join(proximos["Ítem"].astype(str).tolist())
-            st.markdown(f'<div class="alerta alerta-warn">🟡 <strong>{len(proximos)} próximo{"s" if len(proximos)>1 else ""}</strong> — {items}</div>', unsafe_allow_html=True)
+    if not proximos.empty:
+        items_html = " · ".join([f"<strong>{r['Ítem']}</strong> ({r['Día Pago'].strftime('%-d %b')})" for _,r in proximos.iterrows()])
+        st.markdown(f'<div class="alert alert-o">🟡&nbsp; Próximos 3 días — {items_html}</div>', unsafe_allow_html=True)
 
-        # Lista de categorías con onclick
-        if not por_cat.empty:
-            st.markdown('<div class="cat-list-card"><div style="padding:16px 20px 8px;font-size:11px;font-weight:700;color:'+MUTED+';letter-spacing:.06em;text-transform:uppercase">Por categoría</div>', unsafe_allow_html=True)
-            for _, row in por_cat.iterrows():
-                cat   = str(row["Cat."]).strip()
-                monto = row["Monto (ARS)"]
-                color = cat_color(cat)
-                pct_cat = int(monto / total_ars * 100) if total_ars > 0 else 0
+    # ── MÉTRICAS ─────────────────────────────
+    st.markdown(f"""
+    <div class="metrics">
+      <div class="mcard mc-a">
+        <div class="mlbl">📊 Total del mes</div>
+        <div class="mval">{fmt_ars(total_ars)}</div>
+        <div class="msub">{fmt_usd(total_ars,dolar)}</div>
+      </div>
+      <div class="mcard mc-g">
+        <div class="mlbl">✅ Pagado</div>
+        <div class="mval" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div>
+        <div class="msub">{fmt_usd(pagado_ars,dolar)}</div>
+      </div>
+      <div class="mcard mc-r">
+        <div class="mlbl">⏳ Pendiente</div>
+        <div class="mval" style="color:{RED}">{fmt_ars(pend_ars)}</div>
+        <div class="msub">{fmt_usd(pend_ars,dolar)}</div>
+      </div>
+      <div class="mcard mc-o">
+        <div class="mlbl">📈 Cubierto</div>
+        <div class="mpct">{pct}%</div>
+        <div class="pbar"><div class="pfill" style="width:{pct}%"></div></div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if df.empty:
+        st.markdown(f'<div class="card card-pad" style="text-align:center;padding:48px;color:{MUTED2}"><div style="font-size:36px;margin-bottom:10px">📭</div><div style="font-weight:600">Sin datos. Verificá la conexión con Google Sheets.</div></div>', unsafe_allow_html=True)
+    else:
+        col_izq, col_der = st.columns([1.65, 1], gap="medium")
+
+        # ── COLUMNA IZQUIERDA: LISTA AGRUPADA POR CATEGORÍA ──
+        with col_izq:
+            st.markdown('<div class="card"><div style="padding:16px 20px 4px" class="ctitle">Detalle de gastos</div>', unsafe_allow_html=True)
+
+            # Agrupar por categoría, pendientes primero
+            cats_orden = df.groupby("Cat.")["Pagado"].mean().sort_values().index.tolist()
+
+            for cat in cats_orden:
+                df_cat   = df[df["Cat."] == cat]
+                t_cat    = df_cat["Monto (ARS)"].sum()
+                color    = cat_color(cat)
+                n_pend   = len(df_cat[df_cat["Pagado"]==False])
+                badge_cat = f'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(242,61,79,.12);color:{RED};margin-left:6px">{n_pend} pend.</span>' if n_pend > 0 else ""
+
+                # Header de sección
                 st.markdown(f"""
-                <div class="cat-row" onclick="">
-                  <div class="cat-icon" style="background:{color}20;color:{color}">{cat}</div>
-                  <div style="flex:1">
-                    <div class="cat-name">{cat}</div>
-                    <div style="height:3px;background:{BORDER};border-radius:3px;margin-top:5px;width:100%">
-                      <div style="height:100%;width:{pct_cat}%;background:{color};border-radius:3px"></div>
-                    </div>
-                  </div>
-                  <span class="cat-amount">{fmt_ars(monto)}</span>
-                  <span class="cat-arrow">›</span>
+                <div class="cat-section-hdr">
+                  <div class="cat-section-emoji" style="background:{color}18;color:{color}">{cat}</div>
+                  <span class="cat-section-name">{cat}{badge_cat}</span>
+                  <span class="cat-section-total" style="color:{color}">{fmt_ars(t_cat)}</span>
                 </div>
                 """, unsafe_allow_html=True)
 
-            # Botones de detalle por categoría
-            cats = por_cat["Cat."].tolist()
-            btn_cols = st.columns(min(len(cats), 5))
-            for i, cat in enumerate(cats):
-                with btn_cols[i % 5]:
-                    if st.button(cat, key=f"cat_{i}", use_container_width=True):
-                        st.session_state.sel_cat = cat
-                        st.session_state.screen  = "detalle"
-                        st.rerun()
+                # Items de esa categoría
+                for _, row in df_cat.iterrows():
+                    monto_html = f'<span class="item-monto{"-paid" if row["Pagado"] else ""}">{fmt_ars(row["Monto (ARS)"])}</span>'
+                    usd_html   = f'<div style="font-size:10px;color:{MUTED2};margin-top:1px">{fmt_usd(row["Monto (ARS)"],dolar)}</div>'
+                    badge      = venc_badge(row)
+
+                    st.markdown(f"""
+                    <div class="item-row">
+                      <div class="item-icon" style="background:{color}12;color:{color}">
+                        {'✓' if row['Pagado'] else cat}
+                      </div>
+                      <div class="item-body">
+                        <div class="item-name">{row['Ítem']}</div>
+                        <div class="item-meta">{badge}</div>
+                      </div>
+                      <div class="item-right">
+                        {monto_html}
+                        {usd_html}
+                      </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
             st.markdown("</div>", unsafe_allow_html=True)
 
-    with col_side:
-        if not por_cat.empty:
-            # DONUT GRANDE
-            colors_donut = [cat_color(c) for c in por_cat["Cat."]]
+        # ── COLUMNA DERECHA: DONUT + RESUMEN ──
+        with col_der:
+
+            # DONUT
             fig = go.Figure(go.Pie(
                 labels=por_cat["Cat."],
                 values=por_cat["Monto (ARS)"],
-                hole=0.60,
-                marker=dict(colors=colors_donut, line=dict(color=SURFACE, width=3)),
+                hole=0.62,
+                marker=dict(
+                    colors=[cat_color(c) for c in por_cat["Cat."]],
+                    line=dict(color=SURFACE, width=3),
+                ),
                 textinfo="none",
                 hovertemplate="<b>%{label}</b><br>%{value:,.0f}<br>%{percent}<extra></extra>",
                 direction="clockwise", sort=True,
             ))
             fig.add_annotation(
                 text=f"<b>{fmt_k(total_ars)}</b>",
-                x=0.5, y=0.55,
+                x=0.5, y=0.56,
                 font=dict(size=14, color=TEXT, family="Plus Jakarta Sans"),
                 showarrow=False,
             )
             fig.add_annotation(
-                text=f"<span style='font-size:11px'>{fmt_usd(total_ars, dolar)}</span>",
+                text=fmt_usd(total_ars, dolar),
                 x=0.5, y=0.42,
-                font=dict(size=10, color=MUTED, family="Plus Jakarta Sans"),
+                font=dict(size=10, color=MUTED2, family="Plus Jakarta Sans"),
                 showarrow=False,
             )
             fig.update_layout(
-                showlegend=False, height=280,
-                margin=dict(t=10, b=10, l=10, r=10),
+                showlegend=True,
+                legend=dict(
+                    orientation="v", x=1.02, y=0.5,
+                    font=dict(color=MUTED2, size=10, family="Plus Jakarta Sans"),
+                    bgcolor="rgba(0,0,0,0)",
+                ),
+                height=260,
+                margin=dict(t=8, b=8, l=8, r=90),
                 paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
             )
-            st.markdown('<div class="card" style="padding:16px">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">Distribución</div>', unsafe_allow_html=True)
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+            st.markdown('<div class="card card-pad"><div class="ctitle">Distribución</div>', unsafe_allow_html=True)
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
 
-            # Split metrics dentro de la card
+            # Split pagado / pendiente
             st.markdown(f"""
-            <div class="split-metrics">
-              <div class="split-item">
-                <div class="split-label">Pagado</div>
-                <div class="split-val" style="color:{GREEN}">{fmt_k(pagado_ars)}</div>
+            <div style="display:flex;gap:0;margin-top:4px;border-top:1px solid {BORDER2};padding-top:14px">
+              <div style="flex:1;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:{MUTED};letter-spacing:.08em;text-transform:uppercase">Pagado</div>
+                <div style="font-size:17px;font-weight:800;color:{GREEN};margin-top:4px">{fmt_k(pagado_ars)}</div>
               </div>
-              <div style="width:1px;background:{BORDER}"></div>
-              <div class="split-item">
-                <div class="split-label">Pendiente</div>
-                <div class="split-val" style="color:{RED}">{fmt_k(pend_ars)}</div>
+              <div style="width:1px;background:{BORDER2}"></div>
+              <div style="flex:1;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:{MUTED};letter-spacing:.08em;text-transform:uppercase">Pendiente</div>
+                <div style="font-size:17px;font-weight:800;color:{RED};margin-top:4px">{fmt_k(pend_ars)}</div>
               </div>
-              <div style="width:1px;background:{BORDER}"></div>
-              <div class="split-item">
-                <div class="split-label">Cubierto</div>
-                <div class="split-val" style="color:{ACCENT}">{pct}%</div>
-              </div>
-            </div>
-            <div class="progress-bar" style="margin:14px 0 4px">
-              <div class="progress-fill" style="width:{pct}%"></div>
             </div>
             """, unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            # Resumen rápido
+            # RESUMEN RÁPIDO
+            n_pag  = len(df[df["Pagado"]==True])
+            n_pend = len(df[df["Pagado"]==False])
+            n_venc = len(vencidos)
+            n_prox = len(proximos)
+            mayor  = df.loc[df["Monto (ARS)"].idxmax(),"Ítem"] if not df.empty else "—"
+            mayor_m= df["Monto (ARS)"].max() if not df.empty else 0
+
             st.markdown(f"""
-            <div class="card">
-              <div class="card-title">Resumen</div>
-              {''.join([f'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid {BORDER};font-size:13px"><span style="color:{MUTED};font-weight:500">{k}</span><span style="font-weight:700;color:{vc}">{vv}</span></div>'
-              for k,vv,vc in [
-                ("Total ítems", len(df), TEXT),
-                ("Pagados", len(df[df["Pagado"]==True]), GREEN),
-                ("Pendientes", len(df[df["Pagado"]==False]), ORANGE),
-                ("Vencidos", len(vencidos), RED),
-                ("Mayor gasto", df.loc[df["Monto (ARS)"].idxmax(),"Ítem"] if not df.empty else "—", TEXT),
-              ]])}
+            <div class="card card-pad" style="margin-top:0">
+              <div class="ctitle">Resumen</div>
+              <div class="res-row"><span class="res-k">Total ítems</span><span style="font-weight:700">{len(df)}</span></div>
+              <div class="res-row"><span class="res-k">Pagados</span><span style="font-weight:700;color:{GREEN}">{n_pag}</span></div>
+              <div class="res-row"><span class="res-k">Pendientes</span><span style="font-weight:700;color:{ORANGE}">{n_pend}</span></div>
+              <div class="res-row"><span class="res-k">Vencidos</span><span style="font-weight:700;color:{RED}">{n_venc}</span></div>
+              <div class="res-row"><span class="res-k">Próx. 3 días</span><span style="font-weight:700;color:{YELLOW}">{n_prox}</span></div>
+              <div class="res-row" style="flex-direction:column;align-items:flex-start;gap:2px">
+                <span class="res-k">Mayor gasto</span>
+                <span style="font-weight:700;font-size:13px;color:{TEXT}">{mayor}</span>
+                <span style="font-size:11px;color:{MUTED2}">{fmt_ars(mayor_m)}</span>
+              </div>
             </div>
             """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# PANTALLA: GASTOS
-# ─────────────────────────────────────────────
+            # BARRA PENDIENTES POR CAT
+            st.markdown(f'<div class="card card-pad" style="margin-top:0"><div class="ctitle">Pendiente por categoría</div>', unsafe_allow_html=True)
+            pend_cat = df[df["Pagado"]==False].groupby("Cat.")["Monto (ARS)"].sum().sort_values(ascending=False)
+            if not pend_cat.empty:
+                max_p = pend_cat.max()
+                for cat, val in pend_cat.items():
+                    pct_bar = int(val / max_p * 100) if max_p > 0 else 0
+                    color   = cat_color(cat)
+                    st.markdown(f"""
+                    <div style="margin-bottom:10px">
+                      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                        <span style="font-size:12px;font-weight:600;color:{TEXT}">{cat}</span>
+                        <span style="font-size:12px;font-weight:700;color:{color}">{fmt_ars(val)}</span>
+                      </div>
+                      <div style="height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden">
+                        <div style="height:100%;width:{pct_bar}%;background:{color};border-radius:4px"></div>
+                      </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+# ═════════════════════════════════════════════
+# PANTALLA: GASTOS (solo editor)
+# ═════════════════════════════════════════════
 elif st.session_state.screen == "gastos":
 
     if df.empty:
-        st.markdown(f'<div class="card" style="text-align:center;padding:48px;color:{MUTED}"><div style="font-size:40px;margin-bottom:12px">📭</div><div style="font-size:15px;font-weight:600">Sin datos</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="card card-pad" style="text-align:center;padding:48px;color:{MUTED2}"><div style="font-size:36px;margin-bottom:10px">📭</div><div style="font-weight:600">Sin datos en Google Sheets.</div></div>', unsafe_allow_html=True)
     else:
-        col_tabla, col_info = st.columns([2.4, 1], gap="medium")
+        st.markdown(f'<div style="font-size:13px;color:{MUTED2};margin-bottom:14px;font-weight:500">Editá los gastos acá. Los cambios se reflejarán en Inicio al guardar.</div>', unsafe_allow_html=True)
 
-        with col_tabla:
-            tab_todos, tab_pend, tab_pag = st.tabs([
-                f"Todos  {len(df)}",
-                f"Pendientes  {len(df[df['Pagado']==False])}",
-                f"Pagados  {len(df[df['Pagado']==True])}",
-            ])
+        tab_todos, tab_pend, tab_pag = st.tabs([
+            f"Todos  {len(df)}",
+            f"Pendientes  {len(df[df['Pagado']==False])}",
+            f"Pagados  {len(df[df['Pagado']==True])}",
+        ])
 
-            COL_CONFIG = {
-                "Pagado":      st.column_config.CheckboxColumn("✓", width="small"),
-                "Cat.":        st.column_config.TextColumn("Cat.", width="small"),
-                "Categoría":   None,
-                "Ítem":        st.column_config.TextColumn("Ítem"),
-                "Monto (ARS)": st.column_config.NumberColumn("Monto", format="$ %d"),
-                "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
-                "Peso (%)":    st.column_config.ProgressColumn("Peso", format="%.1f%%", min_value=0, max_value=1, width="small"),
-                "Día Pago":    st.column_config.DateColumn("Venc.", format="DD/MM/YY", width="small"),
-                "Estado":      st.column_config.TextColumn("Estado", disabled=True, width="medium"),
-            }
-            COL_ORDER = ("Pagado","Cat.","Ítem","Monto (ARS)","USD","Peso (%)","Día Pago","Estado")
+        COL_CONFIG = {
+            "Pagado":      st.column_config.CheckboxColumn("✓", width="small"),
+            "Cat.":        st.column_config.TextColumn("Cat.", width="small"),
+            "Categoría":   None,
+            "Ítem":        st.column_config.TextColumn("Ítem"),
+            "Monto (ARS)": st.column_config.NumberColumn("Monto ARS", format="$ %d"),
+            "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
+            "Peso (%)":    st.column_config.ProgressColumn("Peso", format="%.1f%%", min_value=0, max_value=1, width="small"),
+            "Día Pago":    st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
+        }
+        COL_ORDER = ("Pagado","Cat.","Ítem","Monto (ARS)","USD","Peso (%)","Día Pago")
 
-            def render_tabla(data, key):
-                return st.data_editor(
-                    data, column_config=COL_CONFIG, column_order=COL_ORDER,
-                    num_rows="dynamic", use_container_width=True,
-                    hide_index=True, key=key,
-                )
+        def render_tabla(data, key):
+            return st.data_editor(
+                data, column_config=COL_CONFIG, column_order=COL_ORDER,
+                num_rows="dynamic", use_container_width=True, hide_index=True, key=key,
+            )
 
-            with tab_todos:
-                df_edit = render_tabla(df, "t_todos")
-            with tab_pend:
-                render_tabla(df[df["Pagado"]==False].copy(), "t_pend")
-            with tab_pag:
-                render_tabla(df[df["Pagado"]==True].copy(), "t_pag")
+        with tab_todos:
+            df_edit = render_tabla(df, "t_todos")
+        with tab_pend:
+            render_tabla(df[df["Pagado"]==False].copy(), "t_pend")
+        with tab_pag:
+            render_tabla(df[df["Pagado"]==True].copy(), "t_pag")
 
-            st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-            bc1, bc2 = st.columns([3, 1])
-            with bc1:
-                if st.button("Guardar y Sincronizar", type="primary", use_container_width=True):
-                    try:
-                        df_up = df_edit[["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]].copy()
-                        df_up["Día Pago"] = df_up["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
-                        df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
-                        st.cache_data.clear()
-                        hoja = get_gspread().open("Gastos_Henry").sheet1
-                        hoja.clear()
-                        hoja.append_row(df_up.columns.tolist())
-                        hoja.append_rows(df_up.values.tolist())
-                        st.success("✓ Sincronizado con Google Sheets")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Error: {e}")
-            with bc2:
-                if st.button("🔄 Recargar", type="secondary", use_container_width=True):
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        bc1, bc2 = st.columns([3, 1])
+        with bc1:
+            if st.button("💾  Guardar y Sincronizar", type="primary", use_container_width=True):
+                try:
+                    df_up = df_edit[["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]].copy()
+                    df_up["Día Pago"] = df_up["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
+                    df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
                     st.cache_data.clear()
+                    hoja = get_gspread().open("Gastos_Henry").sheet1
+                    hoja.clear()
+                    hoja.append_row(df_up.columns.tolist())
+                    hoja.append_rows(df_up.values.tolist())
+                    st.success("✓ Cambios guardados en Google Sheets")
                     st.rerun()
-
-        with col_info:
-            # Mini donut filtrado
-            fig2 = go.Figure(go.Pie(
-                labels=por_cat["Cat."], values=por_cat["Monto (ARS)"],
-                hole=0.55,
-                marker=dict(colors=[cat_color(c) for c in por_cat["Cat."]], line=dict(color=SURFACE, width=2)),
-                textinfo="none",
-                hovertemplate="<b>%{label}</b><br>$ %{value:,.0f}<extra></extra>",
-            ))
-            fig2.add_annotation(
-                text=f"<b>{pct}%</b>", x=0.5, y=0.5,
-                font=dict(size=18, color=ACCENT, family="Plus Jakarta Sans"),
-                showarrow=False,
-            )
-            fig2.update_layout(
-                showlegend=False, height=200,
-                margin=dict(t=0, b=0, l=0, r=0),
-                paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
-            )
-            st.markdown(f'<div class="card" style="padding:16px"><div class="card-title">Distribución</div>', unsafe_allow_html=True)
-            st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
-            st.markdown("</div>", unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────
-# PANTALLA: DETALLE CATEGORÍA
-# ─────────────────────────────────────────────
-elif st.session_state.screen == "detalle":
-    sel = st.session_state.sel_cat
-
-    if sel is None or df.empty:
-        st.info("Seleccioná una categoría desde Inicio")
-    else:
-        df_cat  = df[df["Cat."] == sel].copy()
-        t_cat   = df_cat["Monto (ARS)"].sum()
-        p_cat   = df_cat[df_cat["Pagado"]==True]["Monto (ARS)"].sum()
-        pe_cat  = t_cat - p_cat
-        pct_cat = int(t_cat / total_ars * 100) if total_ars > 0 else 0
-        color   = cat_color(sel)
-
-        col_det, col_det_side = st.columns([1.8, 1], gap="medium")
-
-        with col_det:
-            # Hero card de categoría
-            st.markdown(f"""
-            <div class="cat-hero" style="background:linear-gradient(135deg,{color}18,{color}06);border-color:{color}33">
-              <div class="cat-hero-icon" style="background:{color}20;color:{color}">{sel}</div>
-              <div class="cat-hero-label">{sel}</div>
-              <div class="cat-hero-total">{fmt_ars(t_cat)}</div>
-              <div class="cat-hero-sub">{pct_cat}% del total · {fmt_usd(t_cat, dolar)}</div>
-              <div class="progress-bar" style="margin-top:16px">
-                <div class="progress-fill" style="width:{pct_cat}%;background:{color}"></div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # Mini stats
-            n_items = len(df_cat)
-            n_pag   = len(df_cat[df_cat["Pagado"]==True])
-            n_pend  = len(df_cat[df_cat["Pagado"]==False])
-            st.markdown(f"""
-            <div class="mini-stats">
-              <div class="mini-stat">
-                <div class="mini-stat-val" style="color:{TEXT}">{n_items}</div>
-                <div class="mini-stat-label">Items</div>
-              </div>
-              <div class="mini-stat">
-                <div class="mini-stat-val" style="color:{GREEN}">{n_pag}</div>
-                <div class="mini-stat-label">Pagados</div>
-              </div>
-              <div class="mini-stat">
-                <div class="mini-stat-val" style="color:{RED}">{n_pend}</div>
-                <div class="mini-stat-label">Pendientes</div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # Lista detalle
-            st.markdown(f'<div class="cat-list-card"><div style="padding:16px 20px 8px;font-size:11px;font-weight:700;color:{MUTED};letter-spacing:.06em;text-transform:uppercase">Detalle</div>', unsafe_allow_html=True)
-            for _, row in df_cat.iterrows():
-                estado_txt, estado_color, estado_bg = get_estado(row)
-                opac = "0.5" if row["Pagado"] else "1"
-                dia  = str(row["Día Pago"]) if pd.notnull(row["Día Pago"]) else "—"
-                st.markdown(f"""
-                <div class="gasto-row" style="opacity:{opac}">
-                  <div class="gasto-check" style="background:{'rgba(0,166,80,.12)' if row['Pagado'] else BORDER};
-                    border:1.5px solid {'#00a650' if row['Pagado'] else BORDER};
-                    color:{'#00a650' if row['Pagado'] else MUTED}">
-                    {'✓' if row['Pagado'] else '○'}
-                  </div>
-                  <div class="gasto-info">
-                    <div class="gasto-name">{row['Ítem']}</div>
-                    <div class="gasto-meta">{dia}</div>
-                  </div>
-                  <div class="gasto-right">
-                    <div class="gasto-monto">{fmt_ars(row['Monto (ARS)'])}</div>
-                    <span class="pill" style="background:{estado_bg};color:{estado_color}">{estado_txt}</span>
-                  </div>
-                </div>
-                """, unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        with col_det_side:
-            # Comparativa pagado vs pendiente
-            fig3 = go.Figure()
-            fig3.add_trace(go.Bar(
-                x=["Pagado","Pendiente"],
-                y=[p_cat, pe_cat],
-                marker=dict(
-                    color=[f"rgba(0,166,80,.75)", f"rgba(242,61,79,.75)"],
-                    line=dict(color=[GREEN, RED], width=1.5),
-                ),
-                hovertemplate="%{x}: $ %{y:,.0f}<extra></extra>",
-            ))
-            fig3.update_layout(
-                height=180,
-                margin=dict(t=0, b=0, l=0, r=0),
-                paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
-                xaxis=dict(tickfont=dict(color=MUTED, size=11, family="Plus Jakarta Sans"),
-                           gridcolor="rgba(0,0,0,0)", linecolor="rgba(0,0,0,0)"),
-                yaxis=dict(visible=False),
-                bargap=0.35,
-            )
-            st.markdown(f'<div class="card" style="padding:16px"><div class="card-title">Pagado vs Pendiente</div>', unsafe_allow_html=True)
-            st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
-            st.markdown("</div>", unsafe_allow_html=True)
-
-            # Info adicional
-            mayor_item  = df_cat.loc[df_cat["Monto (ARS)"].idxmax(), "Ítem"] if not df_cat.empty else "—"
-            mayor_monto = df_cat["Monto (ARS)"].max()
-            st.markdown(f"""
-            <div class="card">
-              <div class="card-title">Info</div>
-              {''.join([f'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid {BORDER};font-size:13px"><span style="color:{MUTED};font-weight:500">{k}</span><span style="font-weight:700;color:{vc}">{vv}</span></div>'
-              for k, vv, vc in [
-                ("Total cat.",  fmt_ars(t_cat),       TEXT),
-                ("% del total", f"{pct_cat}%",         ACCENT),
-                ("Pagado",      fmt_ars(p_cat),        GREEN),
-                ("Pendiente",   fmt_ars(pe_cat),       RED),
-                ("Mayor ítem",  mayor_item,            TEXT),
-                ("",            fmt_ars(mayor_monto),  MUTED),
-              ]])}
-            </div>
-            """, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Error al guardar: {e}")
+        with bc2:
+            if st.button("🔄  Recargar", type="secondary", use_container_width=True):
+                st.cache_data.clear()
+                st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
