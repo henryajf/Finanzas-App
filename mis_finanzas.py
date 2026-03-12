@@ -906,12 +906,11 @@ elif st.session_state.screen == "gastos":
             "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
             "Día Pago":    st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
         }
+        COL_ORDER = ("Pagado","Ítem","Monto (ARS)","USD","Día Pago")
 
         def render_tabla(data, key):
-            # Filtramos o DataFrame antes para forçar o Streamlit a mostrar apenas las colunas exatas que queremos
-            df_vista = data[["Pagado", "Ítem", "Monto (ARS)", "USD", "Día Pago"]].copy()
             return st.data_editor(
-                df_vista, column_config=COL_CONFIG,
+                data, column_config=COL_CONFIG, column_order=COL_ORDER,
                 num_rows="dynamic", use_container_width=True,
                 hide_index=True, key=key,
             )
@@ -919,9 +918,9 @@ elif st.session_state.screen == "gastos":
         with tab_todos:
             df_edit = render_tabla(df, "t_todos")
         with tab_pend:
-            render_tabla(df[df["Pagado"]==False], "t_pend")
+            render_tabla(df[df["Pagado"]==False].copy(), "t_pend")
         with tab_pag:
-            render_tabla(df[df["Pagado"]==True], "t_pag")
+            render_tabla(df[df["Pagado"]==True].copy(), "t_pag")
 
         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
@@ -930,55 +929,15 @@ elif st.session_state.screen == "gastos":
             if st.button("💾  Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
                     df_up = df_edit.copy()
-                    
-                    # 1. Asegurar que las columnas existen y limpiar datos base
-                    if "Ítem" not in df_up: df_up["Ítem"] = ""
-                    if "Monto (ARS)" not in df_up: df_up["Monto (ARS)"] = 0.0
-                    if "Día Pago" not in df_up: df_up["Día Pago"] = ""
-                    if "Pagado" not in df_up: df_up["Pagado"] = False
-
-                    df_up["Ítem"] = df_up["Ítem"].fillna("").astype(str)
-                    df_up["Monto (ARS)"] = pd.to_numeric(df_up["Monto (ARS)"], errors="coerce").fillna(0.0)
                     df_up["Categoría"] = df_up["Ítem"].apply(categorizar_inteligente)
-                    
-                    def clean_date(d):
-                        if pd.isna(d) or str(d).strip() in ["", "NaT", "None"]:
-                            return ""
-                        return str(d)
-                    
-                    df_up["Día Pago"] = df_up["Día Pago"].apply(clean_date)
-                    df_up["Pagado"] = df_up["Pagado"].apply(lambda x: "TRUE" if x in [True, "TRUE", "True", 1, "1"] else "FALSE")
-
-                    # 2. Orden exacto de columnas para Sheets
-                    df_up = df_up[["Categoría", "Ítem", "Monto (ARS)", "Día Pago", "Pagado"]]
-
-                    # 3. CONVERSIÓN BLINDADA A FORMATO JSON BÁSICO
-                    # Esto evita el 100% de los errores de "NaN" que hacen colapsar a Google Sheets
-                    header = df_up.columns.tolist()
-                    rows = []
-                    for _, row in df_up.iterrows():
-                        r = []
-                        for val in row:
-                            if pd.isna(val):
-                                r.append("")
-                            elif isinstance(val, float):
-                                # Si es un float infinito o NaN, poner string vacio
-                                r.append("" if math.isnan(val) or math.isinf(val) else float(val))
-                            elif isinstance(val, int):
-                                r.append(int(val))
-                            else:
-                                r.append(str(val))
-                        rows.append(r)
-
-                    # 4. Guardar en Sheets
+                    df_up = df_up[["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]]
+                    df_up["Día Pago"] = df_up["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
+                    df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
                     st.cache_data.clear()
                     hoja = get_gspread().open("Gastos_Henry").sheet1
-                    
                     hoja.clear()
-                    hoja.append_row(header)
-                    if rows: # Solo intenta agregar filas si hay datos reales
-                        hoja.append_rows(rows, value_input_option="USER_ENTERED")
-                        
+                    hoja.append_row(df_up.columns.tolist())
+                    hoja.append_rows(df_up.values.tolist())
                     st.success("✓ Cambios guardados en Google Sheets")
                     st.rerun()
                 except Exception as e:
@@ -988,4 +947,4 @@ elif st.session_state.screen == "gastos":
                 st.cache_data.clear()
                 st.rerun()
 
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True) 
