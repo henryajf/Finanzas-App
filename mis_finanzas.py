@@ -52,6 +52,7 @@ CAT_COLORS = {
     "📈": "#0ea5e9", "🏥": "#14b8a6",
     "🎭": "#f59e0b", "👪": "#8b5cf6",
     "🏋": "#22d3ee", "✈": "#60a5fa",
+    "🔘": "#6b7280",
 }
 
 def cat_color(cat):
@@ -76,30 +77,25 @@ def svg_icon(cat: str, color: str, size: int = 22) -> str:
     fill   = "white"
 
     if "⚡" in c or "🔌" in c:
-        # Rayo
         path = f'<polygon points="{s*0.6},{s*0.05} {s*0.3},{s*0.52} {s*0.52},{s*0.52} {s*0.4},{s*0.95} {s*0.7},{s*0.45} {s*0.48},{s*0.45}" fill="white"/>'
     elif "🏠" in c or "🏡" in c:
-        # Casa
         path = (
             f'<polygon points="{s*0.5},{s*0.1} {s*0.88},{s*0.45} {s*0.78},{s*0.45} {s*0.78},{s*0.88} {s*0.22},{s*0.88} {s*0.22},{s*0.45} {s*0.12},{s*0.45}" fill="white"/>'
             f'<rect x="{s*0.38}" y="{s*0.58}" width="{s*0.24}" height="{s*0.3}" rx="{s*0.03}" fill="{color}" opacity="0.6"/>'
         )
     elif "🛒" in c:
-        # Carrito
         path = (
             f'<path d="M{s*.1},{s*.18} L{s*.22},{s*.18} L{s*.35},{s*.65} L{s*.8},{s*.65} L{s*.9},{s*.3} L{s*.3},{s*.3}" stroke="white" stroke-width="{s*.07}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
             f'<circle cx="{s*.38}" cy="{s*.8}" r="{s*.07}" fill="white"/>'
             f'<circle cx="{s*.72}" cy="{s*.8}" r="{s*.07}" fill="white"/>'
         )
     elif "💳" in c:
-        # Tarjeta
         path = (
             f'<rect x="{s*.1}" y="{s*.25}" width="{s*.8}" height="{s*.5}" rx="{s*.08}" fill="white" opacity="0.9"/>'
             f'<rect x="{s*.1}" y="{s*.38}" width="{s*.8}" height="{s*.12}" fill="{color}" opacity="0.5"/>'
             f'<rect x="{s*.16}" y="{s*.58}" width="{s*.2}" height="{s*.08}" rx="{s*.03}" fill="{color}" opacity="0.7"/>'
         )
     elif "📺" in c:
-        # Pantalla / suscripción
         path = (
             f'<rect x="{s*.1}" y="{s*.15}" width="{s*.8}" height="{s*.55}" rx="{s*.07}" fill="white" opacity="0.9"/>'
             f'<rect x="{s*.18}" y="{s*.23}" width="{s*.64}" height="{s*.39}" rx="{s*.04}" fill="{color}" opacity="0.6"/>'
@@ -107,7 +103,6 @@ def svg_icon(cat: str, color: str, size: int = 22) -> str:
             f'<rect x="{s*.38}" y="{s*.74}" width="{s*.24}" height="{s*.08}" rx="{s*.03}" fill="white" opacity="0.5"/>'
         )
     elif "🚗" in c or "🚌" in c:
-        # Auto
         path = (
             f'<rect x="{s*.08}" y="{s*.42}" width="{s*.84}" height="{s*.3}" rx="{s*.07}" fill="white" opacity="0.9"/>'
             f'<path d="M{s*.22},{s*.42} L{s*.32},{s*.22} L{s*.68},{s*.22} L{s*.78},{s*.42}" fill="white" opacity="0.9"/>'
@@ -117,22 +112,18 @@ def svg_icon(cat: str, color: str, size: int = 22) -> str:
             f'<circle cx="{s*.73}" cy="{s*.76}" r="{s*.05}" fill="white"/>'
         )
     elif "🏥" in c:
-        # Cruz médica
         path = (
             f'<rect x="{s*.38}" y="{s*.12}" width="{s*.24}" height="{s*.76}" rx="{s*.06}" fill="white"/>'
             f'<rect x="{s*.12}" y="{s*.38}" width="{s*.76}" height="{s*.24}" rx="{s*.06}" fill="white"/>'
         )
     elif "📈" in c:
-        # Gráfico tendencia
         path = (
             f'<polyline points="{s*.1},{s*.75} {s*.32},{s*.5} {s*.52},{s*.62} {s*.72},{s*.28} {s*.9},{s*.35}" stroke="white" stroke-width="{s*.07}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
             f'<polyline points="{s*.72},{s*.18} {s*.9},{s*.18} {s*.9},{s*.35}" stroke="white" stroke-width="{s*.07}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
         )
     elif "🎭" in c:
-        # Estrella
         path = f'<polygon points="{s*.5},{s*.1} {s*.61},{s*.38} {s*.92},{s*.38} {s*.68},{s*.56} {s*.77},{s*.85} {s*.5},{s*.67} {s*.23},{s*.85} {s*.32},{s*.56} {s*.08},{s*.38} {s*.39},{s*.38}" fill="white"/>'
     elif "👪" in c:
-        # Personas
         path = (
             f'<circle cx="{s*.35}" cy="{s*.28}" r="{s*.13}" fill="white"/>'
             f'<circle cx="{s*.65}" cy="{s*.28}" r="{s*.13}" fill="white"/>'
@@ -140,7 +131,6 @@ def svg_icon(cat: str, color: str, size: int = 22) -> str:
             f'<path d="M{s*.4},{s*.82} Q{s*.4},{s*.5} {s*.65},{s*.5} Q{s*.9},{s*.5} {s*.9},{s*.82}" fill="white"/>'
         )
     elif "🍔" in c:
-        # Tenedor y cuchillo
         path = (
             f'<rect x="{s*.28}" y="{s*.12}" width="{s*.08}" height="{s*.76}" rx="{s*.04}" fill="white"/>'
             f'<path d="M{s*.24},{s*.12} Q{s*.2},{s*.35} {s*.36},{s*.38} Q{s*.52},{s*.35} {s*.48},{s*.12}" fill="white"/>'
@@ -148,7 +138,6 @@ def svg_icon(cat: str, color: str, size: int = 22) -> str:
             f'<rect x="{s*.60}" y="{s*.48}" width="{s*.14}" height="{s*.4}" rx="{s*.06}" fill="white"/>'
         )
     else:
-        # Genérico — círculo con punto
         path = (
             f'<circle cx="{s*.5}" cy="{s*.4}" r="{s*.18}" fill="white" opacity="0.9"/>'
             f'<rect x="{s*.44}" y="{s*.62}" width="{s*.12}" height="{s*.26}" rx="{s*.05}" fill="white" opacity="0.9"/>'
@@ -506,6 +495,22 @@ def get_dolar():
 # ─────────────────────────────────────────────
 # 7. HELPERS
 # ─────────────────────────────────────────────
+def categorizar_inteligente(item: str) -> str:
+    """Asigna una categoría automáticamente según palabras clave en el ítem."""
+    i = str(item).lower()
+    if any(x in i for x in ["luz", "edenor", "edesur", "agua", "aysa", "gas", "metrogas"]): return "⚡ Servicios"
+    elif any(x in i for x in ["super", "coto", "carrefour", "dia", "jumbo", "disco", "mercado", "almacén", "chino"]): return "🛒 Supermercado"
+    elif any(x in i for x in ["alquiler", "expensas", "abl", "limpieza"]): return "🏠 Hogar"
+    elif any(x in i for x in ["nafta", "ypf", "shell", "axion", "uber", "cabify", "taxi", "peaje", "sube", "transporte"]): return "🚗 Transporte"
+    elif any(x in i for x in ["netflix", "spotify", "prime", "hbo", "disney", "youtube", "telecentro", "fibertel", "internet", "claro", "personal", "movistar"]): return "📺 Suscripciones"
+    elif any(x in i for x in ["tarjeta", "visa", "mastercard", "amex", "crédito", "banco"]): return "💳 Tarjetas"
+    elif any(x in i for x in ["gym", "gimnasio", "megatlon", "sportclub", "crossfit"]): return "🏋 Fitness"
+    elif any(x in i for x in ["farmacia", "osde", "swiss", "galeno", "médico", "salud"]): return "🏥 Salud"
+    elif any(x in i for x in ["mc", "burger", "pedidosya", "rappi", "helado", "pizza", "restaurante", "bar", "café"]): return "🍔 Comida/Delivery"
+    elif any(x in i for x in ["ropa", "zapat", "zara", "dafiti", "peluquería", "estética"]): return "🎭 Personal/Ocio"
+    elif any(x in i for x in ["vuelo", "pasaje", "hotel", "airbnb"]): return "✈ Viajes"
+    else: return "🔘 Otros"
+
 def fmt_ars(n):
     s = f"{n:,.0f}".replace(",","X").replace(".",",").replace("X",".")
     return f"$ {s}"
@@ -539,10 +544,12 @@ def venc_html(row):
 
 def procesar(df_base, dolar):
     df    = df_base.copy()
+    # Aplicar la categorización inteligente
+    df["Categoría"] = df["Ítem"].apply(categorizar_inteligente)
     total = df["Monto (ARS)"].sum()
     df["Peso (%)"] = (df["Monto (ARS)"] / total).fillna(0) if total > 0 else 0
     df["USD"]      = (df["Monto (ARS)"] / dolar).round(2)  if dolar > 0 else 0
-    df["Cat."]     = df["Categoría"].apply(lambda x: str(x).strip() or "—")
+    df["Cat."]     = df["Categoría"]
     return df.sort_values(["Pagado","Día Pago"], ascending=[True,True], na_position="last")
 
 # ─────────────────────────────────────────────
@@ -590,7 +597,6 @@ st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
 st.markdown(f"""
 <div class="hdr">
-  <!-- Bandera Argentina difuminada -->
   <div style="
     position:absolute; right:0; top:0; bottom:0; width:280px;
     pointer-events:none; z-index:0;
@@ -894,15 +900,13 @@ elif st.session_state.screen == "gastos":
 
         COL_CONFIG = {
             "Pagado":      st.column_config.CheckboxColumn("✓", width="small"),
-            "Cat.":        st.column_config.TextColumn("Cat.", width="small"),
-            "Categoría":   None,
             "Ítem":        st.column_config.TextColumn("Ítem"),
             "Monto (ARS)": st.column_config.NumberColumn("Monto ARS", format="$ %d"),
             "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
             "Peso (%)":    st.column_config.ProgressColumn("Peso", format="%.1f%%", min_value=0, max_value=1, width="small"),
             "Día Pago":    st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
         }
-        COL_ORDER = ("Pagado","Cat.","Ítem","Monto (ARS)","USD","Peso (%)","Día Pago")
+        COL_ORDER = ("Pagado","Ítem","Monto (ARS)","USD","Peso (%)","Día Pago")
 
         def render_tabla(data, key):
             return st.data_editor(
@@ -924,7 +928,9 @@ elif st.session_state.screen == "gastos":
         with bc1:
             if st.button("💾  Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
-                    df_up = df_edit[["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]].copy()
+                    df_up = df_edit.copy()
+                    df_up["Categoría"] = df_up["Ítem"].apply(categorizar_inteligente)
+                    df_up = df_up[["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]]
                     df_up["Día Pago"] = df_up["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
                     df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
                     st.cache_data.clear()
