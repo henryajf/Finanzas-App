@@ -216,7 +216,7 @@ html, body, [class*="css"], .stApp {{
   text-transform: uppercase; font-weight: 700; }}
 .dolar-val {{ font-size: 18px; font-weight: 800; color: var(--accent); margin-top: 1px; }}
 
-/* ── NAV — 2 botones full width siempre ── */
+/* ── NAV — 2 botones full width sempre ── */
 .nav-grid {{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -930,19 +930,38 @@ elif st.session_state.screen == "gastos":
             if st.button("💾  Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
                     df_up = df_edit.copy()
-                    df_up["Ítem"] = df_up["Ítem"].fillna("")
-                    df_up["Monto (ARS)"] = df_up["Monto (ARS)"].fillna(0)
-                    df_up["Categoría"] = df_up["Ítem"].apply(categorizar_inteligente)
-                    df_up = df_up[["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]]
-                    df_up["Día Pago"] = df_up["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
-                    df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
-                    df_up = df_up.fillna("")
                     
+                    # Garantir que as colunas essenciais existem, mesmo se a tabela estiver vazia
+                    if "Ítem" not in df_up: df_up["Ítem"] = ""
+                    if "Monto (ARS)" not in df_up: df_up["Monto (ARS)"] = 0.0
+                    if "Día Pago" not in df_up: df_up["Día Pago"] = ""
+                    if "Pagado" not in df_up: df_up["Pagado"] = False
+
+                    # Prevenir erros de valores nulos (NaN) gerados ao adicionar novas linhas
+                    df_up["Ítem"] = df_up["Ítem"].fillna("")
+                    df_up["Monto (ARS)"] = pd.to_numeric(df_up["Monto (ARS)"], errors="coerce").fillna(0)
+                    
+                    # Gerar a Categoria novamente
+                    df_up["Categoría"] = df_up["Ítem"].apply(categorizar_inteligente)
+                    
+                    # Organizar colunas exatas para o Sheets
+                    df_up = df_up[["Categoría", "Ítem", "Monto (ARS)", "Día Pago", "Pagado"]]
+                    
+                    # Limpar datas e booleanos para o formato texto JSON compatível com o Sheets
+                    df_up["Día Pago"] = df_up["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) and str(x).strip() != "" and str(x) != "NaT" else "")
+                    df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x in [True, "TRUE", "True", 1, "1"] else "FALSE")
+                    
+                    # Forçar qualquer outro tipo nulo residual para string vazia
+                    df_up = df_up.fillna("")
+
                     st.cache_data.clear()
                     hoja = get_gspread().open("Gastos_Henry").sheet1
                     hoja.clear()
                     hoja.append_row(df_up.columns.tolist())
-                    hoja.append_rows(df_up.values.tolist())
+                    
+                    # value_input_option garante que o Sheets entenda "TRUE"/"FALSE" e números corretamente
+                    hoja.append_rows(df_up.values.tolist(), value_input_option="USER_ENTERED")
+                    
                     st.success("✓ Cambios guardados en Google Sheets")
                     st.rerun()
                 except Exception as e:
