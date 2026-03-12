@@ -498,12 +498,13 @@ def get_dolar():
 def categorizar_inteligente(item: str) -> str:
     """Asigna una categoría automáticamente según palabras clave en el ítem."""
     i = str(item).lower()
-    if any(x in i for x in ["luz", "edenor", "edesur", "agua", "aysa", "gas", "metrogas"]): return "⚡ Servicios"
+    
+    if any(x in i for x in ["mercadocredito", "mercado credito", "tarjeta", "visa", "mastercard", "amex", "crédito", "credito", "banco", "financiamiento", "financiación", "financiacion", "cuota"]): return "💳 Crédito/Financiación"
+    elif any(x in i for x in ["luz", "edenor", "edesur", "agua", "aysa", "gas", "metrogas"]): return "⚡ Servicios"
     elif any(x in i for x in ["super", "coto", "carrefour", "dia", "jumbo", "disco", "mercado", "almacén", "chino"]): return "🛒 Supermercado"
     elif any(x in i for x in ["alquiler", "expensas", "abl", "limpieza"]): return "🏠 Hogar"
     elif any(x in i for x in ["nafta", "ypf", "shell", "axion", "uber", "cabify", "taxi", "peaje", "sube", "transporte", "trasporte"]): return "🚗 Transporte"
     elif any(x in i for x in ["netflix", "spotify", "prime", "hbo", "disney", "youtube", "telecentro", "fibertel", "internet", "claro", "personal", "movistar", "meli", "google", "apple one", "vpn"]): return "📺 Suscripciones"
-    elif any(x in i for x in ["tarjeta", "visa", "mastercard", "amex", "crédito", "banco"]): return "💳 Tarjetas"
     elif any(x in i for x in ["gym", "gimnasio", "megatlon", "sportclub", "crossfit"]): return "🏋 Fitness"
     elif any(x in i for x in ["farmacia", "osde", "swiss", "galeno", "médico", "salud", "depilife"]): return "🏥 Salud"
     elif any(x in i for x in ["mc", "burger", "pedidosya", "rappi", "helado", "pizza", "restaurante", "bar", "café"]): return "🍔 Comida/Delivery"
