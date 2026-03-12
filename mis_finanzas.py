@@ -67,19 +67,21 @@ PALETTE = [
 ]
 
 # ─────────────────────────────────────────────
-# 4. SVG ÍCONOS (AJUSTADOS A BLANCO SÓLIDO PARA EL NUEVO ESTILO)
+# 4. SVG ÍCONOS MINIMALISTAS POR CATEGORÍA
 # ─────────────────────────────────────────────
-def svg_icon(cat: str, size: int = 22) -> str:
-    """Devuelve un SVG minimalista 100% blanco según el emoji de la categoría."""
+def svg_icon(cat: str, color: str, size: int = 22) -> str:
+    """Devuelve un SVG minimalista según el emoji de la categoría."""
     c = str(cat)
     s = size
-    
+    stroke = "none"
+    fill   = "white"
+
     if "⚡" in c or "🔌" in c:
         path = f'<polygon points="{s*0.6},{s*0.05} {s*0.3},{s*0.52} {s*0.52},{s*0.52} {s*0.4},{s*0.95} {s*0.7},{s*0.45} {s*0.48},{s*0.45}" fill="white"/>'
     elif "🏠" in c or "🏡" in c:
         path = (
             f'<polygon points="{s*0.5},{s*0.1} {s*0.88},{s*0.45} {s*0.78},{s*0.45} {s*0.78},{s*0.88} {s*0.22},{s*0.88} {s*0.22},{s*0.45} {s*0.12},{s*0.45}" fill="white"/>'
-            f'<rect x="{s*0.38}" y="{s*0.58}" width="{s*0.24}" height="{s*0.3}" rx="{s*0.03}" fill="white"/>'
+            f'<rect x="{s*0.38}" y="{s*0.58}" width="{s*0.24}" height="{s*0.3}" rx="{s*0.03}" fill="{color}" opacity="0.6"/>'
         )
     elif "🛒" in c:
         path = (
@@ -89,23 +91,25 @@ def svg_icon(cat: str, size: int = 22) -> str:
         )
     elif "💳" in c:
         path = (
-            f'<rect x="{s*.1}" y="{s*.25}" width="{s*.8}" height="{s*.5}" rx="{s*.08}" fill="white"/>'
-            f'<rect x="{s*.1}" y="{s*.38}" width="{s*.8}" height="{s*.12}" fill="black" opacity="0.3"/>'
-            f'<rect x="{s*.16}" y="{s*.58}" width="{s*.2}" height="{s*.08}" rx="{s*.03}" fill="black" opacity="0.3"/>'
+            f'<rect x="{s*.1}" y="{s*.25}" width="{s*.8}" height="{s*.5}" rx="{s*.08}" fill="white" opacity="0.9"/>'
+            f'<rect x="{s*.1}" y="{s*.38}" width="{s*.8}" height="{s*.12}" fill="{color}" opacity="0.5"/>'
+            f'<rect x="{s*.16}" y="{s*.58}" width="{s*.2}" height="{s*.08}" rx="{s*.03}" fill="{color}" opacity="0.7"/>'
         )
     elif "📺" in c:
         path = (
-            f'<rect x="{s*.1}" y="{s*.15}" width="{s*.8}" height="{s*.55}" rx="{s*.07}" fill="white"/>'
-            f'<rect x="{s*.18}" y="{s*.23}" width="{s*.64}" height="{s*.39}" rx="{s*.04}" fill="black" opacity="0.3"/>'
+            f'<rect x="{s*.1}" y="{s*.15}" width="{s*.8}" height="{s*.55}" rx="{s*.07}" fill="white" opacity="0.9"/>'
+            f'<rect x="{s*.18}" y="{s*.23}" width="{s*.64}" height="{s*.39}" rx="{s*.04}" fill="{color}" opacity="0.6"/>'
             f'<polygon points="{s*.4},{s*.35} {s*.4},{s*.52} {s*.62},{s*.435}" fill="white"/>'
-            f'<rect x="{s*.38}" y="{s*.74}" width="{s*.24}" height="{s*.08}" rx="{s*.03}" fill="white"/>'
+            f'<rect x="{s*.38}" y="{s*.74}" width="{s*.24}" height="{s*.08}" rx="{s*.03}" fill="white" opacity="0.5"/>'
         )
     elif "🚗" in c or "🚌" in c:
         path = (
-            f'<rect x="{s*.08}" y="{s*.42}" width="{s*.84}" height="{s*.3}" rx="{s*.07}" fill="white"/>'
-            f'<path d="M{s*.22},{s*.42} L{s*.32},{s*.22} L{s*.68},{s*.22} L{s*.78},{s*.42}" fill="white"/>'
-            f'<circle cx="{s*.27}" cy="{s*.76}" r="{s*.1}" fill="white"/>'
-            f'<circle cx="{s*.73}" cy="{s*.76}" r="{s*.1}" fill="white"/>'
+            f'<rect x="{s*.08}" y="{s*.42}" width="{s*.84}" height="{s*.3}" rx="{s*.07}" fill="white" opacity="0.9"/>'
+            f'<path d="M{s*.22},{s*.42} L{s*.32},{s*.22} L{s*.68},{s*.22} L{s*.78},{s*.42}" fill="white" opacity="0.9"/>'
+            f'<circle cx="{s*.27}" cy="{s*.76}" r="{s*.1}" fill="{color}" opacity="0.8"/>'
+            f'<circle cx="{s*.27}" cy="{s*.76}" r="{s*.05}" fill="white"/>'
+            f'<circle cx="{s*.73}" cy="{s*.76}" r="{s*.1}" fill="{color}" opacity="0.8"/>'
+            f'<circle cx="{s*.73}" cy="{s*.76}" r="{s*.05}" fill="white"/>'
         )
     elif "🏥" in c:
         path = (
@@ -135,15 +139,15 @@ def svg_icon(cat: str, size: int = 22) -> str:
         )
     else:
         path = (
-            f'<circle cx="{s*.5}" cy="{s*.4}" r="{s*.18}" fill="white"/>'
-            f'<rect x="{s*.44}" y="{s*.62}" width="{s*.12}" height="{s*.26}" rx="{s*.05}" fill="white"/>'
+            f'<circle cx="{s*.5}" cy="{s*.4}" r="{s*.18}" fill="white" opacity="0.9"/>'
+            f'<rect x="{s*.44}" y="{s*.62}" width="{s*.12}" height="{s*.26}" rx="{s*.05}" fill="white" opacity="0.9"/>'
         )
 
     return f'<svg width="{s}" height="{s}" viewBox="0 0 {s} {s}" xmlns="http://www.w3.org/2000/svg">{path}</svg>'
 
 
 # ─────────────────────────────────────────────
-# 5. CSS GLOBAL (CON ACTUALIZACIONES PARA FILAS MP)
+# 5. CSS GLOBAL
 # ─────────────────────────────────────────────
 st.markdown(f"""
 <style>
@@ -221,6 +225,7 @@ html, body, [class*="css"], .stApp {{
   border-bottom: 1px solid var(--border);
   margin-bottom: 22px;
 }}
+/* Forzar botones Streamlit a ocupar 100% dentro del grid */
 .nav-grid .stButton,
 .nav-grid .stButton > button {{
   width: 100% !important;
@@ -321,33 +326,34 @@ html, body, [class*="css"], .stApp {{
   background: rgba(242,61,79,.14); color: {RED}; margin-left: 6px;
 }}
 
-/* ── ITEM ROW (ESTILO MERCADO PAGO ACTUALIZADO) ── */
+/* ── ITEM ROW (estilo MP mejorado) ── */
 .item-row {{
   display: flex; align-items: center; gap: 14px;
-  padding: 16px 18px;
+  padding: 13px 18px;
   border-bottom: 1px solid {BORDER2};
   transition: background .12s;
 }}
 .item-row:last-child {{ border-bottom: none; }}
 .item-row:hover {{ background: rgba(255,255,255,.018); }}
 
-/* Ícono circular SÓLIDO */
+/* Ícono circular grande estilo MP */
 .item-ico {{
-  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
+  position: relative;
 }}
 
 .item-body {{ flex: 1; min-width: 0; }}
 .item-name {{
-  font-size: 15px; font-weight: 500; color: var(--text);
+  font-size: 14px; font-weight: 700; color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
 }}
 .item-name-paid {{
-  font-size: 15px; font-weight: 400;
+  font-size: 14px; font-weight: 600;
   color: var(--muted2); text-decoration: line-through;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
 }}
 
 /* Badge de vencimiento */
@@ -364,14 +370,11 @@ html, body, [class*="css"], .stApp {{
 .vb-ok    {{ background:rgba(0,200,83,.08);  color:{GREEN};  }}
 .vb-none  {{ background:rgba(255,255,255,.05); color:var(--muted2); }}
 
-/* Montos alineados a la derecha y flecha */
-.item-right {{ text-align: right; display: flex; align-items: center; gap: 12px; }}
-.item-amounts {{ display: flex; flex-direction: column; text-align: right; }}
-.item-monto {{ font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.2; }}
-.item-monto-paid {{ font-size: 16px; font-weight: 500; color: var(--muted2);
-  text-decoration: line-through; line-height: 1.2; }}
-.item-usd {{ font-size: 12px; color: var(--muted2); margin-top: 2px; }}
-.item-arrow {{ color: #555; font-size: 20px; font-weight: 300; margin-left: 2px; }}
+.item-right {{ text-align: right; flex-shrink: 0; min-width: 90px; }}
+.item-monto {{ font-size: 15px; font-weight: 800; color: var(--text); line-height: 1; }}
+.item-monto-paid {{ font-size: 15px; font-weight: 600; color: var(--muted2);
+  text-decoration: line-through; line-height: 1; }}
+.item-usd {{ font-size: 11px; color: var(--muted2); margin-top: 4px; }}
 
 /* ── BARRAS PENDIENTE POR CAT ── */
 .cat-bar-row {{ margin-bottom: 11px; }}
@@ -706,7 +709,7 @@ if st.session_state.screen == "inicio":
     else:
         col_izq, col_der = st.columns([1.65, 1], gap="medium")
 
-        # ── COL IZQUIERDA: LISTA AGRUPADA (MODIFICADA ESTILO MP) ────
+        # ── COL IZQUIERDA: LISTA AGRUPADA ────
         with col_izq:
             # Orden: primero categorías con pendientes
             cats_orden = (
@@ -726,8 +729,8 @@ if st.session_state.screen == "inicio":
                 n_pend  = int(df_cat["Pagado"].eq(False).sum())
                 badge   = f'<span class="sec-badge">{n_pend} pend.</span>' if n_pend > 0 else ""
 
-                # Ícono SVG pequeño para el header de sección (mantenemos con transparencia de fondo)
-                icon_s  = svg_icon(cat, size=16)
+                # Ícono SVG pequeño para el header de sección
+                icon_s  = svg_icon(cat, color, size=16)
 
                 st.markdown(f"""
                 <div class="sec-hdr">
@@ -742,16 +745,15 @@ if st.session_state.screen == "inicio":
                     monto     = row["Monto (ARS)"]
                     usd_str   = fmt_usd(monto, dolar)
                     badge_venc= venc_html(row)
-                    icon_lg   = svg_icon(cat, size=22)
+                    icon_lg   = svg_icon(cat, color, size=22)
                     opacity   = "0.45" if paid else "1"
 
                     name_cls  = "item-name-paid" if paid else "item-name"
                     monto_cls = "item-monto-paid" if paid else "item-monto"
 
-                    # ACÁ APLICAMOS EL NUEVO HTML DE FILAS ESTILO MP
                     st.markdown(f"""
                     <div class="item-row" style="opacity:{opacity}">
-                      <div class="item-ico" style="background-color:{color};">
+                      <div class="item-ico" style="background:{color}{'20' if not paid else '10'}">
                         {icon_lg}
                       </div>
                       <div class="item-body">
@@ -759,18 +761,15 @@ if st.session_state.screen == "inicio":
                         <div>{badge_venc}</div>
                       </div>
                       <div class="item-right">
-                        <div class="item-amounts">
-                          <div class="{monto_cls}">{fmt_ars(monto)}</div>
-                          <div class="item-usd">{usd_str}</div>
-                        </div>
-                        <div class="item-arrow">&rsaquo;</div>
+                        <div class="{monto_cls}">{fmt_ars(monto)}</div>
+                        <div class="item-usd">{usd_str}</div>
                       </div>
                     </div>
                     """, unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # ── COL DERECHA: DONUT + SIDEBAR (MANTENIDO INTACTO) ─────
+        # ── COL DERECHA: DONUT + SIDEBAR ─────
         with col_der:
 
             # DONUT
@@ -903,12 +902,11 @@ elif st.session_state.screen == "gastos":
         COL_CONFIG = {
             "Pagado":      st.column_config.CheckboxColumn("✓", width="small"),
             "Ítem":        st.column_config.TextColumn("Ítem"),
-            "Monto (ARS)": st.column_config.NumberColumn("Monto ARS", format="$ %d"),
+            "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$ %d"),
             "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
-            "Peso (%)":    st.column_config.ProgressColumn("Peso", format="%.1f%%", min_value=0, max_value=1, width="small"),
             "Día Pago":    st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
         }
-        COL_ORDER = ("Pagado","Ítem","Monto (ARS)","USD","Peso (%)","Día Pago")
+        COL_ORDER = ("Pagado","Ítem","Monto (ARS)","USD","Día Pago")
 
         def render_tabla(data, key):
             return st.data_editor(
