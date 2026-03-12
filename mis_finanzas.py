@@ -10,7 +10,7 @@ from datetime import date, timedelta
 
 st.set_page_config(page_title="Finanzas AR", page_icon="💳", layout="wide", initial_sidebar_state="collapsed")
 
-for k,v in [("screen","inicio"),("show_add",False),("filtro_cat","Todas"),("busqueda","")]:
+for k,v in [("screen","inicio"),("show_add",False)]:
     if k not in st.session_state: st.session_state[k]=v
 
 BG="#0a0a0a"; SURFACE="#131313"; SURF2="#1a1a1a"; BORDER="rgba(255,255,255,0.07)"; BORDER2="rgba(255,255,255,0.04)"
@@ -20,12 +20,6 @@ ACCENT="#009ee3"; GREEN="#00c853"; RED="#f23d4f"; ORANGE="#ff9c00"; YELLOW="#fbb
 CAT_COLORS={"⚡":"#009ee3","🔌":"#009ee3","🏠":"#00a650","🏡":"#00a650","🛒":"#22c55e","🍔":"#ef4444",
             "🚗":"#ff9c00","🚌":"#ff9c00","💳":"#a855f7","📺":"#ec4899","📈":"#0ea5e9","🏥":"#14b8a6",
             "🎭":"#f59e0b","👪":"#8b5cf6","🏋":"#22d3ee","✈":"#60a5fa","🔘":"#6b7280"}
-
-PRESUPUESTOS_DEFAULT = {
-    "💳 Crédito/Financiación": 0,"⚡ Servicios": 0,"🛒 Supermercado": 0,"🏠 Hogar": 0,
-    "🚗 Transporte": 0,"📺 Suscripciones": 0,"🏋 Fitness": 0,"🏥 Salud": 0,
-    "🍔 Comida/Delivery": 0,"🎭 Personal/Ocio": 0,"✈ Viajes": 0,"🔘 Otros": 0,
-}
 
 def cat_color(cat):
     for e,c in CAT_COLORS.items():
@@ -62,7 +56,7 @@ html,body,[class*="css"],.stApp{{font-family:'Plus Jakarta Sans','Helvetica Neue
 .dolar-chip{{background:rgba(0,158,227,.08);border:1px solid rgba(0,158,227,.2);border-radius:12px;padding:8px 16px;text-align:center;position:relative;z-index:2;}}
 .dolar-lbl{{font-size:9px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;font-weight:700;}}
 .dolar-val{{font-size:18px;font-weight:800;color:var(--accent);margin-top:1px;}}
-.nav-grid{{display:flex;justify-content:center;gap:12px;padding:14px 0 20px;border-bottom:1px solid var(--border);margin-bottom:22px;flex-wrap:wrap;}}
+.nav-grid{{display:flex;justify-content:center;gap:12px;padding:14px 0 20px;border-bottom:1px solid var(--border);margin-bottom:22px;}}
 .stButton>button[kind="primary"]{{background:{ACCENT} !important;color:#fff !important;border:none !important;border-radius:12px !important;padding:10px 24px !important;font-family:'Plus Jakarta Sans',sans-serif !important;font-size:14px !important;font-weight:700 !important;box-shadow:0 4px 14px rgba(0,158,227,.3) !important;transition:all .2s !important;}}
 .stButton>button[kind="primary"]:hover{{background:#007fc0 !important;transform:translateY(-1px) !important;}}
 .stButton>button[kind="secondary"]{{background:var(--surface) !important;color:var(--muted2) !important;border:1px solid var(--border) !important;border-radius:12px !important;padding:10px 24px !important;font-family:'Plus Jakarta Sans',sans-serif !important;font-size:14px !important;font-weight:700 !important;transition:all .2s !important;}}
@@ -83,15 +77,10 @@ html,body,[class*="css"],.stApp{{font-family:'Plus Jakarta Sans','Helvetica Neue
 .alert{{padding:12px 16px;border-radius:12px;font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:flex-start;gap:10px;line-height:1.5;}}
 .alert-r{{background:rgba(242,61,79,.08);border:1px solid rgba(242,61,79,.2);color:#ff8a94;}}
 .alert-o{{background:rgba(255,156,0,.08);border:1px solid rgba(255,156,0,.2);color:#ffc066;}}
-.alert-y{{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);color:{YELLOW};}}
 .card{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;}}
 .card-pad{{padding:20px;}}
 .ctitle{{font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;}}
 .add-panel{{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:16px;}}
-.filter-bar{{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}}
-.fbadge{{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all .15s;background:var(--surface);color:var(--muted2);border-color:var(--border);}}
-.fbadge-active{{color:#fff;border-color:transparent;}}
-.search-wrap{{flex:1;min-width:180px;}}
 .sec-hdr{{display:flex;align-items:center;gap:12px;padding:11px 18px 9px;background:rgba(255,255,255,.018);border-bottom:1px solid {BORDER2};}}
 .sec-hdr-icon{{width:26px;height:26px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}}
 .sec-hdr-name{{flex:1;font-size:11px;font-weight:700;color:var(--muted2);letter-spacing:.03em;text-transform:uppercase;}}
@@ -116,9 +105,6 @@ html,body,[class*="css"],.stApp{{font-family:'Plus Jakarta Sans','Helvetica Neue
 .item-monto{{font-size:15px;font-weight:800;color:var(--text);line-height:1;}}
 .item-monto-paid{{font-size:15px;font-weight:600;color:var(--muted2);text-decoration:line-through;line-height:1;}}
 .item-usd{{font-size:11px;color:var(--muted2);margin-top:4px;}}
-.pay-btn{{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:5px;background:rgba(0,200,83,.1);color:{GREEN};border:1px solid rgba(0,200,83,.2);cursor:pointer;transition:all .15s;}}
-.pay-btn:hover{{background:rgba(0,200,83,.2);}}
-.budget-bar{{height:4px;border-radius:4px;overflow:hidden;margin-top:6px;}}
 .cat-bar-row{{margin-bottom:11px;}}
 .cat-bar-top{{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;}}
 .cat-bar-bg{{height:5px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}}
@@ -126,6 +112,7 @@ html,body,[class*="css"],.stApp{{font-family:'Plus Jakarta Sans','Helvetica Neue
 .res-row{{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid {BORDER2};font-size:13px;}}
 .res-row:last-child{{border-bottom:none;}}
 .res-k{{color:var(--muted2);font-weight:500;}}
+.section-divider{{border-top:1px solid var(--border);margin:28px 0 24px;}}
 .stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:1px solid var(--border) !important;gap:0 !important;padding:0 !important;}}
 .stTabs [data-baseweb="tab"]{{background:transparent !important;color:var(--muted2) !important;font-family:'Plus Jakarta Sans',sans-serif !important;font-size:13px !important;font-weight:700 !important;border-bottom:2px solid transparent !important;padding:11px 18px !important;margin-bottom:-1px !important;}}
 .stTabs [aria-selected="true"]{{color:{ACCENT} !important;border-bottom-color:{ACCENT} !important;}}
@@ -153,9 +140,7 @@ def get_gspread():
 @st.cache_data(ttl=600)
 def cargar_datos():
     try:
-        gc=get_gspread()
-        sh=gc.open("Gastos_Henry")
-        hoja=sh.sheet1
+        hoja=get_gspread().open("Gastos_Henry").sheet1
         data=hoja.get_all_values()
     except Exception as e:
         st.error(f"❌ Error conectando con Google Sheets: {e}"); return pd.DataFrame()
@@ -175,10 +160,8 @@ def cargar_datos():
 
 @st.cache_data(ttl=600)
 def cargar_historial():
-    """Carga todas las hojas del spreadsheet como historial mensual."""
     try:
-        gc=get_gspread()
-        sh=gc.open("Gastos_Henry")
+        sh=get_gspread().open("Gastos_Henry")
         hojas=sh.worksheets()
         frames=[]
         for h in hojas:
@@ -192,7 +175,6 @@ def cargar_historial():
             if not filas: continue
             df_h=pd.DataFrame(filas,columns=headers)
             df_h["Monto (ARS)"]=pd.to_numeric(df_h["Monto (ARS)"],errors="coerce").fillna(0)
-            df_h["Pagado"]=df_h["Pagado"].apply(lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","✅","SI","SÍ","1"])
             df_h=df_h[~((df_h["Monto (ARS)"]==0)&(df_h["Ítem"].str.strip()==""))]
             df_h["Mes"]=h.title
             frames.append(df_h)
@@ -263,7 +245,6 @@ def guardar_hoja(df_guardar):
     st.cache_data.clear()
 
 def marcar_pagado(idx):
-    """Marca un ítem como pagado por índice y guarda."""
     df_act=cargar_datos().copy()
     if idx<len(df_act):
         df_act.at[idx,"Pagado"]=True
@@ -284,10 +265,6 @@ def exportar_excel(df):
 dolar=get_dolar()
 df_base=cargar_datos()
 
-# Presupuestos en session state
-if "presupuestos" not in st.session_state:
-    st.session_state.presupuestos=PRESUPUESTOS_DEFAULT.copy()
-
 if not df_base.empty:
     df=procesar(df_base,dolar)
     total_ars=df["Monto (ARS)"].sum()
@@ -297,17 +274,10 @@ if not df_base.empty:
     vencidos=df[(df["Pagado"]==False)&df["Día Pago"].notna()&(df["Día Pago"]<date.today())]
     proximos=df[(df["Pagado"]==False)&df["Día Pago"].notna()&(df["Día Pago"]>=date.today())&(df["Día Pago"]<=date.today()+timedelta(days=3))]
     por_cat=df.groupby("Cat.")["Monto (ARS)"].sum().reset_index().sort_values("Monto (ARS)",ascending=False)
-    # Alertas de presupuesto
-    alertas_presup=[]
-    for cat,gasto in df.groupby("Cat.")["Monto (ARS)"].sum().items():
-        limite=st.session_state.presupuestos.get(cat,0)
-        if limite>0 and gasto>limite:
-            alertas_presup.append((cat,gasto,limite))
 else:
     df=por_cat=pd.DataFrame()
     total_ars=pagado_ars=pend_ars=pct=0
     vencidos=proximos=pd.DataFrame()
-    alertas_presup=[]
 
 # ── HEADER ──
 sun_rays=""
@@ -334,21 +304,15 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAV ──
+# ── NAV — solo 2 botones ──
 st.markdown('<div class="nav-grid">', unsafe_allow_html=True)
-_,n1,n2,n3,n4,_=st.columns([0.5,0.3,0.3,0.3,0.3,0.5])
+_,n1,n2,_=st.columns([1,0.4,0.4,1])
 with n1:
     if st.button("🏠  Inicio",type="primary" if st.session_state.screen=="inicio" else "secondary",use_container_width=True):
         st.session_state.screen="inicio"; st.rerun()
 with n2:
     if st.button("📋  Gastos",type="primary" if st.session_state.screen=="gastos" else "secondary",use_container_width=True):
         st.session_state.screen="gastos"; st.rerun()
-with n3:
-    if st.button("📊  Análisis",type="primary" if st.session_state.screen=="evolucion" else "secondary",use_container_width=True):
-        st.session_state.screen="evolucion"; st.rerun()
-with n4:
-    if st.button("⚙️  Config",type="primary" if st.session_state.screen=="config" else "secondary",use_container_width=True):
-        st.session_state.screen="config"; st.rerun()
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════
@@ -356,16 +320,13 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ══════════════════════════════════════════════
 if st.session_state.screen=="inicio":
 
-    # Alertas vencidos
+    # Alertas
     if not vencidos.empty:
         items_v=" · ".join(f"<strong>{r['Ítem']}</strong> ({fmt_ars(r['Monto (ARS)'])})" for _,r in vencidos.iterrows())
         st.markdown(f'<div class="alert alert-r">🔴&nbsp; {len(vencidos)} pago{"s" if len(vencidos)>1 else ""} vencido{"s" if len(vencidos)>1 else ""} — {items_v}</div>',unsafe_allow_html=True)
     if not proximos.empty:
         items_p=" · ".join(f"<strong>{r['Ítem']}</strong> ({r['Día Pago'].strftime('%-d %b')})" for _,r in proximos.iterrows())
         st.markdown(f'<div class="alert alert-o">🟡&nbsp; Próximos 3 días — {items_p}</div>',unsafe_allow_html=True)
-    # Alertas presupuesto
-    for cat,gasto,limite in alertas_presup:
-        st.markdown(f'<div class="alert alert-y">⚠️&nbsp; <strong>{cat}</strong> superó el presupuesto — {fmt_ars(gasto)} de {fmt_ars(limite)}</div>',unsafe_allow_html=True)
 
     # Métricas
     st.markdown(f"""<div class="metrics">
@@ -408,16 +369,15 @@ if st.session_state.screen=="inicio":
     if df.empty:
         st.markdown(f'<div class="card card-pad" style="text-align:center;padding:48px;color:{MUTED2}"><div style="font-size:36px;margin-bottom:10px">📭</div><div style="font-weight:600">Sin datos. Usá el botón + para agregar tu primer gasto.</div></div>',unsafe_allow_html=True)
     else:
-        # ── BUSCADOR Y FILTRO POR CATEGORÍA ──
-        cats_disponibles=["Todas"]+sorted(df["Cat."].unique().tolist())
+        # Buscador y filtro
         sb1,sb2=st.columns([1,2])
         with sb1:
             busqueda=st.text_input("🔍",placeholder="Buscar gasto...",label_visibility="collapsed",key="busqueda_input")
         with sb2:
+            cats_disponibles=["Todas"]+sorted(df["Cat."].unique().tolist())
             filtro=st.selectbox("Categoría",cats_disponibles,label_visibility="collapsed",key="filtro_select")
         st.markdown("<div style='height:8px'></div>",unsafe_allow_html=True)
 
-        # Aplicar filtros
         df_vista=df.copy()
         if filtro!="Todas": df_vista=df_vista[df_vista["Cat."]==filtro]
         if busqueda.strip(): df_vista=df_vista[df_vista["Ítem"].str.contains(busqueda.strip(),case=False,na=False)]
@@ -428,51 +388,35 @@ if st.session_state.screen=="inicio":
             cats_orden=df_vista.groupby("Cat.").apply(lambda g: g["Pagado"].eq(False).sum()).sort_values(ascending=False).index.tolist()
             st.markdown('<div class="card">',unsafe_allow_html=True)
             st.markdown('<div style="padding:16px 18px 4px" class="ctitle">Detalle de gastos</div>',unsafe_allow_html=True)
-
             if df_vista.empty:
-                st.markdown(f'<div style="padding:24px;text-align:center;color:{MUTED2};font-size:13px">Sin resultados para tu búsqueda</div>',unsafe_allow_html=True)
+                st.markdown(f'<div style="padding:24px;text-align:center;color:{MUTED2};font-size:13px">Sin resultados</div>',unsafe_allow_html=True)
             else:
                 for cat in cats_orden:
                     df_cat=df_vista[df_vista["Cat."]==cat]
                     t_cat=df_cat["Monto (ARS)"].sum(); color=cat_color(cat)
                     n_pend=int(df_cat["Pagado"].eq(False).sum())
                     badge=f'<span class="sec-badge">{n_pend} pend.</span>' if n_pend>0 else ""
-                    # Barra de presupuesto en header de sección
-                    limite=st.session_state.presupuestos.get(cat,0)
-                    presup_html=""
-                    if limite>0:
-                        pp=min(int(t_cat/limite*100),100)
-                        bar_color=RED if t_cat>limite else (ORANGE if pp>80 else color)
-                        presup_html=f'<div class="budget-bar" style="background:rgba(255,255,255,.06);"><div style="height:100%;width:{pp}%;background:{bar_color};border-radius:4px;"></div></div>'
-                    st.markdown(f'<div class="sec-hdr"><div class="sec-hdr-icon" style="background:{color}25">{svg_icon(cat,color,size=16)}</div><div style="flex:1"><span class="sec-hdr-name">{cat}{badge}</span>{presup_html}</div><span class="sec-hdr-total" style="color:{color}">{fmt_ars(t_cat)}</span></div>',unsafe_allow_html=True)
-
+                    st.markdown(f'<div class="sec-hdr"><div class="sec-hdr-icon" style="background:{color}25">{svg_icon(cat,color,size=16)}</div><span class="sec-hdr-name">{cat}{badge}</span><span class="sec-hdr-total" style="color:{color}">{fmt_ars(t_cat)}</span></div>',unsafe_allow_html=True)
                     for idx,row in df_cat.iterrows():
                         paid=row["Pagado"]; monto=row["Monto (ARS)"]
                         opacity="0.45" if paid else "1"
                         nc="item-name-paid" if paid else "item-name"
                         mc="item-monto-paid" if paid else "item-monto"
                         bg="10" if paid else "20"
-                        # Botón marcar pagado
-                        pay_html=""
-                        if not paid:
-                            pay_html=f'<button class="pay-btn" onclick="window.location.href=\'?pay_idx={idx}\'" style="pointer-events:none;opacity:0.5">✓ Marcar pagado</button>'
                         st.markdown(f'<div class="item-row" style="opacity:{opacity}"><div class="item-ico" style="background:{color}{bg}">{svg_icon(cat,color,size=22)}</div><div class="item-body"><div class="{nc}">{row["Ítem"]}</div><div>{venc_html(row)}</div></div><div class="item-right"><div class="{mc}">{fmt_ars(monto)}</div><div class="item-usd">{fmt_usd(monto,dolar)}</div></div></div>',unsafe_allow_html=True)
-
             st.markdown("</div>",unsafe_allow_html=True)
 
-            # Botones marcar pagado por ítem (usando checkboxes ocultos de Streamlit)
-            if not df_vista.empty:
-                st.markdown(f'<div style="font-size:11px;color:{MUTED2};padding:8px 4px;">Marcá pagados desde la pantalla Gastos o usando el botón de abajo:</div>',unsafe_allow_html=True)
-                pend_items=df_vista[df_vista["Pagado"]==False]
-                if not pend_items.empty:
-                    with st.expander(f"✓ Marcar como pagado ({len(pend_items)} pendientes)"):
-                        for idx,row in pend_items.iterrows():
-                            col_n,col_b=st.columns([3,1])
-                            with col_n: st.markdown(f'<div style="font-size:13px;font-weight:600;padding:6px 0">{row["Ítem"]} — {fmt_ars(row["Monto (ARS)"])}</div>',unsafe_allow_html=True)
-                            with col_b:
-                                if st.button("✓ Pagado",key=f"pay_{idx}",use_container_width=True):
-                                    try: marcar_pagado(idx); st.rerun()
-                                    except Exception as e: st.error(str(e))
+            # Marcar pagado
+            pend_items=df_vista[df_vista["Pagado"]==False]
+            if not pend_items.empty:
+                with st.expander(f"✓ Marcar como pagado ({len(pend_items)} pendientes)"):
+                    for idx,row in pend_items.iterrows():
+                        col_n,col_b=st.columns([3,1])
+                        with col_n: st.markdown(f'<div style="font-size:13px;font-weight:600;padding:6px 0">{row["Ítem"]} — {fmt_ars(row["Monto (ARS)"])}</div>',unsafe_allow_html=True)
+                        with col_b:
+                            if st.button("✓ Pagado",key=f"pay_{idx}",use_container_width=True):
+                                try: marcar_pagado(idx); st.rerun()
+                                except Exception as e: st.error(str(e))
 
         with col_der:
             # Donut
@@ -485,13 +429,11 @@ if st.session_state.screen=="inicio":
             st.markdown(f'<div style="display:flex;border-top:1px solid {BORDER2};padding-top:14px;margin-top:4px"><div style="flex:1;text-align:center"><div style="font-size:9px;font-weight:700;color:{MUTED2};letter-spacing:.08em;text-transform:uppercase">Pagado</div><div style="font-size:16px;font-weight:800;color:{GREEN};margin-top:4px">{fmt_k(pagado_ars)}</div></div><div style="width:1px;background:{BORDER2}"></div><div style="flex:1;text-align:center"><div style="font-size:9px;font-weight:700;color:{MUTED2};letter-spacing:.08em;text-transform:uppercase">Pendiente</div><div style="font-size:16px;font-weight:800;color:{RED};margin-top:4px">{fmt_k(pend_ars)}</div></div></div>',unsafe_allow_html=True)
             st.markdown("</div>",unsafe_allow_html=True)
 
-            # Resumen
             n_pag=int(df["Pagado"].sum()); n_pend=len(df)-n_pag
             mayor=df.loc[df["Monto (ARS)"].idxmax(),"Ítem"] if not df.empty else "—"
             mayor_m=df["Monto (ARS)"].max() if not df.empty else 0
             st.markdown(f'<div class="card card-pad"><div class="ctitle">Resumen</div><div class="res-row"><span class="res-k">Total ítems</span><span style="font-weight:700">{len(df)}</span></div><div class="res-row"><span class="res-k">Pagados</span><span style="font-weight:700;color:{GREEN}">{n_pag}</span></div><div class="res-row"><span class="res-k">Pendientes</span><span style="font-weight:700;color:{ORANGE}">{n_pend}</span></div><div class="res-row"><span class="res-k">Vencidos</span><span style="font-weight:700;color:{RED}">{len(vencidos)}</span></div><div class="res-row"><span class="res-k">Próx. 3 días</span><span style="font-weight:700;color:{YELLOW}">{len(proximos)}</span></div><div class="res-row" style="flex-direction:column;align-items:flex-start;gap:2px;border-bottom:none"><span class="res-k">Mayor gasto</span><span style="font-weight:700;color:{TEXT}">{mayor}</span><span style="font-size:11px;color:{MUTED2}">{fmt_ars(mayor_m)}</span></div></div>',unsafe_allow_html=True)
 
-            # Barras pendiente por cat
             pend_cat=df[df["Pagado"]==False].groupby("Cat.")["Monto (ARS)"].sum().sort_values(ascending=False)
             if not pend_cat.empty:
                 max_p=pend_cat.max()
@@ -500,6 +442,54 @@ if st.session_state.screen=="inicio":
                     pct_bar=int(val/max_p*100) if max_p>0 else 0; color=cat_color(cat)
                     st.markdown(f'<div class="cat-bar-row"><div class="cat-bar-top"><span style="font-weight:600;color:{TEXT}">{cat}</span><span style="font-weight:700;color:{color}">{fmt_ars(val)}</span></div><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:{pct_bar}%;background:{color}"></div></div></div>',unsafe_allow_html=True)
                 st.markdown("</div>",unsafe_allow_html=True)
+
+        # ── ANÁLISIS AL FINAL DE INICIO ──
+        st.markdown('<div class="section-divider"></div>',unsafe_allow_html=True)
+        st.markdown(f'<div style="font-size:10px;font-weight:700;color:{MUTED2};letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px">Análisis del mes</div>',unsafe_allow_html=True)
+
+        # Gráfico horizontal por categoría
+        st.markdown('<div class="card card-pad"><div class="ctitle">Gasto por categoría</div>',unsafe_allow_html=True)
+        cats_sorted=por_cat.sort_values("Monto (ARS)",ascending=True)
+        fig_bar=go.Figure()
+        fig_bar.add_trace(go.Bar(y=cats_sorted["Cat."],x=cats_sorted["Monto (ARS)"],orientation="h",marker=dict(color=[cat_color(c) for c in cats_sorted["Cat."]],opacity=0.85),text=[fmt_ars(v) for v in cats_sorted["Monto (ARS)"]],textposition="outside",textfont=dict(color=MUTED2,size=11,family="Plus Jakarta Sans"),hovertemplate="<b>%{y}</b><br>%{x:,.0f}<extra></extra>"))
+        fig_bar.update_layout(height=max(260,len(cats_sorted)*44),margin=dict(t=10,b=10,l=10,r=130),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG,xaxis=dict(showgrid=False,showticklabels=False,zeroline=False),yaxis=dict(showgrid=False,tickfont=dict(color=TEXT,size=12,family="Plus Jakarta Sans")),bargap=0.35)
+        st.plotly_chart(fig_bar,use_container_width=True,config={"displayModeBar":False})
+        st.markdown("</div>",unsafe_allow_html=True)
+
+        # Pagado vs Pendiente apilado
+        st.markdown('<div class="card card-pad"><div class="ctitle">Pagado vs Pendiente por categoría</div>',unsafe_allow_html=True)
+        df_pag_cat=df[df["Pagado"]==True].groupby("Cat.")["Monto (ARS)"].sum()
+        df_pend_cat=df[df["Pagado"]==False].groupby("Cat.")["Monto (ARS)"].sum()
+        todas_cats=sorted(set(df_pag_cat.index)|set(df_pend_cat.index))
+        fig_stack=go.Figure()
+        fig_stack.add_trace(go.Bar(name="Pagado",x=todas_cats,y=[df_pag_cat.get(c,0) for c in todas_cats],marker_color=GREEN,opacity=0.85,hovertemplate="Pagado: %{y:,.0f}<extra></extra>"))
+        fig_stack.add_trace(go.Bar(name="Pendiente",x=todas_cats,y=[df_pend_cat.get(c,0) for c in todas_cats],marker_color=RED,opacity=0.75,hovertemplate="Pendiente: %{y:,.0f}<extra></extra>"))
+        fig_stack.update_layout(barmode="stack",height=300,margin=dict(t=10,b=80,l=10,r=10),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG,legend=dict(font=dict(color=MUTED2,size=11,family="Plus Jakarta Sans"),bgcolor="rgba(0,0,0,0)",orientation="h",x=0,y=1.08),xaxis=dict(tickfont=dict(color=MUTED2,size=10,family="Plus Jakarta Sans"),showgrid=False,tickangle=-30),yaxis=dict(showgrid=False,showticklabels=False))
+        st.plotly_chart(fig_stack,use_container_width=True,config={"displayModeBar":False})
+        st.markdown("</div>",unsafe_allow_html=True)
+
+        # Historial por mes
+        df_hist=cargar_historial()
+        if not df_hist.empty and df_hist["Mes"].nunique()>1:
+            st.markdown('<div class="card card-pad"><div class="ctitle">Historial por mes</div>',unsafe_allow_html=True)
+            hist_resumen=df_hist.groupby("Mes")["Monto (ARS)"].sum().reset_index()
+            fig_hist=go.Figure()
+            fig_hist.add_trace(go.Bar(x=hist_resumen["Mes"],y=hist_resumen["Monto (ARS)"],marker_color=ACCENT,opacity=0.85,text=[fmt_ars(v) for v in hist_resumen["Monto (ARS)"]],textposition="outside",textfont=dict(color=MUTED2,size=11),hovertemplate="%{x}<br>%{y:,.0f}<extra></extra>"))
+            fig_hist.update_layout(height=260,margin=dict(t=10,b=10,l=10,r=10),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG,xaxis=dict(showgrid=False,tickfont=dict(color=MUTED2,size=11)),yaxis=dict(showgrid=False,showticklabels=False),bargap=0.3)
+            st.plotly_chart(fig_hist,use_container_width=True,config={"displayModeBar":False})
+            st.markdown("</div>",unsafe_allow_html=True)
+
+        # Top 5
+        st.markdown('<div class="card card-pad"><div class="ctitle">Top 5 gastos más altos</div>',unsafe_allow_html=True)
+        top5=df.nlargest(5,"Monto (ARS)")
+        for _,row in top5.iterrows():
+            color=cat_color(row["Cat."]); pct_top=int(row["Monto (ARS)"]/total_ars*100) if total_ars>0 else 0
+            st.markdown(f'<div class="item-row"><div class="item-ico" style="background:{color}20">{svg_icon(row["Cat."],color,size=22)}</div><div class="item-body"><div class="item-name">{row["Ítem"]}</div><div style="font-size:11px;color:{MUTED2}">{row["Cat."]} · {pct_top}% del total</div></div><div class="item-right"><div class="item-monto">{fmt_ars(row["Monto (ARS)"])}</div><div class="item-usd">{fmt_usd(row["Monto (ARS)"],dolar)}</div></div></div>',unsafe_allow_html=True)
+        st.markdown("</div>",unsafe_allow_html=True)
+
+        # Exportar al final
+        _,ce,_=st.columns([1,1,1])
+        with ce: st.download_button(label="⬇  Exportar Excel completo",data=exportar_excel(df),file_name=f"gastos_{hoy.strftime('%Y_%m')}.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
 
 # ══════════════════════════════════════════════
 # PANTALLA: GASTOS
@@ -526,85 +516,5 @@ elif st.session_state.screen=="gastos":
             if st.button("🔄  Recargar",type="secondary",use_container_width=True): st.cache_data.clear(); st.rerun()
         with bc3:
             if not df.empty: st.download_button(label="⬇  Excel",data=exportar_excel(df),file_name=f"gastos_{hoy.strftime('%Y_%m')}.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
-
-# ══════════════════════════════════════════════
-# PANTALLA: ANÁLISIS
-# ══════════════════════════════════════════════
-elif st.session_state.screen=="evolucion":
-    if df.empty:
-        st.markdown(f'<div class="card card-pad" style="text-align:center;padding:48px;color:{MUTED2}"><div style="font-size:36px;margin-bottom:10px">📭</div><div style="font-weight:600">Sin datos para mostrar.</div></div>',unsafe_allow_html=True)
-    else:
-        # Gráfico por categoría
-        st.markdown('<div class="card card-pad"><div class="ctitle">Gasto por categoría</div>',unsafe_allow_html=True)
-        cats_sorted=por_cat.sort_values("Monto (ARS)",ascending=True)
-        fig_bar=go.Figure()
-        fig_bar.add_trace(go.Bar(y=cats_sorted["Cat."],x=cats_sorted["Monto (ARS)"],orientation="h",marker=dict(color=[cat_color(c) for c in cats_sorted["Cat."]],opacity=0.85),text=[fmt_ars(v) for v in cats_sorted["Monto (ARS)"]],textposition="outside",textfont=dict(color=MUTED2,size=11,family="Plus Jakarta Sans"),hovertemplate="<b>%{y}</b><br>%{x:,.0f}<extra></extra>"))
-        fig_bar.update_layout(height=max(260,len(cats_sorted)*44),margin=dict(t=10,b=10,l=10,r=130),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG,xaxis=dict(showgrid=False,showticklabels=False,zeroline=False),yaxis=dict(showgrid=False,tickfont=dict(color=TEXT,size=12,family="Plus Jakarta Sans")),bargap=0.35)
-        st.plotly_chart(fig_bar,use_container_width=True,config={"displayModeBar":False})
-        st.markdown("</div>",unsafe_allow_html=True)
-
-        # Pagado vs Pendiente
-        st.markdown('<div class="card card-pad"><div class="ctitle">Pagado vs Pendiente por categoría</div>',unsafe_allow_html=True)
-        df_pag_cat=df[df["Pagado"]==True].groupby("Cat.")["Monto (ARS)"].sum()
-        df_pend_cat=df[df["Pagado"]==False].groupby("Cat.")["Monto (ARS)"].sum()
-        todas_cats=sorted(set(df_pag_cat.index)|set(df_pend_cat.index))
-        fig_stack=go.Figure()
-        fig_stack.add_trace(go.Bar(name="Pagado",x=todas_cats,y=[df_pag_cat.get(c,0) for c in todas_cats],marker_color=GREEN,opacity=0.85,hovertemplate="Pagado: %{y:,.0f}<extra></extra>"))
-        fig_stack.add_trace(go.Bar(name="Pendiente",x=todas_cats,y=[df_pend_cat.get(c,0) for c in todas_cats],marker_color=RED,opacity=0.75,hovertemplate="Pendiente: %{y:,.0f}<extra></extra>"))
-        fig_stack.update_layout(barmode="stack",height=300,margin=dict(t=10,b=80,l=10,r=10),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG,legend=dict(font=dict(color=MUTED2,size=11,family="Plus Jakarta Sans"),bgcolor="rgba(0,0,0,0)",orientation="h",x=0,y=1.08),xaxis=dict(tickfont=dict(color=MUTED2,size=10,family="Plus Jakarta Sans"),showgrid=False,tickangle=-30),yaxis=dict(showgrid=False,showticklabels=False))
-        st.plotly_chart(fig_stack,use_container_width=True,config={"displayModeBar":False})
-        st.markdown("</div>",unsafe_allow_html=True)
-
-        # Historial por mes (si hay múltiples hojas)
-        df_hist=cargar_historial()
-        if not df_hist.empty and df_hist["Mes"].nunique()>1:
-            st.markdown('<div class="card card-pad"><div class="ctitle">Historial por mes</div>',unsafe_allow_html=True)
-            hist_resumen=df_hist.groupby("Mes")["Monto (ARS)"].sum().reset_index()
-            fig_hist=go.Figure()
-            fig_hist.add_trace(go.Bar(x=hist_resumen["Mes"],y=hist_resumen["Monto (ARS)"],marker_color=ACCENT,opacity=0.85,text=[fmt_ars(v) for v in hist_resumen["Monto (ARS)"]],textposition="outside",textfont=dict(color=MUTED2,size=11),hovertemplate="%{x}<br>%{y:,.0f}<extra></extra>"))
-            fig_hist.update_layout(height=260,margin=dict(t=10,b=10,l=10,r=10),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG,xaxis=dict(showgrid=False,tickfont=dict(color=MUTED2,size=11)),yaxis=dict(showgrid=False,showticklabels=False),bargap=0.3)
-            st.plotly_chart(fig_hist,use_container_width=True,config={"displayModeBar":False})
-            st.markdown("</div>",unsafe_allow_html=True)
-        elif not df_hist.empty:
-            st.markdown(f'<div style="font-size:12px;color:{MUTED2};padding:4px 0 12px">💡 Para ver el historial por mes, guardá cada mes en una hoja separada dentro del mismo Google Sheet (ej: "Enero 2025", "Febrero 2025"...)</div>',unsafe_allow_html=True)
-
-        # Top 5
-        st.markdown('<div class="card card-pad"><div class="ctitle">Top 5 gastos más altos</div>',unsafe_allow_html=True)
-        top5=df.nlargest(5,"Monto (ARS)")
-        for _,row in top5.iterrows():
-            color=cat_color(row["Cat."]); pct_top=int(row["Monto (ARS)"]/total_ars*100) if total_ars>0 else 0
-            st.markdown(f'<div class="item-row"><div class="item-ico" style="background:{color}20">{svg_icon(row["Cat."],color,size=22)}</div><div class="item-body"><div class="item-name">{row["Ítem"]}</div><div style="font-size:11px;color:{MUTED2}">{row["Cat."]} · {pct_top}% del total</div></div><div class="item-right"><div class="item-monto">{fmt_ars(row["Monto (ARS)"])}</div><div class="item-usd">{fmt_usd(row["Monto (ARS)"],dolar)}</div></div></div>',unsafe_allow_html=True)
-        st.markdown("</div>",unsafe_allow_html=True)
-
-        _,ce,_=st.columns([1,1,1])
-        with ce: st.download_button(label="⬇  Exportar Excel completo",data=exportar_excel(df),file_name=f"gastos_{hoy.strftime('%Y_%m')}.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
-
-# ══════════════════════════════════════════════
-# PANTALLA: CONFIG (PRESUPUESTOS)
-# ══════════════════════════════════════════════
-elif st.session_state.screen=="config":
-    st.markdown('<div class="card card-pad">',unsafe_allow_html=True)
-    st.markdown('<div class="ctitle">Presupuesto por categoría</div>',unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:13px;color:{MUTED2};margin-bottom:16px">Definí un límite mensual por categoría. Si lo superás, vas a ver una alerta en Inicio.</div>',unsafe_allow_html=True)
-
-    cats_list=list(PRESUPUESTOS_DEFAULT.keys())
-    for i in range(0,len(cats_list),2):
-        c1,c2=st.columns(2)
-        for col,cat in zip([c1,c2],cats_list[i:i+2]):
-            with col:
-                color=cat_color(cat)
-                actual=df.groupby("Cat.")["Monto (ARS)"].sum().get(cat,0) if not df.empty else 0
-                st.markdown(f'<div style="font-size:12px;font-weight:700;color:{color};margin-bottom:4px">{cat}</div>',unsafe_allow_html=True)
-                nuevo_val=st.number_input(f"Límite {cat}",min_value=0,step=1000,value=int(st.session_state.presupuestos.get(cat,0)),label_visibility="collapsed",key=f"pres_{cat}")
-                st.session_state.presupuestos[cat]=nuevo_val
-                if nuevo_val>0:
-                    pp=min(int(actual/nuevo_val*100),100)
-                    bar_c=RED if actual>nuevo_val else (ORANGE if pp>80 else color)
-                    st.markdown(f'<div style="font-size:11px;color:{MUTED2};margin-top:2px">Actual: {fmt_ars(actual)} / {fmt_ars(nuevo_val)}</div><div style="height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;margin-bottom:12px"><div style="height:100%;width:{pp}%;background:{bar_c};border-radius:4px;"></div></div>',unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<div style="font-size:11px;color:{MUTED2};margin-top:2px;margin-bottom:12px">Sin límite definido</div>',unsafe_allow_html=True)
-
-    st.markdown("</div>",unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:12px;color:{MUTED2};padding:4px">Los presupuestos se guardan mientras la sesión esté activa. Para hacerlos permanentes, podés hardcodearlos en el código.</div>',unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
