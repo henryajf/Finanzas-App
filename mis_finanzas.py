@@ -216,7 +216,7 @@ html, body, [class*="css"], .stApp {{
   text-transform: uppercase; font-weight: 700; }}
 .dolar-val {{ font-size: 18px; font-weight: 800; color: var(--accent); margin-top: 1px; }}
 
-/* ── NAV — 2 botones full width sempre ── */
+/* ── NAV — 2 botones full width siempre ── */
 .nav-grid {{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -326,7 +326,7 @@ html, body, [class*="css"], .stApp {{
   background: rgba(242,61,79,.14); color: {RED}; margin-left: 6px;
 }}
 
-/* ── ITEM ROW (estilo MP melhorado) ── */
+/* ── ITEM ROW (estilo MP mejorado) ── */
 .item-row {{
   display: flex; align-items: center; gap: 14px;
   padding: 13px 18px;
@@ -930,10 +930,14 @@ elif st.session_state.screen == "gastos":
             if st.button("💾  Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
                     df_up = df_edit.copy()
+                    df_up["Ítem"] = df_up["Ítem"].fillna("")
+                    df_up["Monto (ARS)"] = df_up["Monto (ARS)"].fillna(0)
                     df_up["Categoría"] = df_up["Ítem"].apply(categorizar_inteligente)
                     df_up = df_up[["Categoría","Ítem","Monto (ARS)","Día Pago","Pagado"]]
                     df_up["Día Pago"] = df_up["Día Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
                     df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
+                    df_up = df_up.fillna("")
+                    
                     st.cache_data.clear()
                     hoja = get_gspread().open("Gastos_Henry").sheet1
                     hoja.clear()
