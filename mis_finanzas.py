@@ -216,25 +216,24 @@ html, body, [class*="css"], .stApp {{
   text-transform: uppercase; font-weight: 700; }}
 .dolar-val {{ font-size: 18px; font-weight: 800; color: var(--accent); margin-top: 1px; }}
 
-/* ── NAV — 2 botones full width siempre ── */
+/* ── NAV — Botones compactos ── */
 .nav-grid {{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
   padding: 14px 0 20px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 22px;
 }}
-/* Forzar botones Streamlit a ocupar 100% dentro del grid */
 .nav-grid .stButton,
 .nav-grid .stButton > button {{
-  width: 100% !important;
-  display: block !important;
+  width: auto !important;
+  min-width: 140px !important;
 }}
 .stButton > button[kind="primary"] {{
   background: {ACCENT} !important; color: #fff !important;
   border: none !important; border-radius: 12px !important;
-  padding: 12px 16px !important; width: 100% !important;
+  padding: 10px 24px !important;
   font-family: 'Plus Jakarta Sans',sans-serif !important;
   font-size: 14px !important; font-weight: 700 !important;
   box-shadow: 0 4px 14px rgba(0,158,227,.3) !important;
@@ -247,7 +246,7 @@ html, body, [class*="css"], .stApp {{
 .stButton > button[kind="secondary"] {{
   background: var(--surface) !important; color: var(--muted2) !important;
   border: 1px solid var(--border) !important; border-radius: 12px !important;
-  padding: 12px 16px !important; width: 100% !important;
+  padding: 10px 24px !important;
   font-family: 'Plus Jakarta Sans',sans-serif !important;
   font-size: 14px !important; font-weight: 700 !important;
   transition: all .2s !important;
@@ -633,18 +632,16 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# 10. NAVEGACIÓN — 2 botones full width 50/50
+# 10. NAVEGACIÓN — Centrada y compacta
 # ─────────────────────────────────────────────
-screen = st.session_state.screen
 st.markdown('<div class="nav-grid">', unsafe_allow_html=True)
-nav1, nav2 = st.columns(2)
-with nav1:
-    if st.button("🏠  Inicio", type="primary" if screen=="inicio" else "secondary",
-                 use_container_width=True):
+# Usamos columnas con proporciones para centrar los botones en lugar de ocupar todo el ancho
+_, n1, n2, _ = st.columns([1, 0.4, 0.4, 1]) 
+with n1:
+    if st.button("🏠  Inicio", type="primary" if st.session_state.screen=="inicio" else "secondary", use_container_width=True):
         st.session_state.screen = "inicio"; st.rerun()
-with nav2:
-    if st.button("📋  Gastos", type="primary" if screen=="gastos" else "secondary",
-                 use_container_width=True):
+with n2:
+    if st.button("📋  Gastos", type="primary" if st.session_state.screen=="gastos" else "secondary", use_container_width=True):
         st.session_state.screen = "gastos"; st.rerun()
 st.markdown("</div>", unsafe_allow_html=True)
 
