@@ -947,4 +947,4 @@ elif st.session_state.screen == "gastos":
                 st.cache_data.clear()
                 st.rerun()
 
-st.markdown("</div>", unsafe_allow_html=True) 
+st.markdown("</div>", unsafe_allow_html=True)
