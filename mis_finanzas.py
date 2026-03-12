@@ -216,7 +216,7 @@ html, body, [class*="css"], .stApp {{
   text-transform: uppercase; font-weight: 700; }}
 .dolar-val {{ font-size: 18px; font-weight: 800; color: var(--accent); margin-top: 1px; }}
 
-/* ── NAV — 2 botones full width siempre ── */
+/* ── NAV — 2 botones full width sempre ── */
 .nav-grid {{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -326,7 +326,7 @@ html, body, [class*="css"], .stApp {{
   background: rgba(242,61,79,.14); color: {RED}; margin-left: 6px;
 }}
 
-/* ── ITEM ROW (estilo MP mejorado) ── */
+/* ── ITEM ROW (estilo MP melhorado) ── */
 .item-row {{
   display: flex; align-items: center; gap: 14px;
   padding: 13px 18px;
@@ -906,11 +906,12 @@ elif st.session_state.screen == "gastos":
             "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
             "Día Pago":    st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
         }
-        COL_ORDER = ("Pagado","Ítem","Monto (ARS)","USD","Día Pago")
 
         def render_tabla(data, key):
+            # Filtramos o DataFrame antes para forçar o Streamlit a mostrar apenas as colunas exatas que queremos
+            df_vista = data[["Pagado", "Ítem", "Monto (ARS)", "USD", "Día Pago"]].copy()
             return st.data_editor(
-                data, column_config=COL_CONFIG, column_order=COL_ORDER,
+                df_vista, column_config=COL_CONFIG,
                 num_rows="dynamic", use_container_width=True,
                 hide_index=True, key=key,
             )
@@ -918,9 +919,9 @@ elif st.session_state.screen == "gastos":
         with tab_todos:
             df_edit = render_tabla(df, "t_todos")
         with tab_pend:
-            render_tabla(df[df["Pagado"]==False].copy(), "t_pend")
+            render_tabla(df[df["Pagado"]==False], "t_pend")
         with tab_pag:
-            render_tabla(df[df["Pagado"]==True].copy(), "t_pag")
+            render_tabla(df[df["Pagado"]==True], "t_pag")
 
         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
