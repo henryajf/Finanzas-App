@@ -369,12 +369,16 @@ if st.session_state.screen=="inicio":
         with sb1:
             busqueda=st.text_input("🔍",placeholder="Buscar gasto...",label_visibility="collapsed",key="busqueda_input")
         with sb2:
-            cats_disponibles=["Todas"]+sorted(df["Cat."].unique().tolist())
+            n_pend_total=int(df["Pagado"].eq(False).sum())
+            n_venc_total=len(df[(df["Pagado"]==False)&df["Día Pago"].notna()&(df["Día Pago"]<date.today())])
+            cats_disponibles=(["Todas",f"⏳ Pendientes ({n_pend_total})",f"🔴 Vencidos ({n_venc_total})"]
+                +sorted(df["Cat."].unique().tolist()))
             filtro=st.selectbox("Categoría",cats_disponibles,label_visibility="collapsed",key="filtro_select")
         st.markdown("<div style='height:8px'></div>",unsafe_allow_html=True)
 
         df_vista=df.copy()
-        if filtro!="Todas": df_vista=df_vista[df_vista["Cat."]==filtro]
+        if filtro.startswith("⏳") or filtro.startswith("🔴"): df_vista=df_vista[df_vista["Pagado"]==False]
+        elif filtro!="Todas": df_vista=df_vista[df_vista["Cat."]==filtro]
         if busqueda.strip(): df_vista=df_vista[df_vista["Ítem"].str.contains(busqueda.strip(),case=False,na=False)]
 
         col_izq,col_der=st.columns([1.65,1],gap="medium")
