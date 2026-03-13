@@ -336,15 +336,10 @@ if st.session_state.screen=="inicio":
       <div class="mcard mc-o"><div class="mlbl">📈 Cubierto</div><div class="mpct">{pct}%</div><div class="pbar"><div class="pfill" style="width:{pct}%"></div></div></div>
     </div>""",unsafe_allow_html=True)
 
-    # Botones agregar + exportar
-    col_add,col_exp=st.columns(2)
-    with col_add:
-        lbl="✕  Cancelar" if st.session_state.show_add else "＋  Agregar gasto"
-        if st.button(lbl,type="secondary" if st.session_state.show_add else "primary",use_container_width=True):
-            st.session_state.show_add=not st.session_state.show_add; st.rerun()
-    with col_exp:
-        if not df.empty:
-            st.download_button(label="⬇  Exportar Excel",data=exportar_excel(df),file_name=f"gastos_{hoy.strftime('%Y_%m')}.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
+    # Botón agregar gasto
+    lbl="✕  Cancelar" if st.session_state.show_add else "＋  Agregar gasto"
+    if st.button(lbl,type="secondary" if st.session_state.show_add else "primary",use_container_width=True):
+        st.session_state.show_add=not st.session_state.show_add; st.rerun()
     st.markdown("<div style='height:10px'></div>",unsafe_allow_html=True)
 
     # Panel agregar rápido
