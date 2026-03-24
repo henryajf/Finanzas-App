@@ -58,12 +58,11 @@ html,body,[class*="css"],.stApp{{font-family:'Plus Jakarta Sans','Helvetica Neue
 .dolar-lbl{{font-size:9px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;font-weight:700;}}
 .dolar-val{{font-size:18px;font-weight:800;color:var(--accent);margin-top:1px;}}
 .nav-grid{{display:flex;justify-content:center;padding:14px 0 20px;border-bottom:1px solid var(--border);margin-bottom:22px;}}
-.seg-wrap{{display:inline-flex;background:#1e1e1e;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:3px;gap:2px;}}
-.seg-btn{{display:inline-flex;align-items:center;gap:7px;padding:8px 22px;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--muted2);transition:all .18s;white-space:nowrap;letter-spacing:-.01em;}}
-.seg-btn:hover{{color:{TEXT};background:rgba(255,255,255,.05);}}
-.seg-btn.active{{background:{SURFACE};color:{TEXT};box-shadow:0 1px 4px rgba(0,0,0,.5);}}
-.seg-btn.active .seg-dot{{background:{ACCENT};}}
-.seg-dot{{width:6px;height:6px;border-radius:50%;background:transparent;transition:background .18s;flex-shrink:0;}}
+.nav-pill{{display:inline-flex;background:#1c1c1c;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:3px;gap:1px;}}
+.nav-pill .stButton{{margin:0 !important;}}
+.nav-pill .stButton>button{{background:transparent !important;color:{MUTED2} !important;border:none !important;border-radius:9px !important;padding:9px 26px !important;font-size:13px !important;font-weight:700 !important;letter-spacing:-.01em !important;box-shadow:none !important;transition:all .15s !important;min-width:100px !important;}}
+.nav-pill .stButton>button:hover{{color:{TEXT} !important;background:rgba(255,255,255,.06) !important;}}
+.nav-active .stButton>button{{background:{SURFACE} !important;color:{TEXT} !important;box-shadow:0 1px 5px rgba(0,0,0,.55) !important;}}
 .stButton>button[kind="primary"]{{background:{ACCENT} !important;color:#fff !important;border:none !important;border-radius:12px !important;padding:10px 24px !important;font-family:'Plus Jakarta Sans',sans-serif !important;font-size:14px !important;font-weight:700 !important;box-shadow:0 4px 14px rgba(0,158,227,.3) !important;transition:all .2s !important;}}
 .stButton>button[kind="primary"]:hover{{background:#007fc0 !important;transform:translateY(-1px) !important;}}
 .stButton>button[kind="secondary"]{{background:var(--surface) !important;color:var(--muted2) !important;border:1px solid var(--border) !important;border-radius:12px !important;padding:10px 24px !important;font-family:'Plus Jakarta Sans',sans-serif !important;font-size:14px !important;font-weight:700 !important;transition:all .2s !important;}}
@@ -383,24 +382,26 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAV segmented control ──
-_sc=st.session_state.screen
-_a0="active" if _sc=="inicio" else ""
-_a1="active" if _sc=="ingresos" else ""
-_a2="active" if _sc=="gastos" else ""
-st.markdown(f"""<div class="nav-grid">
-  <div class="seg-wrap">
-    <button class="seg-btn {_a0}" onclick="window.parent.document.querySelectorAll('[data-testid=stRadio] input')[0].click()"><span class="seg-dot"></span>Inicio</button>
-    <button class="seg-btn {_a1}" onclick="window.parent.document.querySelectorAll('[data-testid=stRadio] input')[1].click()"><span class="seg-dot"></span>Ingresos</button>
-    <button class="seg-btn {_a2}" onclick="window.parent.document.querySelectorAll('[data-testid=stRadio] input')[2].click()"><span class="seg-dot"></span>Gastos</button>
-  </div>
-</div>
-<style>[data-testid="stRadio"]{{position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;}}</style>
-""", unsafe_allow_html=True)
-_nav_opts=["inicio","ingresos","gastos"]
-_nav_sel=st.radio("nav",_nav_opts,index=_nav_opts.index(st.session_state.screen),label_visibility="collapsed",key="nav_radio",horizontal=True)
-if _nav_sel != st.session_state.screen:
-    st.session_state.screen=_nav_sel; st.rerun()
+# ── NAV segmented control (pure Streamlit buttons) ──
+st.markdown('<div class="nav-grid"><div class="nav-pill">', unsafe_allow_html=True)
+_nc=["nav-active" if st.session_state.screen==s else "" for s in ["inicio","ingresos","gastos"]]
+nav_c1, nav_c2, nav_c3 = st.columns(3)
+with nav_c1:
+    st.markdown(f'<div class="{_nc[0]}">', unsafe_allow_html=True)
+    if st.button("🏠  Inicio", key="nav_inicio", use_container_width=True):
+        st.session_state.screen="inicio"; st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+with nav_c2:
+    st.markdown(f'<div class="{_nc[1]}">', unsafe_allow_html=True)
+    if st.button("💰  Ingresos", key="nav_ingresos", use_container_width=True):
+        st.session_state.screen="ingresos"; st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+with nav_c3:
+    st.markdown(f'<div class="{_nc[2]}">', unsafe_allow_html=True)
+    if st.button("📋  Gastos", key="nav_gastos", use_container_width=True):
+        st.session_state.screen="gastos"; st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div></div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════
 # PANTALLA: INICIO
