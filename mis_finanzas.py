@@ -85,7 +85,7 @@ html,body,[class*="css"],.stApp{{
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;}}
 #MainMenu,footer,header,[data-testid="stToolbar"],[data-testid="stDecoration"],[data-testid="stStatusWidget"]{{display:none !important;}}
 .block-container{{padding:0 !important;max-width:100% !important;}}
-.wrap{{max-width:980px;margin:0 auto;padding:0 16px 60px;}}
+.wrap{{max-width:980px;margin:0 auto;padding:0 16px 80px;}}
 .ios-hdr{{
   position:sticky;top:0;z-index:100;
   background:rgba(0,0,0,0.8);
@@ -101,22 +101,6 @@ html,body,[class*="css"],.stApp{{
 .dolar-pill{{background:{SURF2};border-radius:20px;padding:7px 14px;text-align:center;}}
 .dolar-lbl{{font-size:9px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:600;}}
 .dolar-val{{font-size:17px;font-weight:700;color:{ACCENT};margin-top:1px;letter-spacing:-.01em;}}
-.seg-container{{display:flex;justify-content:center;padding:0 0 20px;}}
-.seg-track{{display:inline-flex;background:{SURF2};border-radius:9px;padding:2px;gap:0;}}
-.seg-track .stButton{{margin:0 !important;}}
-.seg-track .stButton>button{{
-  background:transparent !important;color:{TEXT2} !important;
-  border:none !important;border-radius:7px !important;
-  padding:7px 24px !important;font-size:13px !important;
-  font-weight:600 !important;letter-spacing:-.01em !important;
-  box-shadow:none !important;transition:color .1s !important;
-  min-width:90px !important;
-}}
-.seg-track .stButton>button:hover{{color:{TEXT} !important;background:transparent !important;}}
-.seg-active .stButton>button{{
-  background:{SURF3} !important;color:{TEXT} !important;
-  box-shadow:0 1px 4px rgba(0,0,0,.5) !important;
-}}
 .stButton>button[kind="primary"]{{
   background:{ACCENT} !important;color:#fff !important;border:none !important;
   border-radius:10px !important;padding:11px 20px !important;
@@ -199,11 +183,36 @@ html,body,[class*="css"],.stApp{{
 .stTabs [data-baseweb="tab-highlight"]{{display:none !important;}}
 .stTabs [data-baseweb="tab-panel"]{{padding:12px 0 0 !important;}}
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
-@media(max-width:700px){{.ios-metrics{{grid-template-columns:repeat(2,1fr);}}.ios-title{{font-size:26px;}}.wrap{{padding:0 12px 60px;}}}}
+@media(max-width:700px){{.ios-metrics{{grid-template-columns:repeat(2,1fr);}}.ios-title{{font-size:26px;}}.wrap{{padding:0 12px 80px;}}}}
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
-</style>
-""", unsafe_allow_html=True)
+.btab-bar{{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:stretch;
+  background:rgba(0,0,0,0.82);
+  backdrop-filter:saturate(180%) blur(24px);
+  -webkit-backdrop-filter:saturate(180%) blur(24px);
+  border-top:0.5px solid rgba(255,255,255,0.12);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  height:calc(56px + env(safe-area-inset-bottom,0px));
+}}
+.btab{{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;
+  background:transparent;border:none;cursor:pointer;
+  padding:8px 4px 0;
+  color:{TEXT2};font-size:10px;font-weight:500;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  letter-spacing:.01em;transition:color .12s;
+  -webkit-tap-highlight-color:transparent;
+}}
+.btab:active{{opacity:.6;}}
+.btab-active{{color:{ACCENT} !important;}}
+.btab-ico{{
+  width:22px;height:22px;fill:currentColor;
+  transition:color .12s;
+}}
+</style>""", unsafe_allow_html=True)
 
 # ── CONEXION ──
 @st.cache_resource
@@ -288,6 +297,20 @@ def cargar_historial():
 def get_dolar():
     try: return float(requests.get("https://dolarapi.com/v1/dolares/blue",timeout=5).json()["venta"])
     except Exception: return 1450.0
+
+@st.cache_data(ttl=3600)
+def get_dolar_tendencia():
+    try:
+        venta=get_dolar()
+        hist=requests.get("https://api.argentinadatos.com/v1/cotizaciones/dolares/blue",timeout=5).json()
+        if isinstance(hist,list) and len(hist)>=2:
+            ayer=float(hist[-2].get("venta",venta))
+            diff=venta-ayer
+            pct=round((diff/ayer)*100,2) if ayer>0 else 0.0
+            return venta,ayer,diff,pct
+        return venta,venta,0.0,0.0
+    except Exception:
+        return get_dolar(),0,0.0,0.0
 
 def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, fecha):
     sh=get_gspread().open("Gastos_Henry")
@@ -378,7 +401,9 @@ def exportar_excel(df, df_ing=None):
     return output.getvalue()
 
 # ── CARGA ──
-dolar=get_dolar(); df_base=cargar_datos(); df_ing=cargar_ingresos()
+dolar=get_dolar()
+dolar_val,dolar_ayer,dolar_diff,dolar_pct=get_dolar_tendencia()
+df_base=cargar_datos(); df_ing=cargar_ingresos()
 
 if not df_base.empty:
     df=procesar(df_base,dolar)
@@ -400,9 +425,42 @@ balance_pct=int(total_ing_ars/total_ars*100) if total_ars>0 else 0
 meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
 hoy=date.today(); hoy_str=f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
 
+# ── PWA META + INPUTMODE + HAPTIC JS ──
+st.markdown("""
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-title" content="Finanzas AR">
+<link rel="apple-touch-icon" href="https://fav.farm/💳">
+<script>
+function haptic(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}}
+document.addEventListener('DOMContentLoaded',function(){
+  function patchInputs(){
+    document.querySelectorAll('input[type="number"]').forEach(function(el){
+      if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','decimal');}
+    });
+    document.querySelectorAll('input[type="text"]').forEach(function(el){
+      if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','text');}
+    });
+  }
+  patchInputs();
+  new MutationObserver(patchInputs).observe(document.body,{childList:true,subtree:true});
+});
+</script>
+""", unsafe_allow_html=True)
+
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
-# ── GLASSMORPHISM HEADER ──
+# ── GLASSMORPHISM HEADER with dolar trend ──
+_trend_icon=""
+_trend_style=""
+if dolar_diff>0:
+    _trend_icon=f'<span style="color:{RED};font-size:11px;font-weight:700">&#9650; {dolar_pct:+.1f}%</span>'
+elif dolar_diff<0:
+    _trend_icon=f'<span style="color:{GREEN};font-size:11px;font-weight:700">&#9660; {dolar_pct:.1f}%</span>'
+else:
+    _trend_icon=f'<span style="color:{TEXT2};font-size:11px">&#8212;</span>'
+
 st.markdown(f"""
 <div class="ios-hdr">
   <div class="ios-hdr-top">
@@ -413,31 +471,53 @@ st.markdown(f"""
     <div class="dolar-pill">
       <div class="dolar-lbl">USD Blue</div>
       <div class="dolar-val">${dolar:,.0f}</div>
+      <div style="margin-top:2px">{_trend_icon}</div>
     </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── SEGMENTED CONTROL ──
-st.markdown('<div class="seg-container"><div class="seg-track">', unsafe_allow_html=True)
+# ── BOTTOM TAB BAR (hidden columns for state, visible bar at bottom) ──
+# Hidden Streamlit buttons that drive navigation
 _sc=st.session_state.screen
-sc1,sc2,sc3=st.columns(3)
-with sc1:
-    st.markdown(f'<div class="{"seg-active" if _sc=="inicio" else ""}">', unsafe_allow_html=True)
-    if st.button("Inicio", key="nav_inicio", use_container_width=True):
+_hc1,_hc2,_hc3=st.columns(3)
+with _hc1:
+    st.markdown('<div style="position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden">',unsafe_allow_html=True)
+    if st.button("Inicio",key="nav_inicio",use_container_width=True):
         st.session_state.screen="inicio"; st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-with sc2:
-    st.markdown(f'<div class="{"seg-active" if _sc=="ingresos" else ""}">', unsafe_allow_html=True)
-    if st.button("Ingresos", key="nav_ingresos", use_container_width=True):
+    st.markdown('</div>',unsafe_allow_html=True)
+with _hc2:
+    st.markdown('<div style="position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden">',unsafe_allow_html=True)
+    if st.button("Ingresos",key="nav_ingresos",use_container_width=True):
         st.session_state.screen="ingresos"; st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-with sc3:
-    st.markdown(f'<div class="{"seg-active" if _sc=="gastos" else ""}">', unsafe_allow_html=True)
-    if st.button("Gastos", key="nav_gastos", use_container_width=True):
+    st.markdown('</div>',unsafe_allow_html=True)
+with _hc3:
+    st.markdown('<div style="position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden">',unsafe_allow_html=True)
+    if st.button("Gastos",key="nav_gastos",use_container_width=True):
         st.session_state.screen="gastos"; st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-st.markdown('</div></div>', unsafe_allow_html=True)
+    st.markdown('</div>',unsafe_allow_html=True)
+
+# Visual bottom tab bar injected via HTML/JS — clicks trigger the hidden buttons above
+_ai="inicio"; _ag="ingresos"; _ar="gastos"
+st.markdown(f"""
+<div class="btab-bar">
+  <button class="btab {'btab-active' if _sc=='inicio' else ''}"
+    onclick="(function(){{haptic(8);document.querySelectorAll('[data-testid=stBaseButton-secondary]')[0].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='ingresos' else ''}"
+    onclick="(function(){{haptic(8);document.querySelectorAll('[data-testid=stBaseButton-secondary]')[1].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    <span>Ingresos</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='gastos' else ''}"
+    onclick="(function(){{haptic(8);document.querySelectorAll('[data-testid=stBaseButton-secondary]')[2].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+    <span>Gastos</span>
+  </button>
+</div>
+""", unsafe_allow_html=True)
 
 # ══════════════════════════════
 # INICIO
@@ -500,7 +580,10 @@ if st.session_state.screen=="inicio":
                 elif new_monto<=0: st.markdown('<div class="toast-err">El monto debe ser mayor a 0</div>',unsafe_allow_html=True)
                 else:
                     nueva=pd.DataFrame([{"Categoria":categorizar_inteligente(new_item),"Item":new_item.strip(),"Monto (ARS)":float(new_monto),"Dia Pago":new_fecha,"Pagado":False}])
-                    try: guardar_hoja(pd.concat([df_base,nueva],ignore_index=True)); st.session_state.show_add=False; st.rerun()
+                    try:
+                        guardar_hoja(pd.concat([df_base,nueva],ignore_index=True))
+                        st.markdown('<script>haptic(60);</script>',unsafe_allow_html=True)
+                        st.session_state.show_add=False; st.rerun()
                     except Exception as e: st.markdown(f'<div class="toast-err">Error: {e}</div>',unsafe_allow_html=True)
         st.markdown("</div>",unsafe_allow_html=True)
 
@@ -528,7 +611,10 @@ if st.session_state.screen=="inicio":
             if not ing_desc.strip(): st.markdown('<div class="toast-err">Ingresa una descripcion</div>',unsafe_allow_html=True)
             elif ing_monto<=0: st.markdown('<div class="toast-err">El monto debe ser mayor a 0</div>',unsafe_allow_html=True)
             else:
-                try: guardar_ingreso(ing_desc.strip(),ing_persona,moneda_sel,ing_monto,round(monto_ars_final,2),round(monto_usd_final,4),dolar,ing_fecha); st.session_state.show_add_ingreso=False; st.rerun()
+                try:
+                    guardar_ingreso(ing_desc.strip(),ing_persona,moneda_sel,ing_monto,round(monto_ars_final,2),round(monto_usd_final,4),dolar,ing_fecha)
+                    st.markdown('<script>haptic(60);</script>',unsafe_allow_html=True)
+                    st.session_state.show_add_ingreso=False; st.rerun()
                 except Exception as e: st.markdown(f'<div class="toast-err">Error: {e}</div>',unsafe_allow_html=True)
         st.markdown("</div>",unsafe_allow_html=True)
 
@@ -570,7 +656,10 @@ if st.session_state.screen=="inicio":
                         with cn: st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} &mdash; {fmt_ars(row["Monto (ARS)"])}</div>',unsafe_allow_html=True)
                         with cb:
                             if st.button("Pagado",key=f"pay_{idx}",use_container_width=True):
-                                try: marcar_pagado(idx); st.rerun()
+                                try:
+                                    marcar_pagado(idx)
+                                    st.markdown('<script>haptic(40);</script>',unsafe_allow_html=True)
+                                    st.rerun()
                                 except Exception as e: st.error(str(e))
 
         with col_der:
@@ -741,7 +830,10 @@ elif st.session_state.screen=="gastos":
         bc1,bc2,bc3=st.columns([2.5,0.8,0.8])
         with bc1:
             if st.button("Guardar y Sincronizar",type="primary",use_container_width=True):
-                try: guardar_hoja(df_edit); st.markdown('<div class="toast-ok">Cambios guardados</div>',unsafe_allow_html=True); st.rerun()
+                try:
+                    guardar_hoja(df_edit)
+                    st.markdown('<script>haptic(80);</script>',unsafe_allow_html=True)
+                    st.markdown('<div class="toast-ok">Cambios guardados</div>',unsafe_allow_html=True); st.rerun()
                 except Exception as e: st.markdown(f'<div class="toast-err">Error: {e}</div>',unsafe_allow_html=True)
         with bc2:
             if st.button("Recargar",type="secondary",use_container_width=True): st.cache_data.clear(); st.rerun()
