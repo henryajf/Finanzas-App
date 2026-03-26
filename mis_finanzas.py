@@ -84,6 +84,8 @@ html,body,[class*="css"],.stApp{{
 }}
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;}}
 #MainMenu,footer,header,[data-testid="stToolbar"],[data-testid="stDecoration"],[data-testid="stStatusWidget"]{{display:none !important;}}
+[data-testid="stBottom"],[data-testid="stBottomBlockContainer"]{{display:none !important;height:0 !important;overflow:hidden !important;}}
+.stBottomContainer,.stChatFloatingInputContainer{{display:none !important;}}
 .block-container{{padding:0 !important;max-width:100% !important;}}
 .wrap{{max-width:980px;margin:0 auto;padding:0 16px 80px;}}
 .ios-hdr{{
@@ -187,14 +189,19 @@ html,body,[class*="css"],.stApp{{
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
 .btab-bar{{
-  position:fixed;bottom:0;left:0;right:0;z-index:9999;
-  display:flex;align-items:stretch;
-  background:rgba(0,0,0,0.82);
+  position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;
+  z-index:2147483647 !important;
+  display:flex !important;align-items:stretch;
+  background:rgba(0,0,0,0.88) !important;
   backdrop-filter:saturate(180%) blur(24px);
   -webkit-backdrop-filter:saturate(180%) blur(24px);
-  border-top:0.5px solid rgba(255,255,255,0.12);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-  height:calc(56px + env(safe-area-inset-bottom,0px));
+  border-top:0.5px solid rgba(255,255,255,0.14) !important;
+  padding-bottom:env(safe-area-inset-bottom,0px) !important;
+  height:calc(58px + env(safe-area-inset-bottom,0px)) !important;
+  transform:translateZ(0);
+  -webkit-transform:translateZ(0);
+  will-change:transform;
+  isolation:isolate;
 }}
 .btab{{
   flex:1;display:flex;flex-direction:column;align-items:center;
@@ -443,8 +450,25 @@ document.addEventListener('DOMContentLoaded',function(){
       if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','text');}
     });
   }
+  function killStreamlitBottom(){
+    var selectors=[
+      '[data-testid="stBottom"]',
+      '[data-testid="stBottomBlockContainer"]',
+      '.stBottomContainer',
+      '.stChatFloatingInputContainer',
+      '[class*="bottom-container"]',
+      '[class*="Bottom"]'
+    ];
+    selectors.forEach(function(sel){
+      document.querySelectorAll(sel).forEach(function(el){
+        el.style.cssText='display:none!important;height:0!important;overflow:hidden!important;';
+      });
+    });
+  }
   patchInputs();
-  new MutationObserver(patchInputs).observe(document.body,{childList:true,subtree:true});
+  killStreamlitBottom();
+  var obs=new MutationObserver(function(){patchInputs();killStreamlitBottom();});
+  obs.observe(document.body,{childList:true,subtree:true});
 });
 </script>
 """, unsafe_allow_html=True)
