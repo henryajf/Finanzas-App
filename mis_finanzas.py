@@ -3,7 +3,6 @@ import pandas as pd
 import requests
 import gspread
 import plotly.graph_objects as go
-import math
 import io
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import date, timedelta
@@ -89,13 +88,11 @@ html,body,[class*="css"],.stApp{{
 .stBottomContainer,.stChatFloatingInputContainer{{display:none !important;}}
 .block-container{{padding:0 !important;max-width:100% !important;}}
 .wrap{{max-width:980px;margin:0 auto;padding:0 16px 80px;}}
-
-/* ── FIX: ocultar completamente los botones de navegacion ocultos ── */
-div[data-testid="stHorizontalBlock"]:has(button[data-testid="stBaseButton-secondary"][kind="secondary"])
-  {{display:none !important;height:0 !important;min-height:0 !important;
-    overflow:hidden !important;margin:0 !important;padding:0 !important;
-    visibility:hidden !important;position:absolute !important;}}
-
+div[data-testid="stHorizontalBlock"]:has(button[data-testid="stBaseButton-secondary"]){{
+  display:none !important;height:0 !important;min-height:0 !important;
+  overflow:hidden !important;margin:0 !important;padding:0 !important;
+  visibility:hidden !important;position:absolute !important;
+}}
 .ios-hdr{{
   position:sticky;top:0;z-index:100;
   background:rgba(0,0,0,0.8);
@@ -143,7 +140,7 @@ div[data-testid="stHorizontalBlock"]:has(button[data-testid="stBaseButton-second
 .ios-group-hdr-amt{{font-size:13px;font-weight:600;}}
 .ios-badge{{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(255,69,58,.18);color:{RED};margin-left:4px;}}
 .ios-row{{display:flex;align-items:center;gap:12px;padding:11px 14px;position:relative;}}
-.ios-row::after{{content:'';position:absolute;bottom:0;left:60px;right:0;height:0.5px;background:{SEP};}}
+.ios-row::after{{content:"";position:absolute;bottom:0;left:60px;right:0;height:0.5px;background:{SEP};}}
 .ios-row:last-child::after{{display:none;}}
 .ios-row-body{{flex:1;min-width:0;}}
 .ios-row-name{{font-size:15px;font-weight:400;color:{TEXT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
@@ -185,7 +182,7 @@ div[data-testid="stHorizontalBlock"]:has(button[data-testid="stBaseButton-second
 .cat-bar-fill{{height:100%;border-radius:3px;}}
 .ios-section-title{{font-size:20px;font-weight:600;color:{TEXT};margin:20px 0 10px;letter-spacing:-.01em;}}
 .ingreso-row{{display:flex;align-items:center;gap:12px;padding:11px 14px;position:relative;}}
-.ingreso-row::after{{content:'';position:absolute;bottom:0;left:60px;right:0;height:0.5px;background:{SEP};}}
+.ingreso-row::after{{content:"";position:absolute;bottom:0;left:60px;right:0;height:0.5px;background:{SEP};}}
 .ingreso-row:last-child::after{{display:none;}}
 .stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:0.5px solid {SEP} !important;gap:0 !important;padding:0 !important;}}
 .stTabs [data-baseweb="tab"]{{background:transparent !important;color:{TEXT2} !important;font-size:14px !important;font-weight:500 !important;border-bottom:2px solid transparent !important;padding:10px 16px !important;margin-bottom:-1px !important;}}
@@ -223,13 +220,8 @@ hr{{display:none !important;}}
 }}
 .btab:active{{opacity:.6;}}
 .btab-active{{color:{ACCENT} !important;}}
-.btab-ico{{
-  width:22px;height:22px;fill:currentColor;
-  transition:color .12s;
-}}
+.btab-ico{{width:22px;height:22px;fill:currentColor;transition:color .12s;}}
 </style>""", unsafe_allow_html=True)
-
-# ── CONEXION ──
 
 @st.cache_resource
 def get_gspread():
@@ -328,7 +320,7 @@ return venta,venta,0.0,0.0
 except Exception:
 return get_dolar(),0,0.0,0.0
 
-def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, fecha):
+def guardar_ingreso(desc,persona,moneda,monto_orig,monto_ars,monto_usd,tasa,fecha):
 sh=get_gspread().open(“Gastos_Henry”)
 hojas_nombres=[h.title for h in sh.worksheets()]
 if “Ingresos” not in hojas_nombres:
@@ -366,20 +358,20 @@ def fmt_usd(n,d): return f”U$S {n/d:,.0f}” if d>0 else “U$S -”
 def fmt_usd_val(n): return f”U$S {n:,.0f}”
 
 def badge_venc(row):
-if row[“Pagado”]: return f’<span class="badge badge-paid">Pagado</span>’
+if row[“Pagado”]: return ‘<span class="badge badge-paid">Pagado</span>’
 dia=row[“Dia Pago”]
-if pd.isna(dia): return f’<span class="badge badge-none">Sin fecha</span>’
+if pd.isna(dia): return ‘<span class="badge badge-none">Sin fecha</span>’
 diff=(dia-date.today()).days; fd=dia.strftime(”%-d %b”)
 if diff<0: return f’<span class="badge badge-venc">Vencido {fd}</span>’
-if diff==0: return f’<span class="badge badge-hoy">Hoy</span>’
+if diff==0: return ‘<span class="badge badge-hoy">Hoy</span>’
 if diff<=3: return f’<span class="badge badge-prox">{diff}d - {fd}</span>’
 if diff<=10: return f’<span class="badge badge-soon">{diff}d - {fd}</span>’
 return f’<span class="badge badge-ok">{fd}</span>’
 
 def badge_persona(persona):
 p=str(persona).upper()
-if p==“HENRY”: return f’<span class="badge badge-henry">Henry</span>’
-if p==“JAIKE”: return f’<span class="badge badge-jaike">Jaike</span>’
+if p==“HENRY”: return ‘<span class="badge badge-henry">Henry</span>’
+if p==“JAIKE”: return ‘<span class="badge badge-jaike">Jaike</span>’
 return f’<span class="badge badge-none">{persona}</span>’
 
 def procesar(df_base,dolar):
@@ -405,7 +397,7 @@ def marcar_pagado(idx):
 df_act=cargar_datos().copy()
 if idx<len(df_act): df_act.at[idx,“Pagado”]=True; guardar_hoja(df_act)
 
-def exportar_excel(df, df_ing=None):
+def exportar_excel(df,df_ing=None):
 output=io.BytesIO()
 with pd.ExcelWriter(output,engine=“openpyxl”) as writer:
 df_exp=df[[“Cat”,“Item”,“Monto (ARS)”,“USD”,“Dia Pago”,“Pagado”]].copy()
@@ -416,7 +408,7 @@ resumen.columns=[“Categoria”,“Total ARS”]; resumen.to_excel(writer,index
 if df_ing is not None and not df_ing.empty: df_ing.to_excel(writer,index=False,sheet_name=“Ingresos”)
 return output.getvalue()
 
-# ── CARGA ──
+# CARGA
 
 dolar=get_dolar()
 dolar_val,dolar_ayer,dolar_diff,dolar_pct=get_dolar_tendencia()
@@ -442,8 +434,6 @@ balance_pct=int(total_ing_ars/total_ars*100) if total_ars>0 else 0
 meses=[“enero”,“febrero”,“marzo”,“abril”,“mayo”,“junio”,“julio”,“agosto”,“septiembre”,“octubre”,“noviembre”,“diciembre”]
 hoy=date.today(); hoy_str=f”{hoy.day} de {meses[hoy.month-1]} de {hoy.year}”
 
-# ── PWA META + INPUTMODE + HAPTIC JS ──
-
 st.markdown(”””
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -453,32 +443,24 @@ st.markdown(”””
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
 function haptic(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}}
-document.addEventListener('DOMContentLoaded',function(){
+document.addEventListener("DOMContentLoaded",function(){
   function patchInputs(){
-    document.querySelectorAll('input[type="number"]').forEach(function(el){
-      if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','decimal');}
+    document.querySelectorAll("input[type=number]").forEach(function(el){
+      if(!el.getAttribute("inputmode")){el.setAttribute("inputmode","decimal");}
     });
-    document.querySelectorAll('input[type="text"]').forEach(function(el){
-      if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','text');}
+    document.querySelectorAll("input[type=text]").forEach(function(el){
+      if(!el.getAttribute("inputmode")){el.setAttribute("inputmode","text");}
     });
   }
   function killStreamlitBottom(){
-    var selectors=[
-      '[data-testid="stBottom"]',
-      '[data-testid="stBottomBlockContainer"]',
-      '.stBottomContainer',
-      '.stChatFloatingInputContainer',
-      '[class*="bottom-container"]',
-      '[class*="Bottom"]'
-    ];
+    var selectors=["[data-testid=stBottom]","[data-testid=stBottomBlockContainer]",".stBottomContainer",".stChatFloatingInputContainer"];
     selectors.forEach(function(sel){
       document.querySelectorAll(sel).forEach(function(el){
-        el.style.cssText='display:none!important;height:0!important;overflow:hidden!important;';
+        el.style.cssText="display:none!important;height:0!important;overflow:hidden!important;";
       });
     });
   }
-  patchInputs();
-  killStreamlitBottom();
+  patchInputs(); killStreamlitBottom();
   var obs=new MutationObserver(function(){patchInputs();killStreamlitBottom();});
   obs.observe(document.body,{childList:true,subtree:true});
 });
@@ -487,7 +469,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
 st.markdown(’<div class="wrap">’, unsafe_allow_html=True)
 
-# ── HEADER ──
+# HEADER
 
 _trend_icon=””
 if dolar_diff>0:
@@ -514,11 +496,7 @@ st.markdown(f”””
 </div>
 """, unsafe_allow_html=True)
 
-# ── BOTTOM TAB BAR ──
-
-# Los botones ocultos son REALES pero completamente invisibles via CSS (height:0, overflow:hidden, position:absolute)
-
-# El CSS del bloque principal ya los oculta con el selector :has()
+# HIDDEN NAV BUTTONS - completamente ocultos via CSS
 
 _sc=st.session_state.screen
 _hc1,_hc2,_hc3=st.columns(3)
@@ -531,8 +509,6 @@ st.session_state.screen=“ingresos”; st.rerun()
 with _hc3:
 if st.button(“Gastos”,key=“nav_gastos”,use_container_width=True):
 st.session_state.screen=“gastos”; st.rerun()
-
-# Visual bottom tab bar — clicks disparan los botones ocultos arriba via JS
 
 st.markdown(f”””
 
@@ -555,17 +531,12 @@ st.markdown(f”””
 </div>
 """, unsafe_allow_html=True)
 
-# ══════════════════════════════
-
 # INICIO
 
-# ══════════════════════════════
-
 if st.session_state.screen==“inicio”:
+bc=GREEN if balance_ars>=0 else RED; bs=”+” if balance_ars>=0 else “”
 
 ```
-bc=GREEN if balance_ars>=0 else RED; bs="+" if balance_ars>=0 else ""
-
 if total_ing_ars>0:
     msg=f'Ingresos cubren el <strong>{balance_pct}%</strong> de gastos &mdash; Superavit: <strong>{fmt_ars(balance_ars)}</strong>' if balance_ars>=0 else f'Deficit mensual: <strong>{fmt_ars(abs(balance_ars))}</strong>'
     cls="ios-alert-g" if balance_ars>=0 else "ios-alert-r"
@@ -622,7 +593,6 @@ if st.session_state.show_add:
                 nueva=pd.DataFrame([{"Categoria":categorizar_inteligente(new_item),"Item":new_item.strip(),"Monto (ARS)":float(new_monto),"Dia Pago":new_fecha,"Pagado":False}])
                 try:
                     guardar_hoja(pd.concat([df_base,nueva],ignore_index=True))
-                    st.markdown('<script>haptic(60);</script>',unsafe_allow_html=True)
                     st.session_state.show_add=False; st.rerun()
                 except Exception as e: st.markdown(f'<div class="toast-err">Error: {e}</div>',unsafe_allow_html=True)
     st.markdown("</div>",unsafe_allow_html=True)
@@ -653,7 +623,6 @@ if st.session_state.show_add_ingreso:
         else:
             try:
                 guardar_ingreso(ing_desc.strip(),ing_persona,moneda_sel,ing_monto,round(monto_ars_final,2),round(monto_usd_final,4),dolar,ing_fecha)
-                st.markdown('<script>haptic(60);</script>',unsafe_allow_html=True)
                 st.session_state.show_add_ingreso=False; st.rerun()
             except Exception as e: st.markdown(f'<div class="toast-err">Error: {e}</div>',unsafe_allow_html=True)
     st.markdown("</div>",unsafe_allow_html=True)
@@ -696,10 +665,7 @@ else:
                     with cn: st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} &mdash; {fmt_ars(row["Monto (ARS)"])}</div>',unsafe_allow_html=True)
                     with cb:
                         if st.button("Pagado",key=f"pay_{idx}",use_container_width=True):
-                            try:
-                                marcar_pagado(idx)
-                                st.markdown('<script>haptic(40);</script>',unsafe_allow_html=True)
-                                st.rerun()
+                            try: marcar_pagado(idx); st.rerun()
                             except Exception as e: st.error(str(e))
 
     with col_der:
@@ -780,19 +746,15 @@ else:
     with ce: st.download_button(label="Exportar Excel",data=exportar_excel(df,df_ing),file_name=f"gastos_{hoy.strftime('%Y_%m')}.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
 ```
 
-# ══════════════════════════════
-
 # INGRESOS
-
-# ══════════════════════════════
 
 elif st.session_state.screen==“ingresos”:
 bs2=”+” if balance_ars>=0 else “”; bc2=GREEN if balance_ars>=0 else RED
 st.markdown(’<div class="ios-section-label">Ingresos familiares</div>’,unsafe_allow_html=True)
 st.markdown(f”””<div class="ios-metrics">
 <div class="ios-card"><div class="ios-card-lbl">Total</div><div class="ios-card-val" style="color:{GREEN}">{fmt_k(total_ing_ars)}</div><div class="ios-card-sub">{fmt_usd_val(total_ing_usd)}</div></div>
-<div class="ios-card" style="border-left:3px solid {ACCENT}"><div class="ios-card-lbl" style="color:{ACCENT}">Henry</div><div class="ios-card-val" style="color:{ACCENT}">{fmt_k(ing_henry)}</div><div class="ios-card-sub">{fmt_usd_val(ing_henry/dolar) if dolar>0 else ‘-’}</div></div>
-<div class="ios-card" style="border-left:3px solid {PURPLE}"><div class="ios-card-lbl" style="color:{PURPLE}">Jaike</div><div class="ios-card-val" style="color:{PURPLE}">{fmt_k(ing_jaike)}</div><div class="ios-card-sub">{fmt_usd_val(ing_jaike/dolar) if dolar>0 else ‘-’}</div></div>
+<div class="ios-card" style="border-left:3px solid {ACCENT}"><div class="ios-card-lbl" style="color:{ACCENT}">Henry</div><div class="ios-card-val" style="color:{ACCENT}">{fmt_k(ing_henry)}</div><div class="ios-card-sub">{fmt_usd_val(ing_henry/dolar) if dolar>0 else “-”}</div></div>
+<div class="ios-card" style="border-left:3px solid {PURPLE}"><div class="ios-card-lbl" style="color:{PURPLE}">Jaike</div><div class="ios-card-val" style="color:{PURPLE}">{fmt_k(ing_jaike)}</div><div class="ios-card-sub">{fmt_usd_val(ing_jaike/dolar) if dolar>0 else “-”}</div></div>
 </div>”””,unsafe_allow_html=True)
 st.markdown(f’<div class="ios-card" style="margin-bottom:12px"><div class="ios-card-lbl">Balance vs gastos</div><div class="ios-card-val" style="color:{bc2}">{bs2}{fmt_k(balance_ars)}</div><div class="ios-card-sub">{“Superavit” if balance_ars>=0 else “Deficit”}</div></div>’,unsafe_allow_html=True)
 
@@ -857,11 +819,7 @@ else:
     st.markdown("</div>",unsafe_allow_html=True)
 ```
 
-# ══════════════════════════════
-
 # GASTOS (editor)
-
-# ══════════════════════════════
 
 elif st.session_state.screen==“gastos”:
 if df.empty:
@@ -881,7 +839,6 @@ with bc1:
 if st.button(“Guardar y Sincronizar”,type=“primary”,use_container_width=True):
 try:
 guardar_hoja(df_edit)
-st.markdown(’<script>haptic(80);</script>’,unsafe_allow_html=True)
 st.markdown(’<div class="toast-ok">Cambios guardados</div>’,unsafe_allow_html=True); st.rerun()
 except Exception as e: st.markdown(f’<div class="toast-err">Error: {e}</div>’,unsafe_allow_html=True)
 with bc2:
