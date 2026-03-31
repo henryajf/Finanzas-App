@@ -87,11 +87,17 @@ html,body,[class*="css"],.stApp{{
 .stBottomContainer,.stChatFloatingInputContainer{{display:none !important;}}
 .block-container{{padding:0 !important;max-width:100% !important;}}
 .wrap{{max-width:980px;margin:0 auto;padding:0 16px 80px;}}
-div[data-testid="stHorizontalBlock"]:has(button[data-testid="stBaseButton-secondary"]){{
-  display:none !important;height:0 !important;min-height:0 !important;
-  overflow:hidden !important;margin:0 !important;padding:0 !important;
-  visibility:hidden !important;position:absolute !important;
+
+/* Oculta las columnas de navegación fantasma */
+div[data-testid="stHorizontalBlock"]:first-of-type {{
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -100 !important;
+  height: 0 !important;
+  overflow: hidden !important;
 }}
+
 .ios-hdr{{
   position:sticky;top:0;z-index:100;
   background:rgba(0,0,0,0.8);
@@ -107,23 +113,26 @@ div[data-testid="stHorizontalBlock"]:has(button[data-testid="stBaseButton-second
 .dolar-pill{{background:{SURF2};border-radius:20px;padding:7px 14px;text-align:center;}}
 .dolar-lbl{{font-size:9px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:600;}}
 .dolar-val{{font-size:17px;font-weight:700;color:{ACCENT};margin-top:1px;letter-spacing:-.01em;}}
+
+/* Botones con bordes curvos y efecto táctil */
 .stButton>button[kind="primary"]{{
   background:{ACCENT} !important;color:#fff !important;border:none !important;
   border-radius:14px !important;padding:11px 20px !important;
   font-family:-apple-system,BlinkMacSystemFont,sans-serif !important;
   font-size:15px !important;font-weight:600 !important;
-  box-shadow:none !important;transition:transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s ease !important;
+  box-shadow:none !important;
+  transition:transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s ease !important;
 }}
-.stButton>button[kind="primary"]:hover{{opacity:.82 !important;}}
 .stButton>button[kind="secondary"]{{
   background:{SURF2} !important;color:{TEXT2} !important;border:none !important;
   border-radius:14px !important;padding:11px 20px !important;
   font-family:-apple-system,BlinkMacSystemFont,sans-serif !important;
   font-size:15px !important;font-weight:600 !important;
-  box-shadow:none !important;transition:transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s ease !important;
+  box-shadow:none !important;
+  transition:transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s ease !important;
 }}
-.stButton>button[kind="secondary"]:hover{{opacity:.7 !important;}}
 .stButton>button:active{{transform:scale(0.96) !important;opacity:0.8 !important;}}
+
 .ios-metrics{{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}}
 .ios-metrics-2{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}}
 .ios-card{{background:{SURFACE};border-radius:12px;padding:14px 16px;}}
@@ -190,6 +199,7 @@ div[data-testid="stHorizontalBlock"]:has(button[data-testid="stBaseButton-second
 .stTabs [data-baseweb="tab-highlight"]{{display:none !important;}}
 .stTabs [data-baseweb="tab-panel"]{{padding:12px 0 0 !important;}}
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
+
 @media(max-width:700px){{
   .ios-metrics{{grid-template-columns:repeat(2,1fr);gap:12px;}}
   .ios-metrics > .ios-card:nth-child(3) {{grid-column:span 2;}}
@@ -227,7 +237,8 @@ hr{{display:none !important;}}
 .btab:active{{opacity:.6;}}
 .btab-active{{color:{ACCENT} !important;}}
 .btab-ico{{width:22px;height:22px;fill:currentColor;transition:color .12s;}}
-</style>""", unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
 @st.cache_resource
 def get_gspread():
@@ -243,7 +254,7 @@ def cargar_datos():
         data=hoja.get_all_values()
     except Exception as e:
         st.error(f"Error conectando con Google Sheets: {e}")
-        st.stop() # CORRECCIÓN: Detiene la app si falla para no borrar datos
+        st.stop()
     data=[r for r in data if any(str(c).strip() for c in r)]
     if not data or len(data)<2: return pd.DataFrame()
     headers=["Categoria","Item","Monto (ARS)","Dia Pago","Pagado"]
@@ -261,30 +272,35 @@ def cargar_datos():
 @st.cache_data(ttl=600)
 def cargar_ingresos():
     try:
-        sh=get_gspread().open("Gastos_Henry")
-        hojas_nombres=[h.title for h in sh.worksheets()]
-        if "Ingresos" not in hojas_nombres:
-            ws=sh.add_worksheet(title="Ingresos",rows=200,cols=8)
+        sh = get_gspread().open("Gastos_Henry")
+        ws = next((h for h in sh.worksheets() if h.title.strip().lower() == "ingresos"), None)
+        
+        if not ws:
+            ws = sh.add_worksheet(title="Ingresos", rows=200, cols=8)
             ws.append_row(["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"])
             return pd.DataFrame()
-        ws=sh.worksheet("Ingresos")
-        data=ws.get_all_values()
-        if not data or len(data)<2: return pd.DataFrame()
-        headers=["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"]
-        filas=data[1:]
-        filas=[r+[""]*(8-len(r)) for r in filas if len(r)>=2]
+            
+        data = ws.get_all_values()
+        if not data or len(data) < 2: return pd.DataFrame()
+        
+        headers = ["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"]
+        filas = data[1:]
+        filas = [r + [""] * (8 - len(r)) for r in filas if len(r) >= 2]
+        
         if not filas: return pd.DataFrame()
-        df=pd.DataFrame(filas,columns=headers)
-        df["Monto ARS"]=pd.to_numeric(df["Monto ARS"],errors="coerce").fillna(0)
-        df["Monto USD"]=pd.to_numeric(df["Monto USD"],errors="coerce").fillna(0)
-        df["Monto Original"]=pd.to_numeric(df["Monto Original"],errors="coerce").fillna(0)
-        df["Tasa USD/ARS"]=pd.to_numeric(df["Tasa USD/ARS"],errors="coerce").fillna(0)
-        df["Fecha"]=pd.to_datetime(df["Fecha"],errors="coerce").dt.date
-        df=df[df["Monto ARS"]>0]
+        
+        df = pd.DataFrame(filas, columns=headers)
+        df["Monto ARS"] = pd.to_numeric(df["Monto ARS"], errors="coerce").fillna(0)
+        df["Monto USD"] = pd.to_numeric(df["Monto USD"], errors="coerce").fillna(0)
+        df["Monto Original"] = pd.to_numeric(df["Monto Original"], errors="coerce").fillna(0)
+        df["Tasa USD/ARS"] = pd.to_numeric(df["Tasa USD/ARS"], errors="coerce").fillna(0)
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.date
+        df = df[df["Monto ARS"] > 0]
+        
         return df.reset_index(drop=True)
     except Exception as e:
         st.error(f"Error conectando con Ingresos: {e}")
-        st.stop() # CORRECCIÓN
+        st.stop()
 
 @st.cache_data(ttl=600)
 def cargar_historial():
@@ -292,7 +308,7 @@ def cargar_historial():
         sh=get_gspread().open("Gastos_Henry")
         hojas=sh.worksheets(); frames=[]
         for h in hojas:
-            if h.title=="Ingresos": continue
+            if h.title.strip().lower()=="ingresos": continue
             data=h.get_all_values()
             data=[r for r in data if any(str(c).strip() for c in r)]
             if not data or len(data)<2: continue
@@ -308,7 +324,7 @@ def cargar_historial():
         return pd.concat(frames,ignore_index=True) if frames else pd.DataFrame()
     except Exception as e:
         st.error(f"Error conectando con Historial: {e}")
-        st.stop() # CORRECCIÓN
+        st.stop()
 
 @st.cache_data(ttl=300)
 def get_dolar():
@@ -330,14 +346,14 @@ def get_dolar_tendencia():
         return get_dolar(),0,0.0,0.0
 
 def guardar_ingreso(desc,persona,moneda,monto_orig,monto_ars,monto_usd,tasa,fecha):
-    sh=get_gspread().open("Gastos_Henry")
-    hojas_nombres=[h.title for h in sh.worksheets()]
-    if "Ingresos" not in hojas_nombres:
-        ws=sh.add_worksheet(title="Ingresos",rows=200,cols=8)
+    sh = get_gspread().open("Gastos_Henry")
+    ws = next((h for h in sh.worksheets() if h.title.strip().lower() == "ingresos"), None)
+    
+    if not ws:
+        ws = sh.add_worksheet(title="Ingresos", rows=200, cols=8)
         ws.append_row(["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"])
-    else:
-        ws=sh.worksheet("Ingresos")
-    ws.append_row([desc,persona,moneda,monto_orig,monto_ars,monto_usd,tasa,str(fecha)])
+        
+    ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
 def categorizar_inteligente(item):
@@ -417,7 +433,7 @@ def exportar_excel(df,df_ing=None):
         if df_ing is not None and not df_ing.empty: df_ing.to_excel(writer,index=False,sheet_name="Ingresos")
     return output.getvalue()
 
-# CARGA
+# ── CARGA Y PROCESAMIENTO MES ACTUAL ──
 
 dolar=get_dolar()
 dolar_val,dolar_ayer,dolar_diff,dolar_pct=get_dolar_tendencia()
@@ -433,15 +449,27 @@ if not df_base.empty:
 else:
     df=por_cat=pd.DataFrame(); total_ars=pagado_ars=pend_ars=pct=0; vencidos=proximos=pd.DataFrame()
 
-total_ing_ars=df_ing["Monto ARS"].sum() if not df_ing.empty else 0
-total_ing_usd=df_ing["Monto USD"].sum() if not df_ing.empty else 0
-ing_henry=df_ing[df_ing["Persona"].str.upper()=="HENRY"]["Monto ARS"].sum() if not df_ing.empty else 0
-ing_jaike=df_ing[df_ing["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing.empty else 0
+meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
+hoy=date.today(); hoy_str=f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
+mes_actual_str=hoy.strftime("%Y-%m")
+
+# Agrupar ingresos por mes y separar el mes actual
+if not df_ing.empty:
+    df_ing["Fecha_dt"] = pd.to_datetime(df_ing["Fecha"])
+    df_ing["Mes_Str"] = df_ing["Fecha_dt"].dt.strftime("%Y-%m")
+    df_ing["Mes_Display"] = df_ing["Fecha_dt"].apply(lambda x: f"{meses[x.month-1].capitalize()} {x.year}")
+    df_ing_actual = df_ing[df_ing["Mes_Str"] == mes_actual_str]
+else:
+    df_ing_actual = pd.DataFrame()
+
+# Cálculos basados SOLO en el mes actual
+total_ing_ars=df_ing_actual["Monto ARS"].sum() if not df_ing_actual.empty else 0
+total_ing_usd=df_ing_actual["Monto USD"].sum() if not df_ing_actual.empty else 0
+ing_henry=df_ing_actual[df_ing_actual["Persona"].str.upper()=="HENRY"]["Monto ARS"].sum() if not df_ing_actual.empty else 0
+ing_jaike=df_ing_actual[df_ing_actual["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing_actual.empty else 0
 balance_ars=total_ing_ars-total_ars
 balance_pct=int(total_ing_ars/total_ars*100) if total_ars>0 else 0
 
-meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
-hoy=date.today(); hoy_str=f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
 
 st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -478,7 +506,7 @@ document.addEventListener("DOMContentLoaded",function(){
 
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
-# HEADER
+# ── HEADER ──
 
 _trend_icon=""
 if dolar_diff>0:
@@ -504,7 +532,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# HIDDEN NAV BUTTONS
+# ── HIDDEN NAV BUTTONS ──
 
 _sc=st.session_state.screen
 _hc1,_hc2,_hc3=st.columns(3)
@@ -538,8 +566,9 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# ══════════════════════════════
 # INICIO
-
+# ══════════════════════════════
 if st.session_state.screen=="inicio":
     bc=GREEN if balance_ars>=0 else RED; bs="+" if balance_ars>=0 else ""
 
@@ -606,7 +635,7 @@ if st.session_state.screen=="inicio":
     if st.session_state.show_add_ingreso:
         st.markdown('<div class="ios-add-panel-green">',unsafe_allow_html=True)
         i1,i2,i3=st.columns([2,1,1])
-        with i1: ing_desc=st.text_input("Descripcion",placeholder="Ej: Sueldo Henry",label_visibility="visible",key="ing_desc")
+        with i1: ing_desc=st.text_input("Descripcion",placeholder="Ej: Sueldo",label_visibility="visible",key="ing_desc")
         with i2: ing_persona=st.selectbox("Persona",["Henry","Jaike"],label_visibility="visible",key="ing_persona")
         with i3: ing_moneda=st.selectbox("Moneda",["ARS","USD"],label_visibility="visible",key="ing_moneda")
         i4,i5,i6=st.columns([1.5,1.5,1])
@@ -751,17 +780,18 @@ if st.session_state.screen=="inicio":
         _,ce,_=st.columns([1,1,1])
         with ce: st.download_button(label="Exportar Excel",data=exportar_excel(df,df_ing),file_name=f"gastos_{hoy.strftime('%Y_%m')}.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
 
+# ══════════════════════════════
 # INGRESOS
-
+# ══════════════════════════════
 elif st.session_state.screen=="ingresos":
     bs2="+" if balance_ars>=0 else ""; bc2=GREEN if balance_ars>=0 else RED
-    st.markdown('<div class="ios-section-label">Ingresos familiares</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="ios-section-label">Ingresos de {meses[hoy.month-1].capitalize()}</div>',unsafe_allow_html=True)
     st.markdown(f"""<div class="ios-metrics">
       <div class="ios-card"><div class="ios-card-lbl">Total</div><div class="ios-card-val" style="color:{GREEN}">{fmt_k(total_ing_ars)}</div><div class="ios-card-sub">{fmt_usd_val(total_ing_usd)}</div></div>
       <div class="ios-card" style="border-left:3px solid {ACCENT}"><div class="ios-card-lbl" style="color:{ACCENT}">Henry</div><div class="ios-card-val" style="color:{ACCENT}">{fmt_k(ing_henry)}</div><div class="ios-card-sub">{fmt_usd_val(ing_henry/dolar) if dolar>0 else "-"}</div></div>
       <div class="ios-card" style="border-left:3px solid {PURPLE}"><div class="ios-card-lbl" style="color:{PURPLE}">Jaike</div><div class="ios-card-val" style="color:{PURPLE}">{fmt_k(ing_jaike)}</div><div class="ios-card-sub">{fmt_usd_val(ing_jaike/dolar) if dolar>0 else "-"}</div></div>
     </div>""",unsafe_allow_html=True)
-    st.markdown(f'<div class="ios-card" style="margin-bottom:12px"><div class="ios-card-lbl">Balance vs gastos</div><div class="ios-card-val" style="color:{bc2}">{bs2}{fmt_k(balance_ars)}</div><div class="ios-card-sub">{"Superavit" if balance_ars>=0 else "Deficit"}</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="ios-card" style="margin-bottom:12px"><div class="ios-card-lbl">Balance vs gastos ({meses[hoy.month-1].capitalize()})</div><div class="ios-card-val" style="color:{bc2}">{bs2}{fmt_k(balance_ars)}</div><div class="ios-card-sub">{"Superavit" if balance_ars>=0 else "Deficit"}</div></div>',unsafe_allow_html=True)
 
     lbl_i2="Cancelar" if st.session_state.show_add_ingreso else "Agregar ingreso"
     if st.button(lbl_i2,type="secondary" if st.session_state.show_add_ingreso else "primary",use_container_width=True,key="btn_ing2"):
@@ -771,7 +801,7 @@ elif st.session_state.screen=="ingresos":
     if st.session_state.show_add_ingreso:
         st.markdown('<div class="ios-add-panel-green">',unsafe_allow_html=True)
         i1,i2,i3=st.columns([2,1,1])
-        with i1: ing_desc2=st.text_input("Descripcion",placeholder="Ej: Sueldo Henry",label_visibility="visible",key="ing_desc2")
+        with i1: ing_desc2=st.text_input("Descripcion",placeholder="Ej: Sueldo",label_visibility="visible",key="ing_desc2")
         with i2: ing_persona2=st.selectbox("Persona",["Henry","Jaike"],label_visibility="visible",key="ing_persona2")
         with i3: ing_moneda2=st.selectbox("Moneda",["ARS","USD"],label_visibility="visible",key="ing_moneda2")
         i4,i5,i6=st.columns([1.5,1.5,1]); moneda_sel2=st.session_state.get("ing_moneda2","ARS")
@@ -795,35 +825,57 @@ elif st.session_state.screen=="ingresos":
                 except Exception as e: st.markdown(f'<div class="toast-err">Error: {e}</div>',unsafe_allow_html=True)
         st.markdown("</div>",unsafe_allow_html=True)
 
-    if df_ing.empty:
-        st.markdown(f'<div class="ios-group" style="padding:32px;text-align:center;color:{TEXT2}">Sin ingresos registrados.</div>',unsafe_allow_html=True)
+    if df_ing_actual.empty:
+        st.markdown(f'<div class="ios-group" style="padding:32px;text-align:center;color:{TEXT2}">Sin ingresos registrados este mes.</div>',unsafe_allow_html=True)
     else:
-        ing_pers=df_ing.groupby("Persona")["Monto ARS"].sum().reset_index()
+        ing_pers=df_ing_actual.groupby("Persona")["Monto ARS"].sum().reset_index()
         fig_ing=go.Figure(go.Pie(labels=ing_pers["Persona"],values=ing_pers["Monto ARS"],hole=0.6,marker=dict(colors=[ACCENT,PURPLE],line=dict(color=BG,width=2)),textinfo="none",hovertemplate="<b>%{label}</b><br>%{value:,.0f}<extra></extra>"))
         fig_ing.add_annotation(text="<b>Total</b>",x=0.5,y=0.6,font=dict(size=12,color=TEXT,family="-apple-system"),showarrow=False)
         fig_ing.add_annotation(text=fmt_k(total_ing_ars),x=0.5,y=0.42,font=dict(size=12,color=GREEN,family="-apple-system"),showarrow=False)
         fig_ing.update_layout(showlegend=True,legend=dict(orientation="h",x=0.5,xanchor="center",y=-0.05,font=dict(color=TEXT2,size=12)),height=190,margin=dict(t=6,b=38,l=6,r=6),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG)
-        st.markdown(f'<div class="ios-group" style="padding:16px"><div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Por persona</div>',unsafe_allow_html=True)
+        st.markdown(f'<div class="ios-group" style="padding:16px"><div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Distribución del mes actual</div>',unsafe_allow_html=True)
         st.plotly_chart(fig_ing,use_container_width=True,config={"displayModeBar":False}); st.markdown("</div>",unsafe_allow_html=True)
 
-        st.markdown('<div class="ios-section-label">Historial</div><div class="ios-group">',unsafe_allow_html=True)
-        for _,row in df_ing.sort_values("Fecha",ascending=False).iterrows():
-            persona=str(row.get("Persona","")); desc=str(row.get("Descripcion",""))
-            monto_ars_r=float(row.get("Monto ARS",0)); monto_usd_r=float(row.get("Monto USD",0))
-            tasa_r=float(row.get("Tasa USD/ARS",0)); fecha_r=row.get("Fecha","")
-            fecha_str=fecha_r.strftime("%-d %b %Y") if hasattr(fecha_r,"strftime") else str(fecha_r)
-            ico_c=ACCENT if persona.upper()=="HENRY" else PURPLE
-            st.markdown(f"""<div class="ingreso-row">
-              <div style="width:34px;height:34px;border-radius:8px;background:{ico_c};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg width="18" height="18" viewBox="0 0 18 18"><rect x="2" y="5" width="14" height="9" rx="2" fill="white" opacity="0.9"/><rect x="2" y="7" width="14" height="2" fill="{ico_c}"/><circle cx="5" cy="11" r="1.2" fill="{ico_c}" opacity="0.7"/></svg>
-              </div>
-              <div class="ios-row-body"><div class="ios-row-name">{desc}</div><div class="ios-row-sub">{badge_persona(persona)} &nbsp;{fecha_str} &middot; Tasa ${tasa_r:,.0f}</div></div>
-              <div class="ios-row-right"><div class="ios-row-amt" style="color:{GREEN}">{fmt_ars(monto_ars_r)}</div><div class="ios-row-usd">U$S {monto_usd_r:,.2f}</div></div>
-            </div>""",unsafe_allow_html=True)
-        st.markdown("</div>",unsafe_allow_html=True)
+    # Gráfico de Evolución Histórica
+    if not df_ing.empty and df_ing["Mes_Str"].nunique() > 1:
+        hist_ing = df_ing.groupby(["Mes_Str", "Mes_Display"])["Monto ARS"].sum().reset_index().sort_values("Mes_Str")
+        fig_ing_hist = go.Figure()
+        fig_ing_hist.add_trace(go.Bar(x=hist_ing["Mes_Display"], y=hist_ing["Monto ARS"], marker_color=GREEN, opacity=0.9, text=[fmt_ars(v) for v in hist_ing["Monto ARS"]], textposition="outside", textfont=dict(color=TEXT2, size=11)))
+        fig_ing_hist.update_layout(height=230, margin=dict(t=8,b=8,l=8,r=8), paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG, xaxis=dict(showgrid=False, tickfont=dict(color=TEXT2,size=11)), yaxis=dict(showgrid=False,showticklabels=False), bargap=0.3)
+        st.markdown(f'<div class="ios-group" style="padding:16px"><div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Evolución de Ingresos</div>',unsafe_allow_html=True)
+        st.plotly_chart(fig_ing_hist, use_container_width=True, config={"displayModeBar":False})
+        st.markdown("</div>", unsafe_allow_html=True)
 
+    # Detalle agrupado por mes
+    if not df_ing.empty:
+        st.markdown('<div class="ios-section-label">Detalle Histórico</div>', unsafe_allow_html=True)
+        meses_ordenados = df_ing["Mes_Str"].sort_values(ascending=False).unique()
+        
+        for mes_str in meses_ordenados:
+            df_mes = df_ing[df_ing["Mes_Str"] == mes_str]
+            mes_nombre = df_mes["Mes_Display"].iloc[0]
+            
+            st.markdown('<div class="ios-group">', unsafe_allow_html=True)
+            st.markdown(f'<div style="padding:12px 14px 6px;font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid {SEP}">{mes_nombre}</div>', unsafe_allow_html=True)
+            
+            for _, row in df_mes.sort_values("Fecha", ascending=False).iterrows():
+                persona=str(row.get("Persona","")); desc=str(row.get("Descripcion",""))
+                monto_ars_r=float(row.get("Monto ARS",0)); monto_usd_r=float(row.get("Monto USD",0))
+                tasa_r=float(row.get("Tasa USD/ARS",0)); fecha_r=row.get("Fecha","")
+                fecha_str=fecha_r.strftime("%-d %b") if hasattr(fecha_r,"strftime") else str(fecha_r)
+                ico_c=ACCENT if persona.upper()=="HENRY" else PURPLE
+                st.markdown(f"""<div class="ingreso-row">
+                  <div style="width:34px;height:34px;border-radius:8px;background:{ico_c};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="18" height="18" viewBox="0 0 18 18"><rect x="2" y="5" width="14" height="9" rx="2" fill="white" opacity="0.9"/><rect x="2" y="7" width="14" height="2" fill="{ico_c}"/><circle cx="5" cy="11" r="1.2" fill="{ico_c}" opacity="0.7"/></svg>
+                  </div>
+                  <div class="ios-row-body"><div class="ios-row-name">{desc}</div><div class="ios-row-sub">{badge_persona(persona)} &nbsp;{fecha_str} &middot; Tasa ${tasa_r:,.0f}</div></div>
+                  <div class="ios-row-right"><div class="ios-row-amt" style="color:{GREEN}">{fmt_ars(monto_ars_r)}</div><div class="ios-row-usd">U$S {monto_usd_r:,.2f}</div></div>
+                </div>""",unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+# ══════════════════════════════
 # GASTOS (editor)
-
+# ══════════════════════════════
 elif st.session_state.screen=="gastos":
     if df.empty:
         st.markdown(f'<div class="ios-group" style="padding:32px;text-align:center;color:{TEXT2}">Sin datos en Google Sheets.</div>',unsafe_allow_html=True)
@@ -833,7 +885,6 @@ elif st.session_state.screen=="gastos":
         COL_CONFIG={"Pagado":st.column_config.CheckboxColumn("Pagado",width="small"),"Item":st.column_config.TextColumn("Item"),"Monto (ARS)":st.column_config.NumberColumn("ARS",format="$ %d"),"USD":st.column_config.NumberColumn("USD",format="U$S %.0f",disabled=True,width="small"),"Dia Pago":st.column_config.DateColumn("Vencimiento",format="DD/MM/YY")}
         COL_ORDER=("Pagado","Item","Monto (ARS)","USD","Dia Pago")
         
-        # CORRECCIÓN: Sólo la pestaña Todos es editable.
         with tab_todos: 
             df_edit=st.data_editor(df,column_config=COL_CONFIG,column_order=COL_ORDER,num_rows="dynamic",use_container_width=True,hide_index=True,key="t_todos")
         with tab_pend: 
