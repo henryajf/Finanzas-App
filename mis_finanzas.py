@@ -405,6 +405,10 @@ def exportar_excel(df, df_ing=None):
     return output.getvalue()
 
 # ── CARGA ──
+meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
+hoy=date.today(); hoy_str=f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
+periodo_actual=hoy.strftime('%Y-%m')
+
 dolar=get_dolar()
 dolar_val,dolar_ayer,dolar_diff,dolar_pct=get_dolar_tendencia()
 df_base=cargar_datos(); df_ing=cargar_ingresos()
@@ -419,15 +423,18 @@ if not df_base.empty:
 else:
     df=por_cat=pd.DataFrame(); total_ars=pagado_ars=pend_ars=pct=0; vencidos=proximos=pd.DataFrame()
 
-total_ing_ars=df_ing["Monto ARS"].sum() if not df_ing.empty else 0
-total_ing_usd=df_ing["Monto USD"].sum() if not df_ing.empty else 0
-ing_henry=df_ing[df_ing["Persona"].str.upper()=="HENRY"]["Monto ARS"].sum() if not df_ing.empty else 0
-ing_jaike=df_ing[df_ing["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing.empty else 0
+if not df_ing.empty:
+    df_ing["Periodo"] = pd.to_datetime(df_ing["Fecha"], errors='coerce').dt.strftime('%Y-%m')
+    df_ing_actual = df_ing[df_ing["Periodo"] == periodo_actual]
+else:
+    df_ing_actual = pd.DataFrame()
+
+total_ing_ars=df_ing_actual["Monto ARS"].sum() if not df_ing_actual.empty else 0
+total_ing_usd=df_ing_actual["Monto USD"].sum() if not df_ing_actual.empty else 0
+ing_henry=df_ing_actual[df_ing_actual["Persona"].str.upper()=="HENRY"]["Monto ARS"].sum() if not df_ing_actual.empty else 0
+ing_jaike=df_ing_actual[df_ing_actual["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing_actual.empty else 0
 balance_ars=total_ing_ars-total_ars
 balance_pct=int(total_ing_ars/total_ars*100) if total_ars>0 else 0
-
-meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
-hoy=date.today(); hoy_str=f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
 
 # ── PWA META + INPUTMODE + HAPTIC JS ──
 st.markdown("""
@@ -765,13 +772,13 @@ if st.session_state.screen=="inicio":
 # ══════════════════════════════
 elif st.session_state.screen=="ingresos":
     bs2="+" if balance_ars>=0 else ""; bc2=GREEN if balance_ars>=0 else RED
-    st.markdown('<div class="ios-section-label">Ingresos familiares</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="ios-section-label">Ingresos de {meses[hoy.month-1].capitalize()}</div>',unsafe_allow_html=True)
     st.markdown(f"""<div class="ios-metrics">
       <div class="ios-card"><div class="ios-card-lbl">Total</div><div class="ios-card-val" style="color:{GREEN}">{fmt_k(total_ing_ars)}</div><div class="ios-card-sub">{fmt_usd_val(total_ing_usd)}</div></div>
       <div class="ios-card" style="border-left:3px solid {ACCENT}"><div class="ios-card-lbl" style="color:{ACCENT}">Henry</div><div class="ios-card-val" style="color:{ACCENT}">{fmt_k(ing_henry)}</div><div class="ios-card-sub">{fmt_usd_val(ing_henry/dolar) if dolar>0 else '-'}</div></div>
       <div class="ios-card" style="border-left:3px solid {PURPLE}"><div class="ios-card-lbl" style="color:{PURPLE}">Jaike</div><div class="ios-card-val" style="color:{PURPLE}">{fmt_k(ing_jaike)}</div><div class="ios-card-sub">{fmt_usd_val(ing_jaike/dolar) if dolar>0 else '-'}</div></div>
     </div>""",unsafe_allow_html=True)
-    st.markdown(f'<div class="ios-card" style="margin-bottom:12px"><div class="ios-card-lbl">Balance vs gastos</div><div class="ios-card-val" style="color:{bc2}">{bs2}{fmt_k(balance_ars)}</div><div class="ios-card-sub">{"Superavit" if balance_ars>=0 else "Deficit"}</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="ios-card" style="margin-bottom:12px"><div class="ios-card-lbl">Balance vs gastos del mes</div><div class="ios-card-val" style="color:{bc2}">{bs2}{fmt_k(balance_ars)}</div><div class="ios-card-sub">{"Superavit" if balance_ars>=0 else "Deficit"}</div></div>',unsafe_allow_html=True)
 
     lbl_i2="Cancelar" if st.session_state.show_add_ingreso else "Agregar ingreso"
     if st.button(lbl_i2,type="secondary" if st.session_state.show_add_ingreso else "primary",use_container_width=True,key="btn_ing2"):
@@ -805,18 +812,28 @@ elif st.session_state.screen=="ingresos":
                 except Exception as e: st.markdown(f'<div class="toast-err">Error: {e}</div>',unsafe_allow_html=True)
         st.markdown("</div>",unsafe_allow_html=True)
 
-    if df_ing.empty:
-        st.markdown(f'<div class="ios-group" style="padding:32px;text-align:center;color:{TEXT2}">Sin ingresos registrados.</div>',unsafe_allow_html=True)
+    if df_ing_actual.empty:
+        st.markdown(f'<div class="ios-group" style="padding:32px;text-align:center;color:{TEXT2}">Sin ingresos registrados en el mes actual.</div>',unsafe_allow_html=True)
     else:
-        ing_pers=df_ing.groupby("Persona")["Monto ARS"].sum().reset_index()
+        ing_pers=df_ing_actual.groupby("Persona")["Monto ARS"].sum().reset_index()
         fig_ing=go.Figure(go.Pie(labels=ing_pers["Persona"],values=ing_pers["Monto ARS"],hole=0.6,marker=dict(colors=[ACCENT,PURPLE],line=dict(color=BG,width=2)),textinfo="none",hovertemplate="<b>%{label}</b><br>%{value:,.0f}<extra></extra>"))
-        fig_ing.add_annotation(text="<b>Total</b>",x=0.5,y=0.6,font=dict(size=12,color=TEXT,family="-apple-system"),showarrow=False)
+        fig_ing.add_annotation(text="<b>Total Mes</b>",x=0.5,y=0.6,font=dict(size=12,color=TEXT,family="-apple-system"),showarrow=False)
         fig_ing.add_annotation(text=fmt_k(total_ing_ars),x=0.5,y=0.42,font=dict(size=12,color=GREEN,family="-apple-system"),showarrow=False)
         fig_ing.update_layout(showlegend=True,legend=dict(orientation="h",x=0.5,xanchor="center",y=-0.05,font=dict(color=TEXT2,size=12)),height=190,margin=dict(t=6,b=38,l=6,r=6),paper_bgcolor=PLOTBG,plot_bgcolor=PLOTBG)
-        st.markdown(f'<div class="ios-group" style="padding:16px"><div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Por persona</div>',unsafe_allow_html=True)
+        st.markdown(f'<div class="ios-group" style="padding:16px"><div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Por persona ({meses[hoy.month-1]})</div>',unsafe_allow_html=True)
         st.plotly_chart(fig_ing,use_container_width=True,config={"displayModeBar":False}); st.markdown("</div>",unsafe_allow_html=True)
 
-        st.markdown('<div class="ios-section-label">Historial</div><div class="ios-group">',unsafe_allow_html=True)
+    if not df_ing.empty and df_ing["Periodo"].nunique() > 1:
+        ing_hist_df = df_ing.groupby("Periodo")["Monto ARS"].sum().reset_index().sort_values("Periodo")
+        fig_ing_hist = go.Figure()
+        fig_ing_hist.add_trace(go.Bar(x=ing_hist_df["Periodo"], y=ing_hist_df["Monto ARS"], marker_color=GREEN, opacity=0.9, text=[fmt_ars(v) for v in ing_hist_df["Monto ARS"]], textposition="outside", textfont=dict(color=TEXT2, size=11)))
+        fig_ing_hist.update_layout(height=230, margin=dict(t=8,b=8,l=8,r=8), paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG, xaxis=dict(showgrid=False, tickfont=dict(color=TEXT2, size=11)), yaxis=dict(showgrid=False, showticklabels=False), bargap=0.3)
+        st.markdown(f'<div class="ios-group" style="padding:16px"><div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Historial de Ingresos Mensual</div>', unsafe_allow_html=True)
+        st.plotly_chart(fig_ing_hist, use_container_width=True, config={"displayModeBar":False})
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    if not df_ing.empty:
+        st.markdown('<div class="ios-section-label">Detalle Histórico (Todos los meses)</div><div class="ios-group">',unsafe_allow_html=True)
         for _,row in df_ing.sort_values("Fecha",ascending=False).iterrows():
             persona=str(row.get("Persona","")); desc=str(row.get("Descripcion",""))
             monto_ars_r=float(row.get("Monto ARS",0)); monto_usd_r=float(row.get("Monto USD",0))
