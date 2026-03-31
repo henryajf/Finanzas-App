@@ -253,26 +253,25 @@ def cargar_datos():
 @st.cache_data(ttl=600)
 def cargar_ingresos():
     try:
-        sh=get_gspread().open("Gastos_Henry")
-        hojas_nombres=[h.title for h in sh.worksheets()]
-        if "Ingresos" not in hojas_nombres:
-            ws=sh.add_worksheet(title="Ingresos",rows=200,cols=8)
+        sh = get_gspread().open("Gastos_Henry")
+        ws = next((h for h in sh.worksheets() if h.title.strip().lower() == "ingresos"), None)
+        if not ws:
+            ws = sh.add_worksheet(title="Ingresos", rows=200, cols=8)
             ws.append_row(["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"])
             return pd.DataFrame()
-        ws=sh.worksheet("Ingresos")
-        data=ws.get_all_values()
-        if not data or len(data)<2: return pd.DataFrame()
-        headers=["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"]
-        filas=data[1:]
-        filas=[r+[""]*(8-len(r)) for r in filas if len(r)>=2]
+        data = ws.get_all_values()
+        if not data or len(data) < 2: return pd.DataFrame()
+        headers = ["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"]
+        filas = data[1:]
+        filas = [r+[""]*(8-len(r)) for r in filas if len(r) >= 2]
         if not filas: return pd.DataFrame()
-        df=pd.DataFrame(filas,columns=headers)
-        df["Monto ARS"]=pd.to_numeric(df["Monto ARS"],errors="coerce").fillna(0)
-        df["Monto USD"]=pd.to_numeric(df["Monto USD"],errors="coerce").fillna(0)
-        df["Monto Original"]=pd.to_numeric(df["Monto Original"],errors="coerce").fillna(0)
-        df["Tasa USD/ARS"]=pd.to_numeric(df["Tasa USD/ARS"],errors="coerce").fillna(0)
-        df["Fecha"]=pd.to_datetime(df["Fecha"],errors="coerce").dt.date
-        df=df[df["Monto ARS"]>0]
+        df = pd.DataFrame(filas, columns=headers)
+        df["Monto ARS"] = pd.to_numeric(df["Monto ARS"], errors="coerce").fillna(0)
+        df["Monto USD"] = pd.to_numeric(df["Monto USD"], errors="coerce").fillna(0)
+        df["Monto Original"] = pd.to_numeric(df["Monto Original"], errors="coerce").fillna(0)
+        df["Tasa USD/ARS"] = pd.to_numeric(df["Tasa USD/ARS"], errors="coerce").fillna(0)
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.date
+        df = df[df["Monto ARS"] > 0]
         return df.reset_index(drop=True)
     except Exception:
         return pd.DataFrame()
@@ -320,14 +319,12 @@ def get_dolar_tendencia():
         return get_dolar(),0,0.0,0.0
 
 def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, fecha):
-    sh=get_gspread().open("Gastos_Henry")
-    hojas_nombres=[h.title for h in sh.worksheets()]
-    if "Ingresos" not in hojas_nombres:
-        ws=sh.add_worksheet(title="Ingresos",rows=200,cols=8)
+    sh = get_gspread().open("Gastos_Henry")
+    ws = next((h for h in sh.worksheets() if h.title.strip().lower() == "ingresos"), None)
+    if not ws:
+        ws = sh.add_worksheet(title="Ingresos", rows=200, cols=8)
         ws.append_row(["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha"])
-    else:
-        ws=sh.worksheet("Ingresos")
-    ws.append_row([desc,persona,moneda,monto_orig,monto_ars,monto_usd,tasa,str(fecha)])
+    ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
 def categorizar_inteligente(item):
