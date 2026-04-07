@@ -78,25 +78,32 @@ st.markdown(f"""
   --text:{TEXT};--text2:{TEXT2};--text3:{TEXT3};--sep:{SEP};
   --accent:{ACCENT};--green:{GREEN};--red:{RED};--orange:{ORANGE};
 }}
-html,body,[class*="css"],.stApp{{
+html, body, .stApp {{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif !important;
   background:{BG} !important;color:{TEXT} !important;
+  /* ANTI SCROLL HORIZONTAL */
+  overflow-x: clip !important; 
+  width: 100vw !important;
+  max-width: 100% !important;
 }}
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;}}
-#MainMenu,footer,header,[data-testid="stToolbar"],[data-testid="stDecoration"],[data-testid="stStatusWidget"]{{display:none !important;}}
-[data-testid="stBottom"],[data-testid="stBottomBlockContainer"]{{display:none !important;height:0 !important;overflow:hidden !important;}}
-.stBottomContainer,.stChatFloatingInputContainer{{display:none !important;}}
-.block-container{{padding:0 !important;max-width:100% !important;}}
-.wrap{{max-width:900px;margin:0 auto;padding:0 16px 80px;}}
+
+/* Ocultar elementos nativos de Streamlit */
+#MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
+[data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {{display:none !important;height:0 !important;overflow:hidden !important;}}
+.stBottomContainer, .stChatFloatingInputContainer {{display:none !important;}}
+.block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 80px;}}
 
 /* ── HEADER ── */
-.ios-hdr{{
+.ios-hdr {{
   position:sticky;top:0;z-index:100;
   background:rgba(0,0,0,0.85);
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   border-bottom:0.5px solid rgba(255,255,255,0.1);
-  padding:14px 16px 10px;margin:0 -16px 18px;
+  padding:14px 16px 10px;
+  margin:0 -16px 18px; /* Expande los bordes */
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
 .ios-title{{font-size:28px;font-weight:700;letter-spacing:-.02em;color:{TEXT};}}
@@ -490,6 +497,25 @@ def label_periodo(p):
     except Exception:
         return p
 
+
+# ══════════════════════════════════════════════════════════════════
+# ── NAVEGACIÓN OCULTA (EN SIDEBAR) PARA EVITAR ESPACIOS EN MÓVIL ──
+# ══════════════════════════════════════════════════════════════════
+# Al alojar los botones aquí, no rompen el diseño de la pantalla principal.
+with st.sidebar:
+    for p in periodos_disponibles[:8]:
+        if st.button(label_periodo(p), key=f"nav_periodo_{p}", type="secondary"):
+            st.session_state.periodo_sel = p
+            st.rerun()
+    for screen in ["inicio", "ingresos", "gastos", "tendencias"]:
+        if st.button(screen, key=f"nav_{screen}", type="secondary"):
+            st.session_state.screen = screen
+            st.rerun()
+
+nav_offset = len(periodos_disponibles[:8])
+_sc = st.session_state.screen
+
+
 # Filtrar al periodo seleccionado
 if not df_maestro.empty:
     df_base_periodo = df_maestro[df_maestro["Periodo"] == periodo_viendo].copy()
@@ -522,11 +548,13 @@ ing_jaike      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="JAIKE"][
 balance_ars    = total_ing_ars - total_ars
 balance_pct    = int(total_ing_ars / total_ars * 100) if total_ars > 0 else 0
 
-# ── PWA ──
+
+# ── PWA & BOTTOM TAB BAR ──
 st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-title" content="Finanzas AR">
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
@@ -546,6 +574,49 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 """, unsafe_allow_html=True)
+
+# JS chips → botones (Apunta a los botones ocultos en el sidebar)
+st.markdown(f"""
+<script>
+(function(){{
+  function attachChips(){{
+    var chips=document.querySelectorAll('.periodo-chip');
+    if(!chips.length){{setTimeout(attachChips,200);return;}}
+    chips.forEach(function(chip,idx){{
+      chip.onclick=function(){{haptic(10);var btns=document.querySelectorAll('[data-testid=stBaseButton-secondary]');if(btns[idx])btns[idx].click();}};
+    }});
+  }}
+  attachChips();
+}})();
+</script>
+""", unsafe_allow_html=True)
+
+
+st.markdown(f"""
+<div class="btab-bar">
+  <button class="btab {'btab-active' if _sc=='inicio' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset}]&&b[{nav_offset}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='ingresos' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+1}]&&b[{nav_offset+1}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+    <span>Ingresos</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='gastos' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+2}]&&b[{nav_offset+2}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+    <span>Gastos</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='tendencias' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+3}]&&b[{nav_offset+3}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+    <span>Tendencias</span>
+  </button>
+</div>
+""", unsafe_allow_html=True)
+
 
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
@@ -579,75 +650,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Botones ocultos para periodo
-_pcols = st.columns(len(periodos_disponibles[:8]))
-for i, p in enumerate(periodos_disponibles[:8]):
-    with _pcols[i]:
-        st.markdown('<div style="position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden">', unsafe_allow_html=True)
-        if st.button(label_periodo(p), key=f"nav_periodo_{p}"):
-            st.session_state.periodo_sel = p
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-nav_offset = len(periodos_disponibles[:8])
-
-# JS chips → botones
-st.markdown(f"""
-<script>
-(function(){{
-  function attachChips(){{
-    var chips=document.querySelectorAll('.periodo-chip');
-    if(!chips.length){{setTimeout(attachChips,200);return;}}
-    chips.forEach(function(chip,idx){{
-      chip.onclick=function(){{haptic(10);var btns=document.querySelectorAll('[data-testid=stBaseButton-secondary]');if(btns[idx])btns[idx].click();}};
-    }});
-  }}
-  attachChips();
-}})();
-</script>
-""", unsafe_allow_html=True)
-
-# ── BOTTOM TAB BAR ──
-_sc = st.session_state.screen
-for col, screen, label in [
-    (st.columns(4)[0], "inicio",     "Inicio"),
-    (st.columns(4)[1] if False else None, None, None),  # placeholder
-]:
-    pass
-
-_c1, _c2, _c3, _c4 = st.columns(4)
-for col, screen, label in [(_c1,"inicio","Inicio"),(_c2,"ingresos","Ingresos"),(_c3,"gastos","Gastos"),(_c4,"tendencias","Tendencias")]:
-    with col:
-        st.markdown('<div style="position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden">', unsafe_allow_html=True)
-        if st.button(label, key=f"nav_{screen}", use_container_width=True):
-            st.session_state.screen = screen
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown(f"""
-<div class="btab-bar">
-  <button class="btab {'btab-active' if _sc=='inicio' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset}]&&b[{nav_offset}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    <span>Inicio</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='ingresos' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+1}]&&b[{nav_offset+1}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-    <span>Ingresos</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='gastos' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+2}]&&b[{nav_offset+2}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-    <span>Gastos</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='tendencias' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+3}]&&b[{nav_offset+3}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
-    <span>Tendencias</span>
-  </button>
-</div>
-""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: INICIO
@@ -745,7 +747,6 @@ if st.session_state.screen == "inicio":
                                 if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
                                     try:
                                         old_d = pd.to_datetime(r["Dia Pago"])
-                                        # Ajustar al mismo día del mes en curso, previniendo días inexistentes (ej. 31 de feb)
                                         dia_seguro = min(old_d.day, 28)
                                         nueva_fecha = date(y_act, m_act, dia_seguro)
                                     except:
@@ -758,7 +759,7 @@ if st.session_state.screen == "inicio":
                                     "Dia Pago": nueva_fecha,
                                     "Pagado": False,
                                     "Periodo": periodo_actual,
-                                    "Tasa USD": dolar # Congela la tasa de hoy
+                                    "Tasa USD": dolar
                                 })
                             
                             if nuevos_registros:
