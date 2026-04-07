@@ -141,8 +141,9 @@ html,body,[class*="css"],.stApp{{
 }}
 
 /* ── TARJETAS ── */
-.kpi-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}}
+.kpi-grid-main{{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}}
 .kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}}
+@media(max-width:700px){{.kpi-grid-main{{grid-template-columns:repeat(2,1fr);}}}}
 .kpi-card{{background:{SURFACE};border-radius:12px;padding:14px 15px;}}
 .kpi-lbl{{font-size:11px;font-weight:500;color:{TEXT2};margin-bottom:5px;letter-spacing:.01em;}}
 .kpi-val{{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
@@ -247,7 +248,7 @@ html,body,[class*="css"],.stApp{{
 .stTabs [data-baseweb="tab-panel"]{{padding:10px 0 0 !important;}}
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
 
-@media(max-width:700px){{.kpi-grid{{grid-template-columns:1fr 1fr;}}.ios-title{{font-size:22px;}}.wrap{{padding:0 12px 80px;}}}}
+@media(max-width:700px){{.ios-title{{font-size:22px;}}.wrap{{padding:0 12px 80px;}}}}
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
 </style>""", unsafe_allow_html=True)
@@ -667,36 +668,21 @@ if st.session_state.screen == "inicio":
         if not proximos.empty:
             st.markdown(f'<div class="alert alert-o">Vencen en 3 días: {" · ".join(r["Item"] for _, r in proximos.iterrows())}</div>', unsafe_allow_html=True)
 
-    # Balance alert
-    if total_ing_ars > 0:
-        msg = f'Ingresos cubren el <strong>{balance_pct}%</strong> de gastos &mdash; Superávit <strong>{fmt_ars(balance_ars)}</strong>' if balance_ars >= 0 else f'Déficit mensual: <strong>{fmt_ars(abs(balance_ars))}</strong>'
-        cls = "alert-g" if balance_ars >= 0 else "alert-r"
-        st.markdown(f'<div class="alert {cls}">{msg}</div>', unsafe_allow_html=True)
-
-    # KPIs fila 1: Ingresos / Gastos / Balance
-    st.markdown(f"""<div class="kpi-grid">
+    # ── EL NUEVO DASHBOARD OPTIMIZADO DE 4 TARJETAS ──
+    st.markdown(f"""<div class="kpi-grid-main">
       <div class="kpi-card"><div class="kpi-lbl">Ingresos</div>
         <div class="kpi-val" style="color:{GREEN}">{fmt_ars(total_ing_ars)}</div>
         <div class="kpi-sub">{fmt_usd(total_ing_usd)}</div></div>
-      <div class="kpi-card"><div class="kpi-lbl">Gastos</div>
+      <div class="kpi-card"><div class="kpi-lbl">Gastos ({pct_pag}% pagado)</div>
         <div class="kpi-val">{fmt_ars(total_ars)}</div>
-        <div class="kpi-sub">{fmt_usd_from_ars(total_ars, dolar)}</div></div>
+        <div class="kpi-sub">{fmt_usd_from_ars(total_ars, dolar)}</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:{pct_pag}%;background:{ACCENT}"></div></div></div>
       <div class="kpi-card"><div class="kpi-lbl">Balance</div>
         <div class="kpi-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div>
         <div class="kpi-sub">{"Superávit" if balance_ars >= 0 else "Déficit"}</div></div>
-    </div>""", unsafe_allow_html=True)
-
-    # KPIs fila 2: Pagado / Pendiente / Progreso
-    st.markdown(f"""<div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-lbl">Pagado</div>
-        <div class="kpi-val" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div>
-        <div class="kpi-sub">{fmt_usd_from_ars(pagado_ars, dolar)}</div></div>
-      <div class="kpi-card"><div class="kpi-lbl">Pendiente</div>
+      <div class="kpi-card"><div class="kpi-lbl">Pendiente de pago</div>
         <div class="kpi-val" style="color:{RED}">{fmt_ars(pend_ars)}</div>
         <div class="kpi-sub">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
-      <div class="kpi-card"><div class="kpi-lbl">Progreso</div>
-        <div class="kpi-val" style="color:{ACCENT}">{pct_pag}%</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:{pct_pag}%;background:{ACCENT}"></div></div></div>
     </div>""", unsafe_allow_html=True)
 
     # KPIs Henry / Jaike
