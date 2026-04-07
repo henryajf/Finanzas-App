@@ -211,10 +211,6 @@ html,body,[class*="css"],.stApp{{
 .hist-bar-bg{{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}}
 .hist-bar-fill{{height:100%;border-radius:4px;}}
 .hist-bar-lbl{{font-size:11px;color:{TEXT2};min-width:30px;text-align:right;}}
-.hist-right{{text-align:right;min-width:90px;}}
-.hist-right-g{{font-size:13px;font-weight:600;}}
-.hist-right-i{{font-size:11px;color:{TEXT2};margin-top:2px;}}
-.hist-right-bal{{font-size:12px;font-weight:600;margin-top:2px;}}
 .ing-row{{display:flex;align-items:center;gap:11px;padding:10px 13px;position:relative;}}
 .ing-row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
@@ -326,7 +322,6 @@ def cargar_ingresos():
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
         df["Fecha"]   = pd.to_datetime(df["Fecha"],  errors="coerce").dt.date
         df = df[df["Monto ARS"] > 0]
-        # Extraer Periodo del campo Fecha (MEJORA PRINCIPAL)
         df["Periodo"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%Y-%m")
         return df.reset_index(drop=True)
     except Exception:
@@ -402,7 +397,6 @@ def categorizar(item):
     elif any(x in i for x in ["vuelo","pasaje","hotel","airbnb"]): return "Viajes"
     else: return "Otros"
 
-# Formateo: montos COMPLETOS sin abreviar
 def fmt_ars(n):
     s = f"{n:,.0f}".replace(",","X").replace(".",",").replace("X",".")
     return f"$ {s}"
@@ -455,6 +449,13 @@ def exportar_excel(df, df_ing=None):
             df_ing.to_excel(writer, index=False, sheet_name="Ingresos")
     return output.getvalue()
 
+def calcular_mes_anterior(periodo_str):
+    y, m = map(int, periodo_str.split('-'))
+    if m == 1:
+        return f"{y-1}-12"
+    else:
+        return f"{y}-{m-1:02d}"
+
 # ── CARGA INICIAL ──
 MESES = ["enero","febrero","marzo","abril","mayo","junio",
          "julio","agosto","septiembre","octubre","noviembre","diciembre"]
@@ -501,6 +502,7 @@ if not df_maestro.empty:
     vencidos = df[(df["Pagado"]==False) & df["Dia Pago"].notna() & (df["Dia Pago"] < hoy)] if es_mes_actual else pd.DataFrame()
     proximos = df[(df["Pagado"]==False) & df["Dia Pago"].notna() & (df["Dia Pago"] >= hoy) & (df["Dia Pago"] <= hoy + timedelta(days=3))] if es_mes_actual else pd.DataFrame()
 else:
+    df_base_periodo = pd.DataFrame()
     df = por_cat = pd.DataFrame()
     total_ars = pagado_ars = pend_ars = pct_pag = 0
     vencidos = proximos = pd.DataFrame()
@@ -728,6 +730,55 @@ if st.session_state.screen == "inicio":
                 st.session_state.show_add = False
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+        # ── LÓGICA DE CLONACIÓN INTELIGENTE ──
+        if not df_maestro.empty:
+            periodo_ant = calcular_mes_anterior(periodo_actual)
+            df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
+            
+            if not df_ant.empty:
+                cats_fijas = ["Servicios", "Suscripciones", "Hogar", "Salud", "Fitness", "Credito/Financiacion"]
+                items_actuales = df_base_periodo["Item"].str.lower().str.strip().tolist() if not df_base_periodo.empty else []
+                
+                df_clonables = df_ant[df_ant["Categoria"].isin(cats_fijas)]
+                df_clonables = df_clonables[~df_clonables["Item"].str.lower().str.strip().isin(items_actuales)]
+                
+                if not df_clonables.empty:
+                    with st.expander(f"🔄 Clonar {len(df_clonables)} gastos fijos de {label_periodo(periodo_ant)}"):
+                        st.markdown('<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Se detectaron gastos fijos del mes pasado que aún no están en este mes. Copialos en estado "Pendiente" con un clic.</div>', unsafe_allow_html=True)
+                        for _, r in df_clonables.iterrows():
+                            st.markdown(f'<div style="font-size:14px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1)">{r["Item"]} <span style="float:right;color:var(--text2)">{fmt_ars(r["Monto (ARS)"])}</span></div>', unsafe_allow_html=True)
+                        
+                        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+                        if st.button("Clonar ítems ahora", type="primary", use_container_width=True):
+                            nuevos_registros = []
+                            y_act, m_act = map(int, periodo_actual.split('-'))
+                            
+                            for _, r in df_clonables.iterrows():
+                                nueva_fecha = None
+                                if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
+                                    try:
+                                        old_d = pd.to_datetime(r["Dia Pago"])
+                                        # Ajustar al mismo día del mes en curso, previniendo días inexistentes (ej. 31 de feb)
+                                        dia_seguro = min(old_d.day, 28)
+                                        nueva_fecha = date(y_act, m_act, dia_seguro)
+                                    except:
+                                        pass
+
+                                nuevos_registros.append({
+                                    "Categoria": r["Categoria"],
+                                    "Item": r["Item"],
+                                    "Monto (ARS)": r["Monto (ARS)"],
+                                    "Dia Pago": nueva_fecha,
+                                    "Pagado": False,
+                                    "Periodo": periodo_actual,
+                                    "Tasa USD": dolar # Congela la tasa de hoy
+                                })
+                            
+                            if nuevos_registros:
+                                df_nuevos = pd.DataFrame(nuevos_registros)
+                                guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
+                                st.rerun()
 
         # Panel agregar gasto
         if st.session_state.show_add:
@@ -1060,10 +1111,9 @@ elif st.session_state.screen == "tendencias":
         gasto_m.columns = ["Periodo","Gastos"]
         gasto_m["Label"] = gasto_m["Periodo"].apply(label_periodo)
 
-        # ─ INGRESOS HISTÓRICOS (la mejora principal) ─
+        # ─ INGRESOS HISTÓRICOS ─
         ing_m = pd.DataFrame()
         if not df_ing_todo.empty and "Periodo" in df_ing_todo.columns:
-            # Aporte por persona por mes
             ing_henry_m  = df_ing_todo[df_ing_todo["Persona"].str.upper()=="HENRY"].groupby("Periodo")["Monto ARS"].sum().reset_index()
             ing_henry_m.columns  = ["Periodo","Henry"]
             ing_jaike_m  = df_ing_todo[df_ing_todo["Persona"].str.upper()=="JAIKE"].groupby("Periodo")["Monto ARS"].sum().reset_index()
@@ -1112,7 +1162,7 @@ elif st.session_state.screen == "tendencias":
             <div class="kpi-sub">{fmt_ars(mes_min['Gastos'])}</div></div>
         </div>""", unsafe_allow_html=True)
 
-        # ── TABLA HISTÓRICA POR MES (minimalista, sin gráfico) ──
+        # ── TABLA HISTÓRICA POR MES (minimalista) ──
         st.markdown('<div class="sec-lbl">Balance real por mes</div><div class="grp">', unsafe_allow_html=True)
 
         max_g = hist["Gastos"].max() if not hist.empty else 1
@@ -1153,7 +1203,7 @@ elif st.session_state.screen == "tendencias":
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # ── APORTES COMBINADOS HENRY VS JAIKE A LO LARGO DEL TIEMPO ──
+        # ── APORTES COMBINADOS HENRY VS JAIKE ──
         if tiene_ingresos and "Henry" in hist.columns:
             hist_rev = hist.sort_values("Periodo")
             has_both = hist_rev["Henry"].sum() > 0 and hist_rev["Jaike"].sum() > 0
