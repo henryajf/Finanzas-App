@@ -702,71 +702,8 @@ if st.session_state.screen == "inicio":
             <div class="kpi-sub">{fmt_usd_from_ars(ing_jaike, dolar)} · {pj}%</div></div>
         </div>""", unsafe_allow_html=True)
 
-    # Lista de gastos por categoría (SE MUESTRA ANTES QUE LOS BOTONES AHORA)
-    if df.empty:
-        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
-    else:
-        busq = st.text_input("", placeholder="Buscar gasto...", label_visibility="collapsed", key="busqueda_input")
-        st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
-
-        df_vista = df.copy()
-        if busq.strip():
-            df_vista = df_vista[df_vista["Item"].str.contains(busq.strip(), case=False, na=False)]
-
-        cats_orden = df_vista.groupby("Cat").apply(lambda g: g["Pagado"].eq(False).sum()).sort_values(ascending=False).index.tolist()
-        st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
-
-        for cat in cats_orden:
-            df_cat = df_vista[df_vista["Cat"] == cat]
-            t_cat  = df_cat["Monto (ARS)"].sum()
-            color  = cat_color(cat)
-            n_pend = int(df_cat["Pagado"].eq(False).sum())
-            badge  = f'<span class="pend-badge">{n_pend}</span>' if n_pend > 0 else ""
-            ico_hdr = cat_icon_svg(cat, color, size=22)
-            st.markdown(f'<div class="grp"><div class="grp-hdr"><div style="width:22px;height:22px;border-radius:5px;overflow:hidden;flex-shrink:0">{ico_hdr}</div><span class="grp-hdr-lbl">{cat}{badge}</span><span class="grp-hdr-amt" style="color:{color}">{fmt_ars(t_cat)}</span></div>', unsafe_allow_html=True)
-            for idx, row in df_cat.iterrows():
-                paid  = row["Pagado"]
-                nc    = "row-name-paid" if paid else "row-name"
-                ac    = "row-amt-paid"  if paid else "row-amt"
-                op    = "0.5" if paid else "1"
-                ico   = cat_icon_svg(cat, color, size=34)
-                tasa_r = row.get("Tasa USD", 0)
-                usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
-                st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        # Marcar pagado
-        if es_mes_actual:
-            pend_items = df_vista[df_vista["Pagado"] == False]
-            if not pend_items.empty:
-                with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
-                    for idx, row in pend_items.iterrows():
-                        cn, cb = st.columns([3,1])
-                        with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} — {fmt_ars(row["Monto (ARS)"])}</div>', unsafe_allow_html=True)
-                        with cb:
-                            if st.button("✓ Pagado", key=f"pay_{idx}", use_container_width=True):
-                                try:
-                                    marcar_pagado_maestro(idx, df_maestro, dolar)
-                                    st.rerun()
-                                except Exception as e:
-                                    st.error(str(e))
-
-        # Top 5
-        st.markdown(f'<div class="sec-lbl">Top 5 gastos</div><div class="grp">', unsafe_allow_html=True)
-        for _, row in df.nlargest(5,"Monto (ARS)").iterrows():
-            color  = cat_color(row["Cat"])
-            pct_t  = int(row["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
-            ico    = cat_icon_svg(row["Cat"], color, size=34)
-            tasa_r = row.get("Tasa USD", 0)
-            usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
-            st.markdown(f'<div class="row"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-
-    # ── LOS BOTONES FUNCIONALES AHORA ESTÁN AQUÍ (Justo antes de 'Por categoría') ──
+    # Botones agregar (solo mes actual)
     if es_mes_actual:
-        st.markdown(f'<div class="sec-lbl">Gestión Rápida</div>', unsafe_allow_html=True)
         ba1, ba2 = st.columns(2)
         with ba1:
             lbl_g = "Cancelar" if st.session_state.show_add else "＋ Gasto"
@@ -782,7 +719,7 @@ if st.session_state.screen == "inicio":
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        # Lógica de clonación inteligente
+        # ── LÓGICA DE CLONACIÓN INTELIGENTE ──
         if not df_maestro.empty:
             periodo_ant = calcular_mes_anterior(periodo_actual)
             df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
@@ -891,9 +828,67 @@ if st.session_state.screen == "inicio":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-    
-    # ── DISTRIBUCIÓN POR CATEGORÍA Y RESUMEN ──
-    if not df.empty:
+    # Lista de gastos por categoría
+    if df.empty:
+        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
+    else:
+        busq = st.text_input("", placeholder="Buscar gasto...", label_visibility="collapsed", key="busqueda_input")
+        st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+
+        df_vista = df.copy()
+        if busq.strip():
+            df_vista = df_vista[df_vista["Item"].str.contains(busq.strip(), case=False, na=False)]
+
+        cats_orden = df_vista.groupby("Cat").apply(lambda g: g["Pagado"].eq(False).sum()).sort_values(ascending=False).index.tolist()
+        st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
+
+        for cat in cats_orden:
+            df_cat = df_vista[df_vista["Cat"] == cat]
+            t_cat  = df_cat["Monto (ARS)"].sum()
+            color  = cat_color(cat)
+            n_pend = int(df_cat["Pagado"].eq(False).sum())
+            badge  = f'<span class="pend-badge">{n_pend}</span>' if n_pend > 0 else ""
+            ico_hdr = cat_icon_svg(cat, color, size=22)
+            st.markdown(f'<div class="grp"><div class="grp-hdr"><div style="width:22px;height:22px;border-radius:5px;overflow:hidden;flex-shrink:0">{ico_hdr}</div><span class="grp-hdr-lbl">{cat}{badge}</span><span class="grp-hdr-amt" style="color:{color}">{fmt_ars(t_cat)}</span></div>', unsafe_allow_html=True)
+            for idx, row in df_cat.iterrows():
+                paid  = row["Pagado"]
+                nc    = "row-name-paid" if paid else "row-name"
+                ac    = "row-amt-paid"  if paid else "row-amt"
+                op    = "0.5" if paid else "1"
+                ico   = cat_icon_svg(cat, color, size=34)
+                tasa_r = row.get("Tasa USD", 0)
+                usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
+                st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # Marcar pagado
+        if es_mes_actual:
+            pend_items = df_vista[df_vista["Pagado"] == False]
+            if not pend_items.empty:
+                with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
+                    for idx, row in pend_items.iterrows():
+                        cn, cb = st.columns([3,1])
+                        with cn:
+                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} — {fmt_ars(row["Monto (ARS)"])}</div>', unsafe_allow_html=True)
+                        with cb:
+                            if st.button("✓ Pagado", key=f"pay_{idx}", use_container_width=True):
+                                try:
+                                    marcar_pagado_maestro(idx, df_maestro, dolar)
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(str(e))
+
+        # Top 5
+        st.markdown(f'<div class="sec-lbl">Top 5 gastos</div><div class="grp">', unsafe_allow_html=True)
+        for _, row in df.nlargest(5,"Monto (ARS)").iterrows():
+            color  = cat_color(row["Cat"])
+            pct_t  = int(row["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
+            ico    = cat_icon_svg(row["Cat"], color, size=34)
+            tasa_r = row.get("Tasa USD", 0)
+            usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
+            st.markdown(f'<div class="row"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
         # Distribución por categoría (lista simple, sin gráfico)
         st.markdown(f'<div class="sec-lbl">Por categoría</div><div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
         max_cat = por_cat["Monto (ARS)"].max() if not por_cat.empty else 1
