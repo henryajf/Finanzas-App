@@ -103,7 +103,7 @@ html, body, .stApp {{
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   border-bottom:0.5px solid rgba(255,255,255,0.1);
   padding:14px 16px 10px;
-  margin:0 -16px 18px; /* Expande los bordes */
+  margin:0 -16px 18px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
 .ios-title{{font-size:28px;font-weight:700;letter-spacing:-.02em;color:{TEXT};}}
@@ -223,29 +223,31 @@ html, body, .stApp {{
 .ing-row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
 
-/* ── BOTTOM TAB BAR ── */
+/* ── BOTTOM TAB BAR (MINIMALISTA) ── */
 .btab-bar{{
   position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;
   z-index:2147483647 !important;display:flex !important;align-items:stretch;
-  background:rgba(0,0,0,0.9) !important;
-  backdrop-filter:saturate(180%) blur(24px);
-  -webkit-backdrop-filter:saturate(180%) blur(24px);
-  border-top:0.5px solid rgba(255,255,255,0.13) !important;
+  background:rgba(0,0,0,0.3) !important;
+  backdrop-filter:saturate(180%) blur(10px);
+  -webkit-backdrop-filter:saturate(180%) blur(10px);
+  border-top:none !important;
   padding-bottom:env(safe-area-inset-bottom,0px) !important;
-  height:calc(56px + env(safe-area-inset-bottom,0px)) !important;
+  height:calc(42px + env(safe-area-inset-bottom,0px)) !important;
   transform:translateZ(0);will-change:transform;isolation:isolate;
 }}
 .btab{{
   flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;
+  justify-content:center;gap:2px;
   background:transparent;border:none;cursor:pointer;
-  padding:7px 4px 0;
-  color:{TEXT2};font-size:10px;font-weight:500;
-  font-family:-apple-system,sans-serif;letter-spacing:.01em;
+  padding:0;
+  color:rgba(255,255,255,0.15);
+  font-size:8px;
+  font-weight:400;
+  font-family:-apple-system,sans-serif;
   -webkit-tap-highlight-color:transparent;
 }}
-.btab-active{{color:{ACCENT} !important;}}
-.btab-ico{{width:21px;height:21px;fill:currentColor;}}
+.btab-active{{color:rgba(10,132,255,0.6) !important;}}
+.btab-ico{{width:15px;height:15px;fill:currentColor;}}
 
 /* ── TABS ── */
 .stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:0.5px solid {SEP} !important;gap:0 !important;padding:0 !important;}}
@@ -501,7 +503,6 @@ def label_periodo(p):
 # ══════════════════════════════════════════════════════════════════
 # ── NAVEGACIÓN OCULTA (EN SIDEBAR) PARA EVITAR ESPACIOS EN MÓVIL ──
 # ══════════════════════════════════════════════════════════════════
-# Al alojar los botones aquí, no rompen el diseño de la pantalla principal.
 with st.sidebar:
     for p in periodos_disponibles[:8]:
         if st.button(label_periodo(p), key=f"nav_periodo_{p}", type="secondary"):
@@ -575,7 +576,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 """, unsafe_allow_html=True)
 
-# JS chips → botones (Apunta a los botones ocultos en el sidebar)
+# JS chips → botones
 st.markdown(f"""
 <script>
 (function(){{
@@ -590,7 +591,6 @@ st.markdown(f"""
 }})();
 </script>
 """, unsafe_allow_html=True)
-
 
 st.markdown(f"""
 <div class="btab-bar">
