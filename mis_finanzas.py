@@ -789,7 +789,6 @@ if st.session_state.screen == "inicio":
   </div>
   <div class="sep"></div>
 
-  <!-- PAGADOS -->
   <div class="bar-section">
     <div class="bar-row-hdr">
       <div>
@@ -811,7 +810,6 @@ if st.session_state.screen == "inicio":
 
   <div style="height:12px;"></div>
 
-  <!-- PENDIENTES -->
   <div class="bar-section">
     <div class="bar-row-hdr">
       <div>
@@ -1087,7 +1085,7 @@ if st.session_state.screen == "inicio":
     <rect x="6.75" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
     <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
   </svg>
-  Abrir planilla para editar montos y fechas
+  Editar hoja de cálculo (GASTOS)
 </a>
 """, unsafe_allow_html=True)
 
@@ -1174,6 +1172,7 @@ elif st.session_state.screen == "ingresos":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
+    # Detalle de ingresos del periodo
     if df_ing_periodo.empty:
         st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin ingresos en {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
@@ -1259,6 +1258,23 @@ elif st.session_state.screen == "gastos":
                                     file_name=f"gastos_{periodo_viendo}.xlsx",
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                     use_container_width=True)
+
+        # ─────────────────────────────────────────
+        # BOTÓN GOOGLE SHEETS EN PESTAÑA DE GASTOS
+        # ─────────────────────────────────────────
+        st.markdown(f"""
+<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
+    <rect x="6" y="7" width="12" height="1.5" rx=".75" fill="white"/>
+    <rect x="6" y="10.5" width="12" height="1.5" rx=".75" fill="white" opacity=".8"/>
+    <rect x="6" y="14" width="8" height="1.5" rx=".75" fill="white" opacity=".6"/>
+    <rect x="6.75" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
+    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
+  </svg>
+  Editar hoja de cálculo (GASTOS)
+</a>
+""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════
