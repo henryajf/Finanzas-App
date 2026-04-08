@@ -30,9 +30,6 @@ YELLOW  = "#FFD60A"
 PURPLE  = "#BF5AF2"
 PLOTBG  = "rgba(0,0,0,0)"
 
-# URL de tu Google Sheet — reemplazá con el link real
-SHEETS_URL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
-
 CAT_COLORS = {
     "Servicios": "#FF9F0A", "Hogar": "#32D74B", "Supermercado": "#30D158",
     "Comida": "#FF453A", "Transporte": "#0A84FF", "Suscripciones": "#BF5AF2",
@@ -190,22 +187,6 @@ html, body, .stApp {{
 .balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-bottom:6px;}}
 .balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-bottom:6px;}}
 .balance-detail{{display:flex;justify-content:space-between;font-size:12px;color:{TEXT2};margin-top:8px;}}
-
-/* ── SHEETS BUTTON ── */
-.sheets-btn{{
-  display:flex;align-items:center;justify-content:center;gap:9px;
-  width:100%;padding:14px;
-  background:{SURFACE};
-  border:0.5px solid rgba(84,84,88,0.5);
-  border-radius:14px;
-  font-size:14px;font-weight:600;
-  color:{TEXT};cursor:pointer;
-  margin-top:4px;margin-bottom:10px;
-  text-decoration:none;
-  -webkit-tap-highlight-color:transparent;
-}}
-.sheets-btn:hover{{background:{SURF2};}}
-.sheets-btn:active{{opacity:.7;}}
 
 /* ── SECCION LABEL ── */
 .sec-lbl{{font-size:11px;font-weight:500;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;padding:0 2px;margin:14px 0 6px;}}
@@ -1073,21 +1054,12 @@ if st.session_state.screen == "inicio":
         </div>""", unsafe_allow_html=True)
 
         # ─────────────────────────────────────────
-        # BOTÓN GOOGLE SHEETS
+        # BOTÓN EDITAR TABLA 
         # ─────────────────────────────────────────
-        st.markdown(f"""
-<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
-    <rect x="6" y="7" width="12" height="1.5" rx=".75" fill="white"/>
-    <rect x="6" y="10.5" width="12" height="1.5" rx=".75" fill="white" opacity=".8"/>
-    <rect x="6" y="14" width="8" height="1.5" rx=".75" fill="white" opacity=".6"/>
-    <rect x="6.75" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
-    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
-  </svg>
-  Editar hoja de cálculo (GASTOS)
-</a>
-""", unsafe_allow_html=True)
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        if st.button("✏️ Editar montos y fechas en la tabla", type="secondary", use_container_width=True):
+            st.session_state.screen = "gastos"
+            st.rerun()
 
         _, ce, _ = st.columns([1,1,1])
         with ce:
@@ -1258,24 +1230,6 @@ elif st.session_state.screen == "gastos":
                                     file_name=f"gastos_{periodo_viendo}.xlsx",
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                     use_container_width=True)
-
-        # ─────────────────────────────────────────
-        # BOTÓN GOOGLE SHEETS EN PESTAÑA DE GASTOS
-        # ─────────────────────────────────────────
-        st.markdown(f"""
-<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
-    <rect x="6" y="7" width="12" height="1.5" rx=".75" fill="white"/>
-    <rect x="6" y="10.5" width="12" height="1.5" rx=".75" fill="white" opacity=".8"/>
-    <rect x="6" y="14" width="8" height="1.5" rx=".75" fill="white" opacity=".6"/>
-    <rect x="6.75" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
-    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
-  </svg>
-  Editar hoja de cálculo (GASTOS)
-</a>
-""", unsafe_allow_html=True)
-
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: TENDENCIAS
