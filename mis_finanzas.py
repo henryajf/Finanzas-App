@@ -290,12 +290,7 @@ html, body, .stApp {{
 .btab-active{{color:{ACCENT} !important;}}
 .btab-ico{{width:20px;height:20px;fill:currentColor;}}
 
-/* ── TABS ── */
-.stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:0.5px solid {SEP} !important;gap:0 !important;padding:0 !important;}}
-.stTabs [data-baseweb="tab"]{{background:transparent !important;color:{TEXT2} !important;font-size:13px !important;font-weight:500 !important;border-bottom:2px solid transparent !important;padding:9px 14px !important;margin-bottom:-1px !important;}}
-.stTabs [aria-selected="true"]{{color:{ACCENT} !important;border-bottom-color:{ACCENT} !important;}}
-.stTabs [data-baseweb="tab-highlight"]{{display:none !important;}}
-.stTabs [data-baseweb="tab-panel"]{{padding:10px 0 0 !important;}}
+/* ── DATA EDITOR FIX ── */
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
 
 @media(max-width:700px){{
@@ -308,8 +303,29 @@ hr{{display:none !important;}}
 </style>""", unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────────
-# CONEXION Y CARGA DE DATOS
+# CONEXION Y LIMPIEZA DE DATOS (EL FIX PARA QUE NO SE PONGAN EN CERO)
 # ──────────────────────────────────────────────────────────────────
+def clean_currency(val):
+    if pd.isna(val) or val == "": return 0.0
+    if isinstance(val, (int, float)): return float(val)
+    v = str(val).upper().replace("$", "").replace("ARS", "").replace("U$S", "").replace("USD", "").strip()
+    v = v.replace(" ", "").replace("\xa0", "")
+    
+    # Manejar formatos de número (Ej: 1.151.000,00 o 1500,50 o 1.500)
+    if "," in v and "." in v:
+        v = v.replace(".", "").replace(",", ".")
+    elif "," in v:
+        v = v.replace(",", ".")
+    elif "." in v:
+        parts = v.split(".")
+        if len(parts) > 1 and len(parts[-1]) == 3:
+            v = v.replace(".", "")  # Era un punto de miles (ej: 1.500 -> 1500)
+            
+    try:
+        return float(v)
+    except:
+        return 0.0
+
 @st.cache_resource
 def get_gspread():
     scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
@@ -327,13 +343,16 @@ def cargar_datos_maestro():
     except Exception as e:
         st.error(f"Error conectando con Google Sheets: {e}")
         return pd.DataFrame()
+    
     data = [r for r in data if any(str(c).strip() for c in r)]
     if not data or len(data) < 2:
         return pd.DataFrame()
+        
     headers_new = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]
     headers_legacy = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado"]
     primera = [str(c).strip().lower() for c in data[0]]
     tiene_periodo = "periodo" in primera
+    
     if tiene_periodo:
         filas = data[1:]
         filas = [r + [""] * (7 - len(r)) for r in filas if len(r) >= 2]
@@ -346,10 +365,13 @@ def cargar_datos_maestro():
         df = pd.DataFrame(filas, columns=headers_legacy)
         df["Periodo"] = date.today().strftime("%Y-%m")
         df["Tasa USD"] = 0.0
-    df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors="coerce").fillna(0)
-    df["Tasa USD"]    = pd.to_numeric(df["Tasa USD"],    errors="coerce").fillna(0)
+        
+    # AQUÍ ESTÁ LA MAGIA: Pasamos todo por la función clean_currency
+    df["Monto (ARS)"] = df["Monto (ARS)"].apply(clean_currency)
+    df["Tasa USD"]    = df["Tasa USD"].apply(clean_currency)
     df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"],   errors="coerce").dt.date
     df["Pagado"]      = df["Pagado"].apply(lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","SI","1"])
+    
     df = df[~((df["Monto (ARS)"] == 0) & (df["Item"].str.strip() == ""))]
     return df.reset_index(drop=True)
 
@@ -369,8 +391,10 @@ def cargar_ingresos():
         filas = [r + [""] * (8 - len(r)) for r in filas if len(r) >= 2]
         if not filas: return pd.DataFrame()
         df = pd.DataFrame(filas, columns=headers)
+        
         for col in ["Monto ARS","Monto USD","Monto Original","Tasa USD/ARS"]:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+            df[col] = df[col].apply(clean_currency)
+            
         df["Fecha"]   = pd.to_datetime(df["Fecha"],  errors="coerce").dt.date
         df = df[df["Monto ARS"] > 0]
         df["Periodo"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%Y-%m")
@@ -409,9 +433,11 @@ def guardar_hoja_maestro(df_guardar, dolar_actual=None):
     else:
         if dolar_actual:
             df_up["Tasa USD"] = df_up["Tasa USD"].apply(lambda x: dolar_actual if (x == 0 or pd.isna(x)) else x)
+            
     df_up = df_up[["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]]
     df_up["Dia Pago"] = df_up["Dia Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
     df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
+    
     hoja = get_gspread().open("Gastos_Henry").sheet1
     hoja.clear()
     hoja.append_row(df_up.columns.tolist())
@@ -687,14 +713,13 @@ st.markdown(f"""
 
 
 # ══════════════════════════════════════════════════════════════════
-# PANTALLA: INICIO — NUEVO DISEÑO COMPACTO
+# PANTALLA: INICIO
 # ══════════════════════════════════════════════════════════════════
 if st.session_state.screen == "inicio":
 
     if not es_mes_actual:
         st.markdown(f'<div class="alert alert-b">📅 Historial — <strong>{label_periodo(periodo_viendo)}</strong> (solo lectura)</div>', unsafe_allow_html=True)
 
-    # Alertas de vencimiento
     if es_mes_actual:
         if not vencidos.empty:
             items_v = " · ".join(r["Item"] for _, r in vencidos.iterrows())
@@ -702,9 +727,6 @@ if st.session_state.screen == "inicio":
         if not proximos.empty:
             st.markdown(f'<div class="alert alert-o">Vencen en 3 días: {" · ".join(r["Item"] for _, r in proximos.iterrows())}</div>', unsafe_allow_html=True)
 
-    # ─────────────────────────────────────────
-    # BLOQUE INGRESOS
-    # ─────────────────────────────────────────
     pct_henry = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
     pct_jaike = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
 
@@ -717,104 +739,49 @@ if st.session_state.screen == "inicio":
   <div class="c-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
   <div class="c-sub">{ing_usd_str} · tasa $ {dolar:,.0f}</div>
   <div class="sep"></div>
-
   <div class="persona-row">
     <div class="av av-h">H</div>
-    <div class="persona-body">
-      <div class="persona-name">Henry</div>
-      <div class="persona-sub">{pct_henry}% del total</div>
-    </div>
-    <div>
-      <div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div>
-      <div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div>
-    </div>
+    <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry}% del total</div></div>
+    <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
   </div>
-  <div style="margin:5px 0 0 42px">
-    <div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT};"></div></div>
-  </div>
-
+  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT};"></div></div></div>
   <div class="persona-row" style="margin-top:10px">
     <div class="av av-j">J</div>
-    <div class="persona-body">
-      <div class="persona-name">Jaike</div>
-      <div class="persona-sub">{pct_jaike}% del total</div>
-    </div>
-    <div>
-      <div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div>
-      <div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div>
-    </div>
+    <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike}% del total</div></div>
+    <div><div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
   </div>
-  <div style="margin:5px 0 0 42px">
-    <div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{PURPLE};"></div></div>
-  </div>
+  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{PURPLE};"></div></div></div>
 </div>
 """, unsafe_allow_html=True)
 
-    # ─────────────────────────────────────────
-    # BLOQUE GASTOS — pagados + pendientes
-    # ─────────────────────────────────────────
     st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
     st.markdown(f"""
 <div class="card-gastos">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div>
-      <div class="c-lbl">Total del mes</div>
-      <div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div>
-      <div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div>
-    </div>
-    <div style="text-align:right;padding-top:2px">
-      <div class="c-lbl">Ítems</div>
-      <div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df)}</div>
-      <div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div>
-    </div>
+    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div></div>
+    <div style="text-align:right;padding-top:2px"><div class="c-lbl">Ítems</div><div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df)}</div><div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div></div>
   </div>
   <div class="sep"></div>
-
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div>
-        <span class="bar-lbl">Pagados</span>
-        <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-left:6px">{n_pagados}</span>
-      </div>
-      <div style="text-align:right">
-        <div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div>
-        <div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div>
-      </div>
+      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-left:6px">{n_pagados}</span></div>
+      <div style="text-align:right"><div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div></div>
     </div>
-    <div class="bar-bg">
-      <div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div>
-    </div>
-    <div class="bar-meta">
-      <span class="bar-pct">{pct_pag}% del total</span>
-    </div>
+    <div class="bar-bg"><div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div></div>
+    <div class="bar-meta"><span class="bar-pct">{pct_pag}% del total</span></div>
   </div>
-
   <div style="height:12px;"></div>
-
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div>
-        <span class="bar-lbl">Pendientes</span>
-        <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-left:6px">{n_pendientes}</span>
-      </div>
-      <div style="text-align:right">
-        <div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div>
-        <div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div>
-      </div>
+      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-left:6px">{n_pendientes}</span></div>
+      <div style="text-align:right"><div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
     </div>
-    <div class="bar-bg">
-      <div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div>
-    </div>
-    <div class="bar-meta">
-      <span class="bar-pct">{pct_pend}% del total</span>
-    </div>
+    <div class="bar-bg"><div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div></div>
+    <div class="bar-meta"><span class="bar-pct">{pct_pend}% del total</span></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-    # ─────────────────────────────────────────
-    # BLOQUE BALANCE
-    # ─────────────────────────────────────────
     bc       = GREEN if balance_ars >= 0 else RED
     bs       = "+" if balance_ars >= 0 else ""
     bal_tag  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
@@ -825,10 +792,7 @@ if st.session_state.screen == "inicio":
 <div class="{bal_card}">
   {bal_tag}
   <div style="display:flex;justify-content:space-between;align-items:flex-end">
-    <div>
-      <div class="c-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div>
-      <div class="c-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div>
-    </div>
+    <div><div class="c-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div><div class="c-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div></div>
   </div>
   <div class="sep"></div>
   <div style="display:flex;justify-content:space-between;font-size:12px;color:{TEXT2}">
@@ -838,9 +802,6 @@ if st.session_state.screen == "inicio":
 </div>
 """, unsafe_allow_html=True)
 
-    # ─────────────────────────────────────────
-    # BOTÓN AGREGAR (solo mes actual)
-    # ─────────────────────────────────────────
     if es_mes_actual:
         ba1, ba2 = st.columns(2)
         with ba1:
@@ -857,7 +818,6 @@ if st.session_state.screen == "inicio":
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        # ── CLONACIÓN INTELIGENTE ──
         if not df_maestro.empty:
             periodo_ant = calcular_mes_anterior(periodo_actual)
             df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
@@ -894,7 +854,6 @@ if st.session_state.screen == "inicio":
                                 guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
                                 st.rerun()
 
-        # Panel agregar gasto
         if st.session_state.show_add:
             st.markdown('<div class="add-panel">', unsafe_allow_html=True)
             a1, a2, a3, a4 = st.columns([2, 1.2, 1.2, 0.8])
@@ -920,7 +879,6 @@ if st.session_state.screen == "inicio":
                             st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # Panel agregar ingreso
         if st.session_state.show_add_ingreso:
             st.markdown('<div class="add-panel-green">', unsafe_allow_html=True)
             i1, i2, i3 = st.columns([2, 1, 1])
@@ -955,9 +913,6 @@ if st.session_state.screen == "inicio":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # ─────────────────────────────────────────
-    # LISTA DE GASTOS
-    # ─────────────────────────────────────────
     if df.empty:
         st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
@@ -990,7 +945,6 @@ if st.session_state.screen == "inicio":
                 st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # Marcar pagado
         if es_mes_actual:
             pend_items = df_vista[df_vista["Pagado"] == False]
             if not pend_items.empty:
@@ -1007,7 +961,6 @@ if st.session_state.screen == "inicio":
                                 except Exception as e:
                                     st.error(str(e))
 
-        # Top 5
         st.markdown(f'<div class="sec-lbl">Top 5 gastos</div><div class="grp">', unsafe_allow_html=True)
         for _, row in df.nlargest(5,"Monto (ARS)").iterrows():
             color  = cat_color(row["Cat"])
@@ -1018,56 +971,10 @@ if st.session_state.screen == "inicio":
             st.markdown(f'<div class="row"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Distribución por categoría
-        st.markdown(f'<div class="sec-lbl">Por categoría</div><div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
-        max_cat = por_cat["Monto (ARS)"].max() if not por_cat.empty else 1
-        for _, r in por_cat.iterrows():
-            pct_c = int(r["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
-            bar_w = int(r["Monto (ARS)"] / max_cat * 100)
-            color = cat_color(r["Cat"])
-            st.markdown(f"""
-            <div style="margin-bottom:10px">
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                <span style="font-size:13px;color:{TEXT}">{r['Cat']}</span>
-                <div style="text-align:right">
-                  <span style="font-size:13px;font-weight:600;color:{color}">{fmt_ars(r['Monto (ARS)'])}</span>
-                  <span style="font-size:11px;color:{TEXT2};margin-left:6px">{pct_c}%</span>
-                </div>
-              </div>
-              <div style="height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
-                <div style="width:{bar_w}%;height:100%;background:{color};border-radius:3px"></div>
-              </div>
-            </div>""", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # Resumen
-        n_pag2 = int(df["Pagado"].sum()); n_pend2 = len(df) - n_pag2
-        mayor  = df.loc[df["Monto (ARS)"].idxmax(),"Item"] if not df.empty else "-"
-        mayor_m = df["Monto (ARS)"].max() if not df.empty else 0
-        st.markdown(f"""<div class="grp" style="padding:14px 16px">
-          <div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Resumen del mes</div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Total ítems</span><span style="font-weight:600">{len(df)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pagados</span><span style="color:{GREEN};font-weight:600">{n_pag2}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pendientes</span><span style="color:{ORANGE};font-weight:600">{n_pend2}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Vencidos</span><span style="color:{RED};font-weight:600">{len(vencidos)}</span></div>
-          <div style="padding:9px 0;font-size:14px"><span style="color:{TEXT2}">Mayor gasto</span><br><span style="font-weight:600;color:{TEXT}">{mayor}</span><br><span style="font-size:12px;color:{TEXT2}">{fmt_ars(mayor_m)}</span></div>
-        </div>""", unsafe_allow_html=True)
-
-        # ─────────────────────────────────────────
-        # BOTÓN EDITAR TABLA 
-        # ─────────────────────────────────────────
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
         if st.button("✏️ Editar montos y fechas en la tabla", type="secondary", use_container_width=True):
             st.session_state.screen = "gastos"
             st.rerun()
-
-        _, ce, _ = st.columns([1,1,1])
-        with ce:
-            st.download_button("Exportar Excel", data=exportar_excel(df, df_ing_todo),
-                               file_name=f"gastos_{periodo_viendo}.xlsx",
-                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                               use_container_width=True)
-
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: INGRESOS
@@ -1098,10 +1005,6 @@ elif st.session_state.screen == "ingresos":
       </div>
       <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike if total_ing_ars > 0 else 0}%;background:{PURPLE}"></div></div></div>
     </div>""", unsafe_allow_html=True)
-
-    bal_card2 = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
-    bal_tag2  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
-    st.markdown(f'<div class="{bal_card2}">{bal_tag2}<div class="c-val" style="color:{bc2}">{bs2}{fmt_ars(balance_ars)}</div><div class="c-sub">Gastos: {fmt_ars(total_ars)}</div></div>', unsafe_allow_html=True)
 
     if es_mes_actual:
         lbl_i2 = "Cancelar" if st.session_state.show_add_ingreso else "＋ Agregar ingreso"
@@ -1144,7 +1047,6 @@ elif st.session_state.screen == "ingresos":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # Detalle de ingresos del periodo
     if df_ing_periodo.empty:
         st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin ingresos en {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
@@ -1182,13 +1084,8 @@ elif st.session_state.screen == "gastos":
         if not es_mes_actual:
             st.markdown(f'<div class="alert alert-o">📅 Editando <strong>{label_periodo(periodo_viendo)}</strong>. Guardar reescribirá la hoja maestra.</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px">Editá, agregá o marcá pagos. Guardá para sincronizar.</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px">Editá montos, vencimientos o marcá pagos. <strong>Guardá para sincronizar.</strong><br>(Los gastos pendientes salen automáticamente arriba).</div>', unsafe_allow_html=True)
 
-        tab_todos, tab_pend, tab_pag = st.tabs([
-            f"Todos  {len(df)}",
-            f"Pendientes  {len(df[df['Pagado']==False])}",
-            f"Pagados  {len(df[df['Pagado']==True])}"
-        ])
         COL_CONFIG = {
             "Pagado":     st.column_config.CheckboxColumn("Pagado", width="small"),
             "Item":       st.column_config.TextColumn("Ítem"),
@@ -1200,20 +1097,16 @@ elif st.session_state.screen == "gastos":
         }
         COL_ORDER = ("Pagado","Item","Monto (ARS)","USD","Dia Pago","Periodo","Tasa USD")
 
-        def render_tabla(data, key):
-            return st.data_editor(data, column_config=COL_CONFIG, column_order=COL_ORDER,
-                                   num_rows="dynamic", use_container_width=True, hide_index=True, key=key)
-
-        with tab_todos: df_edit = render_tabla(df, "t_todos")
-        with tab_pend:  render_tabla(df[df["Pagado"]==False].copy(), "t_pend")
-        with tab_pag:   render_tabla(df[df["Pagado"]==True].copy(), "t_pag")
+        # TABLA UNIFICADA (adiós al bug de las pestañas)
+        df_edit = st.data_editor(df, column_config=COL_CONFIG, column_order=COL_ORDER,
+                                 num_rows="dynamic", use_container_width=True, hide_index=True, key="t_unico")
 
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         bc1, bc2, bc3 = st.columns([2.5, 0.8, 0.8])
         with bc1:
             if st.button("Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
-                    df_otros    = df_maestro[df_maestro["Periodo"] != periodo_viendo].copy()
+                    df_otros = df_maestro[df_maestro["Periodo"] != periodo_viendo].copy()
                     df_combinado = pd.concat([df_otros, df_edit], ignore_index=True)
                     guardar_hoja_maestro(df_combinado, dolar)
                     st.markdown('<div class="toast-ok">Cambios guardados</div>', unsafe_allow_html=True)
