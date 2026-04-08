@@ -132,7 +132,7 @@ html, body, .stApp {{
     color: {TEXT} !important;
 }}
 [data-testid="stRadio"] label div:first-child {{
-    display: none !important; /* Oculta circulito */
+    display: none !important;
 }}
 
 /* ── SELECTBOX DE PERIODO ── */
@@ -252,6 +252,25 @@ div[data-baseweb="select"] {{
 .toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(50,215,75,.12);color:{GREEN};}}
 .toast-err{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(255,69,58,.12);color:{RED};}}
 
+/* ── PANEL PAGOS PENDIENTES ── */
+.pend-panel{{background:{SURFACE};border-radius:14px;overflow:hidden;margin-bottom:12px;border:1px solid rgba(255,69,58,0.25);}}
+.pend-panel-hdr{{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,69,58,0.08);border-bottom:0.5px solid rgba(255,69,58,0.2);}}
+.pend-panel-title{{font-size:13px;font-weight:700;color:{RED};letter-spacing:.02em;text-transform:uppercase;}}
+.pend-panel-total{{font-size:14px;font-weight:700;color:{RED};}}
+.pend-item{{display:flex;align-items:center;gap:11px;padding:11px 14px;position:relative;}}
+.pend-item::after{{content:'';position:absolute;bottom:0;left:52px;right:0;height:0.5px;background:rgba(255,69,58,0.15);}}
+.pend-item:last-child::after{{display:none;}}
+.pend-item-icon{{width:32px;height:32px;border-radius:8px;flex-shrink:0;overflow:hidden;}}
+.pend-item-body{{flex:1;min-width:0;}}
+.pend-item-name{{font-size:15px;font-weight:500;color:{TEXT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
+.pend-item-sub{{font-size:12px;color:{TEXT2};margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}}
+.pend-item-right{{text-align:right;flex-shrink:0;}}
+.pend-item-ars{{font-size:15px;font-weight:700;color:{TEXT};}}
+.pend-item-usd{{font-size:11px;color:{TEXT2};margin-top:2px;}}
+.pend-footer{{padding:10px 14px;background:rgba(255,69,58,0.05);border-top:0.5px solid rgba(255,69,58,0.15);display:flex;justify-content:space-between;align-items:center;}}
+.pend-footer-lbl{{font-size:12px;color:{TEXT2};}}
+.pend-footer-val{{font-size:14px;font-weight:700;color:{RED};}}
+
 /* ── KPI GRID LEGACY ── */
 .kpi-grid-main{{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}}
 .kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}}
@@ -290,7 +309,7 @@ hr{{display:none !important;}}
 </style>""", unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────────
-# CONEXION Y LIMPIEZA DE DATOS (EL FIX PARA QUE NO SE PONGAN EN CERO)
+# CONEXION Y LIMPIEZA DE DATOS
 # ──────────────────────────────────────────────────────────────────
 def clean_currency(val):
     if pd.isna(val) or val == "": return 0.0
@@ -301,7 +320,7 @@ def clean_currency(val):
     elif "," in v: v = v.replace(",", ".")
     elif "." in v:
         parts = v.split(".")
-        if len(parts) > 1 and len(parts[-1]) == 3: v = v.replace(".", "")  
+        if len(parts) > 1 and len(parts[-1]) == 3: v = v.replace(".", "")
     try: return float(v)
     except: return 0.0
 
@@ -322,15 +341,15 @@ def cargar_datos_maestro():
     except Exception as e:
         st.error(f"Error conectando con Google Sheets: {e}")
         return pd.DataFrame()
-    
+
     data = [r for r in data if any(str(c).strip() for c in r)]
     if not data or len(data) < 2: return pd.DataFrame()
-        
+
     headers_new = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]
     headers_legacy = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado"]
     primera = [str(c).strip().lower() for c in data[0]]
     tiene_periodo = "periodo" in primera
-    
+
     if tiene_periodo:
         filas = data[1:]
         filas = [r + [""] * (7 - len(r)) for r in filas if len(r) >= 2]
@@ -343,10 +362,10 @@ def cargar_datos_maestro():
         df = pd.DataFrame(filas, columns=headers_legacy)
         df["Periodo"] = date.today().strftime("%Y-%m")
         df["Tasa USD"] = 0.0
-        
+
     df["Monto (ARS)"] = df["Monto (ARS)"].apply(clean_currency)
     df["Tasa USD"]    = df["Tasa USD"].apply(clean_currency)
-    df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"],   errors="coerce").dt.date
+    df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"], errors="coerce").dt.date
     df["Pagado"]      = df["Pagado"].apply(lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","SI","1"])
     df = df[~((df["Monto (ARS)"] == 0) & (df["Item"].str.strip() == ""))]
     return df.reset_index(drop=True)
@@ -369,44 +388,57 @@ def cargar_ingresos():
         df = pd.DataFrame(filas, columns=headers)
         for col in ["Monto ARS","Monto USD","Monto Original","Tasa USD/ARS"]:
             df[col] = df[col].apply(clean_currency)
-        df["Fecha"]   = pd.to_datetime(df["Fecha"],  errors="coerce").dt.date
+        df["Fecha"]   = pd.to_datetime(df["Fecha"], errors="coerce").dt.date
         df = df[df["Monto ARS"] > 0]
         df["Periodo"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%Y-%m")
         return df.reset_index(drop=True)
     except Exception:
         return pd.DataFrame()
 
+# FIX: Función unificada para dolar — evita divergencia entre cachés de distinto TTL
 @st.cache_data(ttl=300)
-def get_dolar():
+def get_dolar_completo():
+    """Retorna (venta_actual, ayer, diff, pct). Una sola llamada, un solo TTL."""
     try:
-        return float(requests.get("https://dolarapi.com/v1/dolares/blue", timeout=5).json()["venta"])
+        venta = float(requests.get("https://dolarapi.com/v1/dolares/blue", timeout=5).json()["venta"])
     except Exception:
-        return 1450.0
-
-@st.cache_data(ttl=3600)
-def get_dolar_tendencia():
+        venta = 1450.0
     try:
-        venta = get_dolar()
         hist = requests.get("https://api.argentinadatos.com/v1/cotizaciones/dolares/blue", timeout=5).json()
         if isinstance(hist, list) and len(hist) >= 2:
             ayer = float(hist[-2].get("venta", venta))
             diff = venta - ayer
-            pct = round((diff / ayer) * 100, 2) if ayer > 0 else 0.0
+            pct  = round((diff / ayer) * 100, 2) if ayer > 0 else 0.0
             return venta, ayer, diff, pct
-        return venta, venta, 0.0, 0.0
     except Exception:
-        return get_dolar(), 0, 0.0, 0.0
+        pass
+    return venta, venta, 0.0, 0.0
+
+# Mantener compatibilidad con nombre anterior usado en el código
+def get_dolar():
+    return get_dolar_completo()[0]
+
+def get_dolar_tendencia():
+    return get_dolar_completo()
 
 def guardar_hoja_maestro(df_guardar, dolar_actual=None):
     df_up = df_guardar.copy()
-    df_up["Categoria"] = df_up["Item"].apply(categorizar)
+    # FIX: Usar columna "Categoria" si existe; si no existe pero existe "Cat", renombrarla
+    if "Categoria" not in df_up.columns and "Cat" in df_up.columns:
+        df_up["Categoria"] = df_up["Cat"]
+    # FIX: Solo recategorizar filas donde Categoria esté vacía, no sobreescribir todas
+    mask_sin_cat = df_up["Categoria"].isna() | (df_up["Categoria"].astype(str).str.strip() == "")
+    if mask_sin_cat.any():
+        df_up.loc[mask_sin_cat, "Categoria"] = df_up.loc[mask_sin_cat, "Item"].apply(categorizar)
     if "Periodo" not in df_up.columns:
         df_up["Periodo"] = date.today().strftime("%Y-%m")
     if "Tasa USD" not in df_up.columns:
         df_up["Tasa USD"] = dolar_actual or 0.0
     else:
         if dolar_actual:
-            df_up["Tasa USD"] = df_up["Tasa USD"].apply(lambda x: dolar_actual if (x == 0 or pd.isna(x)) else x)
+            df_up["Tasa USD"] = df_up["Tasa USD"].apply(
+                lambda x: dolar_actual if (pd.isna(x) or x == 0) else x
+            )
     df_up = df_up[["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]]
     df_up["Dia Pago"] = df_up["Dia Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
     df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
@@ -425,11 +457,21 @@ def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tas
     ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
-def marcar_pagado_maestro(idx, df_full, dolar_actual):
+# FIX: marcar_pagado_maestro ahora busca por Item + Periodo para evitar error de índice
+def marcar_pagado_maestro(item_nombre, periodo_str, df_full, dolar_actual):
     df_act = df_full.copy()
-    if idx < len(df_act):
-        df_act.at[idx, "Pagado"] = True
+    # Buscar la primera fila que coincida con item y periodo y no esté pagada
+    mask = (
+        (df_act["Item"] == item_nombre) &
+        (df_act["Periodo"] == periodo_str) &
+        (df_act["Pagado"] == False)
+    )
+    if mask.any():
+        idx_target = df_act[mask].index[0]
+        df_act.at[idx_target, "Pagado"] = True
         guardar_hoja_maestro(df_act, dolar_actual)
+        return True
+    return False
 
 def categorizar(item):
     i = str(item).lower()
@@ -462,8 +504,8 @@ def badge_venc(row):
     if pd.isna(dia) or dia is None: return f'<span class="badge badge-none">Sin fecha</span>'
     diff = (dia - date.today()).days
     fd = dia.strftime("%-d %b")
-    if diff < 0:  return f'<span class="badge badge-venc">Vencido {fd}</span>'
-    if diff == 0: return f'<span class="badge badge-hoy">Hoy</span>'
+    if diff < 0:   return f'<span class="badge badge-venc">Vencido {fd}</span>'
+    if diff == 0:  return f'<span class="badge badge-hoy">Hoy</span>'
     if diff <= 3:  return f'<span class="badge badge-prox">{diff}d — {fd}</span>'
     if diff <= 10: return f'<span class="badge badge-soon">{diff}d — {fd}</span>'
     return f'<span class="badge badge-ok">{fd}</span>'
@@ -476,7 +518,10 @@ def badge_persona(persona):
 
 def procesar(df_base, dolar_live):
     df = df_base.copy()
-    df["Categoria"] = df["Item"].apply(categorizar)
+    df["Categoria"] = df["Categoria"].where(
+        df["Categoria"].notna() & (df["Categoria"].astype(str).str.strip() != ""),
+        df["Item"].apply(categorizar)
+    )
     def calc_usd(row):
         tasa = row.get("Tasa USD", 0)
         t = tasa if tasa and tasa > 0 else dolar_live
@@ -509,8 +554,8 @@ hoy            = date.today()
 hoy_str        = f"{hoy.day} de {MESES[hoy.month-1]} de {hoy.year}"
 periodo_actual = hoy.strftime("%Y-%m")
 
-dolar = get_dolar()
 dolar_val, dolar_ayer, dolar_diff, dolar_pct = get_dolar_tendencia()
+dolar = dolar_val  # valor único consistente para toda la sesión
 
 df_maestro  = cargar_datos_maestro()
 df_ing_todo = cargar_ingresos()
@@ -538,14 +583,14 @@ def label_periodo(p):
 if not df_maestro.empty:
     df_base_periodo = df_maestro[df_maestro["Periodo"] == periodo_viendo].copy()
     df = procesar(df_base_periodo, dolar)
-    total_ars   = df["Monto (ARS)"].sum()
-    pagado_ars  = df[df["Pagado"] == True]["Monto (ARS)"].sum()
-    pend_ars    = total_ars - pagado_ars
-    pct_pag     = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
-    pct_pend    = 100 - pct_pag
-    n_pagados   = int(df["Pagado"].sum())
+    total_ars    = df["Monto (ARS)"].sum()
+    pagado_ars   = df[df["Pagado"] == True]["Monto (ARS)"].sum()
+    pend_ars     = total_ars - pagado_ars
+    pct_pag      = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
+    pct_pend     = 100 - pct_pag
+    n_pagados    = int(df["Pagado"].sum())
     n_pendientes = len(df) - n_pagados
-    por_cat     = df.groupby("Cat")["Monto (ARS)"].sum().reset_index().sort_values("Monto (ARS)", ascending=False)
+    por_cat      = df.groupby("Cat")["Monto (ARS)"].sum().reset_index().sort_values("Monto (ARS)", ascending=False)
     es_mes_actual = (periodo_viendo == periodo_actual)
     vencidos = df[(df["Pagado"]==False) & df["Dia Pago"].notna() & (df["Dia Pago"] < hoy)] if es_mes_actual else pd.DataFrame()
     proximos = df[(df["Pagado"]==False) & df["Dia Pago"].notna() & (df["Dia Pago"] >= hoy) & (df["Dia Pago"] <= hoy + timedelta(days=3))] if es_mes_actual else pd.DataFrame()
@@ -567,6 +612,8 @@ total_ing_usd  = df_ing_periodo["Monto USD"].sum() if not df_ing_periodo.empty e
 ing_henry      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="HENRY"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 ing_jaike      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 balance_ars    = total_ing_ars - total_ars
+pct_henry      = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
+pct_jaike      = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
 
 # ── PWA META TAGS ──
 st.markdown("""
@@ -592,9 +639,9 @@ document.addEventListener('DOMContentLoaded',function(){
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
 # ── HEADER ──
-if dolar_diff > 0: trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
+if dolar_diff > 0:   trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
 elif dolar_diff < 0: trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
-else: trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
+else:                trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
 
 st.markdown(f"""
 <div class="ios-hdr">
@@ -612,10 +659,10 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAVEGACIÓN Y PERIODO (NATIVOS Y ROBUSTOS) ──
+# ── NAVEGACIÓN Y PERIODO ──
 opciones_nav = {"🏠 Inicio": "inicio", "💵 Ingresos": "ingresos", "💳 Gastos": "gastos", "📊 Tendencias": "tendencias"}
-nav_labels = list(opciones_nav.keys())
-current_idx = list(opciones_nav.values()).index(st.session_state.screen) if st.session_state.screen in opciones_nav.values() else 0
+nav_labels   = list(opciones_nav.keys())
+current_idx  = list(opciones_nav.values()).index(st.session_state.screen) if st.session_state.screen in opciones_nav.values() else 0
 
 sel_nav = st.radio("Navegación", nav_labels, index=current_idx, horizontal=True, label_visibility="collapsed")
 if opciones_nav[sel_nav] != st.session_state.screen:
@@ -649,8 +696,6 @@ if st.session_state.screen == "inicio":
         if not proximos.empty:
             st.markdown(f'<div class="alert alert-o">Vencen en 3 días: {" · ".join(r["Item"] for _, r in proximos.iterrows())}</div>', unsafe_allow_html=True)
 
-    pct_henry = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
-    pct_jaike = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
     ing_usd_str = fmt_usd(total_ing_usd) if total_ing_usd > 0 else fmt_usd_from_ars(total_ing_ars, dolar)
 
     st.markdown(f'<div class="sec-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
@@ -703,9 +748,9 @@ if st.session_state.screen == "inicio":
 </div>
 """, unsafe_allow_html=True)
 
-    bc       = GREEN if balance_ars >= 0 else RED
-    bs       = "+" if balance_ars >= 0 else ""
-    bal_tag  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
+    bc      = GREEN if balance_ars >= 0 else RED
+    bs      = "+" if balance_ars >= 0 else ""
+    bal_tag = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
     bal_card = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
 
     st.markdown(f'<div class="sec-lbl">Balance</div>', unsafe_allow_html=True)
@@ -739,6 +784,7 @@ if st.session_state.screen == "inicio":
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
+        # ── CLONAR GASTOS FIJOS ──
         if not df_maestro.empty:
             periodo_ant = calcular_mes_anterior(periodo_actual)
             df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
@@ -866,24 +912,121 @@ if st.session_state.screen == "inicio":
                 st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
+        # ══════════════════════════════════════════════════════════════════
+        # PANEL PAGOS PENDIENTES — DETALLADO Y VISIBLE
+        # ══════════════════════════════════════════════════════════════════
         if es_mes_actual:
-            pend_items = df_vista[df_vista["Pagado"] == False]
+            pend_items = df_vista[df_vista["Pagado"] == False].copy()
+
             if not pend_items.empty:
-                with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
-                    for idx, row in pend_items.iterrows():
-                        cn, cb = st.columns([3,1])
+                # Ordenar: vencidos primero, luego por fecha
+                def sort_key_pend(row):
+                    dia = row["Dia Pago"]
+                    if pd.isna(dia) or dia is None:
+                        return date(2099, 12, 31)
+                    return dia
+                pend_items = pend_items.copy()
+                pend_items["_sort"] = pend_items.apply(sort_key_pend, axis=1)
+                pend_items = pend_items.sort_values("_sort").drop(columns=["_sort"])
+
+                total_pend_usd = sum(
+                    (r["Monto (ARS)"] / r["Tasa USD"]) if r.get("Tasa USD", 0) > 0
+                    else (r["Monto (ARS)"] / dolar)
+                    for _, r in pend_items.iterrows()
+                )
+
+                st.markdown(f'<div class="sec-lbl">Pagos pendientes</div>', unsafe_allow_html=True)
+
+                # Construir HTML del panel
+                items_html = ""
+                for _, row in pend_items.iterrows():
+                    color  = cat_color(row["Cat"])
+                    ico    = cat_icon_svg(row["Cat"], color, size=32)
+                    tasa_r = row.get("Tasa USD", 0)
+                    usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
+                    dia    = row["Dia Pago"]
+                    # Estado del vencimiento
+                    if pd.isna(dia) or dia is None:
+                        estado_html = f'<span class="badge badge-none">Sin fecha</span>'
+                        urgencia_bg = ""
+                    else:
+                        diff = (dia - hoy).days
+                        fd   = dia.strftime("%-d %b")
+                        if diff < 0:
+                            estado_html = f'<span class="badge badge-venc">Vencido {fd}</span>'
+                            urgencia_bg = "background:rgba(255,69,58,0.04);"
+                        elif diff == 0:
+                            estado_html = f'<span class="badge badge-hoy">Vence hoy</span>'
+                            urgencia_bg = "background:rgba(255,69,58,0.04);"
+                        elif diff <= 3:
+                            estado_html = f'<span class="badge badge-prox">En {diff}d — {fd}</span>'
+                            urgencia_bg = "background:rgba(255,159,10,0.03);"
+                        elif diff <= 10:
+                            estado_html = f'<span class="badge badge-soon">En {diff}d — {fd}</span>'
+                            urgencia_bg = ""
+                        else:
+                            estado_html = f'<span class="badge badge-ok">{fd}</span>'
+                            urgencia_bg = ""
+
+                    items_html += f"""
+<div class="pend-item" style="{urgencia_bg}">
+  <div class="pend-item-icon">{ico}</div>
+  <div class="pend-item-body">
+    <div class="pend-item-name">{row['Item']}</div>
+    <div class="pend-item-sub">
+      {estado_html}
+      <span style="color:rgba(235,235,245,0.3)">·</span>
+      <span style="font-size:11px;color:{TEXT2}">{row['Cat']}</span>
+    </div>
+  </div>
+  <div class="pend-item-right">
+    <div class="pend-item-ars">{fmt_ars(row['Monto (ARS)'])}</div>
+    <div class="pend-item-usd">U$S {usd_v:,.0f}</div>
+  </div>
+</div>"""
+
+                st.markdown(f"""
+<div class="pend-panel">
+  <div class="pend-panel-hdr">
+    <span class="pend-panel-title">⏳ {len(pend_items)} pago{"s" if len(pend_items)>1 else ""} pendiente{"s" if len(pend_items)>1 else ""}</span>
+    <span class="pend-panel-total">{fmt_ars(pend_ars)}</span>
+  </div>
+  {items_html}
+  <div class="pend-footer">
+    <span class="pend-footer-lbl">Total pendiente · U$S {total_pend_usd:,.0f}</span>
+    <span class="pend-footer-val">{fmt_ars(pend_ars)}</span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+                # Botones de marcar pagado — FIX: usa item+periodo en lugar de idx
+                with st.expander(f"✓ Marcar como pagado"):
+                    for _, row in pend_items.iterrows():
+                        cn, cb = st.columns([3, 1])
                         with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} — {fmt_ars(row["Monto (ARS)"])}</div>', unsafe_allow_html=True)
-                        with cb:
-                            if st.button("✓ Pagado", key=f"pay_{idx}", use_container_width=True):
+                            dia_str = ""
+                            if pd.notnull(row.get("Dia Pago")) and row["Dia Pago"] is not None:
                                 try:
-                                    marcar_pagado_maestro(idx, df_maestro, dolar)
-                                    st.rerun()
+                                    dia_str = f" — vence {row['Dia Pago'].strftime('%-d %b')}"
+                                except Exception:
+                                    pass
+                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} <span style="color:{TEXT2};font-size:12px">{fmt_ars(row["Monto (ARS)"])}{dia_str}</span></div>', unsafe_allow_html=True)
+                        with cb:
+                            btn_key = f"pay_{row['Item']}_{row.get('Periodo','')}"
+                            if st.button("✓ Pagado", key=btn_key, use_container_width=True):
+                                try:
+                                    ok = marcar_pagado_maestro(row["Item"], row.get("Periodo", periodo_viendo), df_maestro, dolar)
+                                    if ok:
+                                        st.rerun()
+                                    else:
+                                        st.error("No se encontró el ítem")
                                 except Exception as e:
                                     st.error(str(e))
+            else:
+                st.markdown(f'<div class="alert alert-g">✅ Todos los gastos de {label_periodo(periodo_viendo)} están pagados.</div>', unsafe_allow_html=True)
 
         st.markdown(f'<div class="sec-lbl">Top 5 gastos</div><div class="grp">', unsafe_allow_html=True)
-        for _, row in df.nlargest(5,"Monto (ARS)").iterrows():
+        for _, row in df.nlargest(5, "Monto (ARS)").iterrows():
             color  = cat_color(row["Cat"])
             pct_t  = int(row["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
             ico    = cat_icon_svg(row["Cat"], color, size=34)
@@ -896,6 +1039,7 @@ if st.session_state.screen == "inicio":
         if st.button("✏️ Editar montos y fechas en la tabla", type="secondary", use_container_width=True):
             st.session_state.screen = "gastos"
             st.rerun()
+
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: INGRESOS
@@ -915,16 +1059,16 @@ elif st.session_state.screen == "ingresos":
       <div class="sep"></div>
       <div class="persona-row">
         <div class="av av-h">H</div>
-        <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry if total_ing_ars > 0 else 0}%</div></div>
+        <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry}%</div></div>
         <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
       </div>
-      <div style="margin:5px 0 10px 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry if total_ing_ars > 0 else 0}%;background:{ACCENT}"></div></div></div>
+      <div style="margin:5px 0 10px 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT}"></div></div></div>
       <div class="persona-row">
         <div class="av av-j">J</div>
-        <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike if total_ing_ars > 0 else 0}%</div></div>
+        <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike}%</div></div>
         <div><div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
       </div>
-      <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike if total_ing_ars > 0 else 0}%;background:{PURPLE}"></div></div></div>
+      <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{PURPLE}"></div></div></div>
     </div>""", unsafe_allow_html=True)
 
     if es_mes_actual:
@@ -1008,13 +1152,13 @@ elif st.session_state.screen == "gastos":
             st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px">Editá montos, vencimientos o marcá pagos. <strong>Guardá para sincronizar.</strong><br>(Los gastos pendientes salen automáticamente arriba).</div>', unsafe_allow_html=True)
 
         COL_CONFIG = {
-            "Pagado":     st.column_config.CheckboxColumn("Pagado", width="small"),
-            "Item":       st.column_config.TextColumn("Ítem"),
-            "Monto (ARS)":st.column_config.NumberColumn("ARS", format="$ %d"),
-            "USD":        st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
-            "Dia Pago":   st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
-            "Periodo":    st.column_config.TextColumn("Periodo", disabled=True, width="small"),
-            "Tasa USD":   st.column_config.NumberColumn("Tasa $", disabled=True, width="small"),
+            "Pagado":      st.column_config.CheckboxColumn("Pagado", width="small"),
+            "Item":        st.column_config.TextColumn("Ítem"),
+            "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$ %d"),
+            "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
+            "Dia Pago":    st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
+            "Periodo":     st.column_config.TextColumn("Periodo", disabled=True, width="small"),
+            "Tasa USD":    st.column_config.NumberColumn("Tasa $", disabled=True, width="small"),
         }
         COL_ORDER = ("Pagado","Item","Monto (ARS)","USD","Dia Pago","Periodo","Tasa USD")
 
@@ -1026,8 +1170,15 @@ elif st.session_state.screen == "gastos":
         with bc1:
             if st.button("Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
+                    # FIX: Asegurar que df_edit tenga columna Categoria antes de concatenar
+                    df_edit_save = df_edit.copy()
+                    if "Categoria" not in df_edit_save.columns:
+                        if "Cat" in df_edit_save.columns:
+                            df_edit_save["Categoria"] = df_edit_save["Cat"]
+                        else:
+                            df_edit_save["Categoria"] = df_edit_save["Item"].apply(categorizar)
                     df_otros = df_maestro[df_maestro["Periodo"] != periodo_viendo].copy()
-                    df_combinado = pd.concat([df_otros, df_edit], ignore_index=True)
+                    df_combinado = pd.concat([df_otros, df_edit_save], ignore_index=True)
                     guardar_hoja_maestro(df_combinado, dolar)
                     st.markdown('<div class="toast-ok">Cambios guardados</div>', unsafe_allow_html=True)
                     st.rerun()
@@ -1043,6 +1194,7 @@ elif st.session_state.screen == "gastos":
                                     file_name=f"gastos_{periodo_viendo}.xlsx",
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                     use_container_width=True)
+
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: TENDENCIAS
@@ -1111,10 +1263,10 @@ elif st.session_state.screen == "tendencias":
 
         for _, row in hist.iterrows():
             g      = row["Gastos"]
-            i      = row.get("Ingresos",0)
-            henry  = row.get("Henry",0)
-            jaike  = row.get("Jaike",0)
-            bal    = row.get("Balance",0)
+            i      = row.get("Ingresos", 0)
+            henry  = row.get("Henry", 0)
+            jaike  = row.get("Jaike", 0)
+            bal    = row.get("Balance", 0)
             bc_r   = GREEN if bal >= 0 else RED
             bs_r   = "+" if bal >= 0 else ""
             bar_g  = int(g / max_g * 100) if max_g > 0 else 0
