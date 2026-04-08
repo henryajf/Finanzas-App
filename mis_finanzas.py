@@ -30,6 +30,9 @@ YELLOW  = "#FFD60A"
 PURPLE  = "#BF5AF2"
 PLOTBG  = "rgba(0,0,0,0)"
 
+# URL de tu Google Sheet — reemplazá con el link real
+SHEETS_URL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
+
 CAT_COLORS = {
     "Servicios": "#FF9F0A", "Hogar": "#32D74B", "Supermercado": "#30D158",
     "Comida": "#FF453A", "Transporte": "#0A84FF", "Suscripciones": "#BF5AF2",
@@ -81,44 +84,42 @@ st.markdown(f"""
 html, body, .stApp {{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif !important;
   background:{BG} !important;color:{TEXT} !important;
-  /* ANTI SCROLL HORIZONTAL */
-  overflow-x: clip !important; 
+  overflow-x: clip !important;
   width: 100vw !important;
   max-width: 100% !important;
 }}
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;}}
 
-/* Ocultar elementos nativos de Streamlit */
 #MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
 [data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {{display:none !important;height:0 !important;overflow:hidden !important;}}
 .stBottomContainer, .stChatFloatingInputContainer {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 80px;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 90px;}}
 
 /* ── HEADER ── */
 .ios-hdr {{
   position:sticky;top:0;z-index:100;
-  background:rgba(0,0,0,0.85);
+  background:rgba(0,0,0,0.88);
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
-  border-bottom:0.5px solid rgba(255,255,255,0.1);
-  padding:14px 16px 10px;
-  margin:0 -16px 18px;
+  border-bottom:0.5px solid rgba(255,255,255,0.08);
+  padding:12px 16px 8px;
+  margin:0 -16px 14px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
-.ios-title{{font-size:28px;font-weight:700;letter-spacing:-.02em;color:{TEXT};}}
+.ios-title{{font-size:26px;font-weight:700;letter-spacing:-.02em;color:{TEXT};}}
 .ios-title span{{color:{ACCENT};}}
-.ios-date{{font-size:12px;color:{TEXT2};margin-top:2px;}}
+.ios-date{{font-size:11px;color:{TEXT2};margin-top:1px;}}
 .dolar-block{{text-align:right;}}
 .dolar-lbl{{font-size:9px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:600;}}
-.dolar-val{{font-size:20px;font-weight:700;color:{ACCENT};letter-spacing:-.01em;}}
+.dolar-val{{font-size:19px;font-weight:700;color:{ACCENT};letter-spacing:-.01em;}}
 .dolar-trend{{font-size:11px;margin-top:1px;}}
 
 /* ── PERIODO BAR ── */
 .periodo-bar{{
   display:flex;align-items:center;gap:6px;
-  padding:8px 0 0;margin-top:8px;
-  border-top:0.5px solid rgba(255,255,255,0.07);
+  padding:8px 0 0;margin-top:6px;
+  border-top:0.5px solid rgba(255,255,255,0.06);
   overflow-x:auto;scrollbar-width:none;
 }}
 .periodo-bar::-webkit-scrollbar{{display:none;}}
@@ -131,7 +132,7 @@ html, body, .stApp {{
 .periodo-chip-active{{background:{ACCENT};color:#fff;}}
 .periodo-chip-inactive{{background:{SURF2};color:{TEXT2};}}
 
-/* ── BOTONES ── */
+/* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
   background:{ACCENT} !important;color:#fff !important;border:none !important;
   border-radius:10px !important;padding:10px 18px !important;
@@ -147,26 +148,77 @@ html, body, .stApp {{
   box-shadow:none !important;
 }}
 
-/* ── TARJETAS ── */
-.kpi-grid-main{{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}}
-.kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}}
-@media(max-width:700px){{.kpi-grid-main{{grid-template-columns:repeat(2,1fr);}}}}
-.kpi-card{{background:{SURFACE};border-radius:12px;padding:14px 15px;}}
-.kpi-lbl{{font-size:11px;font-weight:500;color:{TEXT2};margin-bottom:5px;letter-spacing:.01em;}}
-.kpi-val{{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
-.kpi-sub{{font-size:11px;color:{TEXT2};margin-top:4px;}}
-.kpi-bar{{height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-top:8px;}}
-.kpi-bar-fill{{height:100%;border-radius:3px;}}
+/* ── CARDS ── */
+.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
+.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
+.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
+
+.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
+.c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
+.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
+
+/* ── BARRAS DE ESTADO ── */
+.bar-section{{margin-top:12px;}}
+.bar-row-hdr{{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}}
+.bar-lbl{{font-size:13px;font-weight:500;color:{TEXT};}}
+.bar-amt{{font-size:14px;font-weight:700;}}
+.bar-usd{{font-size:11px;color:{TEXT2};margin-top:1px;text-align:right;}}
+.bar-bg{{height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden;margin-bottom:2px;}}
+.bar-fill{{height:100%;border-radius:5px;}}
+.bar-meta{{display:flex;justify-content:space-between;}}
+.bar-pct{{font-size:11px;color:{TEXT2};}}
+.bar-n{{font-size:11px;font-weight:600;padding:1px 6px;border-radius:20px;}}
+.bar-n-pag{{background:rgba(50,215,75,.15);color:{GREEN};}}
+.bar-n-pend{{background:rgba(255,69,58,.15);color:{RED};}}
+.sep{{height:0.5px;background:rgba(84,84,88,0.4);margin:12px 0;}}
+
+/* ── PERSONAS ── */
+.persona-row{{display:flex;align-items:center;gap:10px;}}
+.persona-row+.persona-row{{margin-top:10px;}}
+.av{{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}}
+.av-h{{background:rgba(10,132,255,.18);color:{ACCENT};}}
+.av-j{{background:rgba(191,90,242,.18);color:{PURPLE};}}
+.persona-body{{flex:1;}}
+.persona-name{{font-size:13px;font-weight:500;color:{TEXT};}}
+.persona-sub{{font-size:11px;color:{TEXT2};}}
+.persona-amt{{font-size:15px;font-weight:700;text-align:right;}}
+.persona-amt-sub{{font-size:11px;color:{TEXT2};text-align:right;}}
+
+/* ── BALANCE ── */
+.balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-bottom:6px;}}
+.balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-bottom:6px;}}
+.balance-detail{{display:flex;justify-content:space-between;font-size:12px;color:{TEXT2};margin-top:8px;}}
+
+/* ── SHEETS BUTTON ── */
+.sheets-btn{{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:14px;
+  background:{SURFACE};
+  border:0.5px solid rgba(84,84,88,0.5);
+  border-radius:14px;
+  font-size:14px;font-weight:600;
+  color:{TEXT};cursor:pointer;
+  margin-top:4px;margin-bottom:10px;
+  text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
+}}
+.sheets-btn:hover{{background:{SURF2};}}
+.sheets-btn:active{{opacity:.7;}}
+
+/* ── SECCION LABEL ── */
+.sec-lbl{{font-size:11px;font-weight:500;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;padding:0 2px;margin:14px 0 6px;}}
 
 /* ── ALERTAS ── */
-.alert{{padding:11px 13px;border-radius:10px;font-size:13px;margin-bottom:8px;line-height:1.5;}}
+.alert{{padding:10px 13px;border-radius:10px;font-size:13px;margin-bottom:8px;line-height:1.5;}}
 .alert-r{{background:rgba(255,69,58,.12);color:#FF6B63;}}
 .alert-o{{background:rgba(255,159,10,.12);color:#FFB340;}}
 .alert-g{{background:rgba(50,215,75,.1);color:#3EDD60;}}
 .alert-b{{background:rgba(10,132,255,.1);color:#5BA4FF;}}
 
 /* ── GRUPOS / FILAS ── */
-.grp{{background:{SURFACE};border-radius:12px;overflow:hidden;margin-bottom:8px;}}
+.grp{{background:{SURFACE};border-radius:14px;overflow:hidden;margin-bottom:8px;}}
 .grp-hdr{{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:0.5px solid {SEP};}}
 .grp-hdr-lbl{{flex:1;font-size:12px;font-weight:600;color:{TEXT2};letter-spacing:.03em;text-transform:uppercase;}}
 .grp-hdr-amt{{font-size:13px;font-weight:600;}}
@@ -195,12 +247,9 @@ html, body, .stApp {{
 .badge-henry{{background:rgba(10,132,255,.15);color:{ACCENT};}}
 .badge-jaike{{background:rgba(191,90,242,.15);color:{PURPLE};}}
 
-/* ── SECCION ── */
-.sec-lbl{{font-size:12px;font-weight:400;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;padding:0 4px;margin:16px 0 6px;}}
-
 /* ── ADD PANELS ── */
-.add-panel{{background:{SURFACE};border-radius:12px;padding:14px;margin-bottom:10px;}}
-.add-panel-green{{background:{SURFACE};border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid {GREEN};}}
+.add-panel{{background:{SURFACE};border-radius:14px;padding:14px;margin-bottom:10px;}}
+.add-panel-green{{background:{SURFACE};border-radius:14px;padding:14px;margin-bottom:10px;border-left:3px solid {GREEN};}}
 .stTextInput>div>div>input,.stNumberInput>div>div>input{{
   background:{SURF2} !important;border:none !important;border-radius:9px !important;
   color:{TEXT} !important;font-size:15px !important;
@@ -208,6 +257,17 @@ html, body, .stApp {{
 }}
 .toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(50,215,75,.12);color:{GREEN};}}
 .toast-err{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(255,69,58,.12);color:{RED};}}
+
+/* ── KPI GRID LEGACY ── */
+.kpi-grid-main{{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}}
+.kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}}
+@media(max-width:700px){{.kpi-grid-main{{grid-template-columns:repeat(2,1fr);}}}}
+.kpi-card{{background:{SURFACE};border-radius:12px;padding:14px 15px;}}
+.kpi-lbl{{font-size:11px;font-weight:500;color:{TEXT2};margin-bottom:5px;letter-spacing:.01em;}}
+.kpi-val{{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
+.kpi-sub{{font-size:11px;color:{TEXT2};margin-top:4px;}}
+.kpi-bar{{height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-top:8px;}}
+.kpi-bar-fill{{height:100%;border-radius:3px;}}
 
 /* ── TENDENCIAS ── */
 .hist-row{{display:flex;align-items:center;padding:10px 14px;border-bottom:0.5px solid {SEP};gap:10px;}}
@@ -223,31 +283,31 @@ html, body, .stApp {{
 .ing-row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
 
-/* ── BOTTOM TAB BAR (MINIMALISTA) ── */
+/* ── BOTTOM TAB BAR ── */
 .btab-bar{{
   position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;
   z-index:2147483647 !important;display:flex !important;align-items:stretch;
-  background:rgba(0,0,0,0.3) !important;
-  backdrop-filter:saturate(180%) blur(10px);
-  -webkit-backdrop-filter:saturate(180%) blur(10px);
-  border-top:none !important;
+  background:rgba(0,0,0,0.85) !important;
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:0.5px solid rgba(255,255,255,0.08) !important;
   padding-bottom:env(safe-area-inset-bottom,0px) !important;
-  height:calc(42px + env(safe-area-inset-bottom,0px)) !important;
+  height:calc(50px + env(safe-area-inset-bottom,0px)) !important;
   transform:translateZ(0);will-change:transform;isolation:isolate;
 }}
 .btab{{
   flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:2px;
+  justify-content:center;gap:3px;
   background:transparent;border:none;cursor:pointer;
   padding:0;
-  color:rgba(255,255,255,0.15);
-  font-size:8px;
-  font-weight:400;
+  color:rgba(255,255,255,0.3);
+  font-size:9px;font-weight:500;
   font-family:-apple-system,sans-serif;
   -webkit-tap-highlight-color:transparent;
+  transition:color .15s;
 }}
-.btab-active{{color:rgba(10,132,255,0.6) !important;}}
-.btab-ico{{width:15px;height:15px;fill:currentColor;}}
+.btab-active{{color:{ACCENT} !important;}}
+.btab-ico{{width:20px;height:20px;fill:currentColor;}}
 
 /* ── TABS ── */
 .stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:0.5px solid {SEP} !important;gap:0 !important;padding:0 !important;}}
@@ -257,7 +317,11 @@ html, body, .stApp {{
 .stTabs [data-baseweb="tab-panel"]{{padding:10px 0 0 !important;}}
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
 
-@media(max-width:700px){{.ios-title{{font-size:22px;}}.wrap{{padding:0 12px 80px;}}}}
+@media(max-width:700px){{
+  .ios-title{{font-size:22px;}}
+  .wrap{{padding:0 12px 90px;}}
+  .c-val{{font-size:20px;}}
+}}
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
 </style>""", unsafe_allow_html=True)
@@ -282,16 +346,13 @@ def cargar_datos_maestro():
     except Exception as e:
         st.error(f"Error conectando con Google Sheets: {e}")
         return pd.DataFrame()
-
     data = [r for r in data if any(str(c).strip() for c in r)]
     if not data or len(data) < 2:
         return pd.DataFrame()
-
     headers_new = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]
     headers_legacy = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado"]
     primera = [str(c).strip().lower() for c in data[0]]
     tiene_periodo = "periodo" in primera
-
     if tiene_periodo:
         filas = data[1:]
         filas = [r + [""] * (7 - len(r)) for r in filas if len(r) >= 2]
@@ -304,7 +365,6 @@ def cargar_datos_maestro():
         df = pd.DataFrame(filas, columns=headers_legacy)
         df["Periodo"] = date.today().strftime("%Y-%m")
         df["Tasa USD"] = 0.0
-
     df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors="coerce").fillna(0)
     df["Tasa USD"]    = pd.to_numeric(df["Tasa USD"],    errors="coerce").fillna(0)
     df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"],   errors="coerce").dt.date
@@ -438,7 +498,6 @@ def badge_persona(persona):
 def procesar(df_base, dolar_live):
     df = df_base.copy()
     df["Categoria"] = df["Item"].apply(categorizar)
-    total = df["Monto (ARS)"].sum()
     def calc_usd(row):
         tasa = row.get("Tasa USD", 0)
         t = tasa if tasa and tasa > 0 else dolar_live
@@ -461,25 +520,22 @@ def exportar_excel(df, df_ing=None):
 
 def calcular_mes_anterior(periodo_str):
     y, m = map(int, periodo_str.split('-'))
-    if m == 1:
-        return f"{y-1}-12"
-    else:
-        return f"{y}-{m-1:02d}"
+    if m == 1: return f"{y-1}-12"
+    else: return f"{y}-{m-1:02d}"
 
 # ── CARGA INICIAL ──
 MESES = ["enero","febrero","marzo","abril","mayo","junio",
          "julio","agosto","septiembre","octubre","noviembre","diciembre"]
-hoy          = date.today()
-hoy_str      = f"{hoy.day} de {MESES[hoy.month-1]} de {hoy.year}"
+hoy            = date.today()
+hoy_str        = f"{hoy.day} de {MESES[hoy.month-1]} de {hoy.year}"
 periodo_actual = hoy.strftime("%Y-%m")
 
 dolar = get_dolar()
 dolar_val, dolar_ayer, dolar_diff, dolar_pct = get_dolar_tendencia()
 
-df_maestro   = cargar_datos_maestro()
-df_ing_todo  = cargar_ingresos()
+df_maestro  = cargar_datos_maestro()
+df_ing_todo = cargar_ingresos()
 
-# Periodos disponibles
 if not df_maestro.empty:
     periodos_disponibles = sorted(df_maestro["Periodo"].dropna().unique(), reverse=True)
     if periodo_actual not in periodos_disponibles:
@@ -499,10 +555,7 @@ def label_periodo(p):
     except Exception:
         return p
 
-
-# ══════════════════════════════════════════════════════════════════
-# ── NAVEGACIÓN OCULTA (EN SIDEBAR) PARA EVITAR ESPACIOS EN MÓVIL ──
-# ══════════════════════════════════════════════════════════════════
+# ── NAVEGACIÓN EN SIDEBAR ──
 with st.sidebar:
     for p in periodos_disponibles[:8]:
         if st.button(label_periodo(p), key=f"nav_periodo_{p}", type="secondary"):
@@ -516,8 +569,7 @@ with st.sidebar:
 nav_offset = len(periodos_disponibles[:8])
 _sc = st.session_state.screen
 
-
-# Filtrar al periodo seleccionado
+# ── FILTRADO DE DATOS ──
 if not df_maestro.empty:
     df_base_periodo = df_maestro[df_maestro["Periodo"] == periodo_viendo].copy()
     df = procesar(df_base_periodo, dolar)
@@ -525,6 +577,9 @@ if not df_maestro.empty:
     pagado_ars  = df[df["Pagado"] == True]["Monto (ARS)"].sum()
     pend_ars    = total_ars - pagado_ars
     pct_pag     = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
+    pct_pend    = 100 - pct_pag
+    n_pagados   = int(df["Pagado"].sum())
+    n_pendientes = len(df) - n_pagados
     por_cat     = df.groupby("Cat")["Monto (ARS)"].sum().reset_index().sort_values("Monto (ARS)", ascending=False)
     es_mes_actual = (periodo_viendo == periodo_actual)
     vencidos = df[(df["Pagado"]==False) & df["Dia Pago"].notna() & (df["Dia Pago"] < hoy)] if es_mes_actual else pd.DataFrame()
@@ -532,11 +587,11 @@ if not df_maestro.empty:
 else:
     df_base_periodo = pd.DataFrame()
     df = por_cat = pd.DataFrame()
-    total_ars = pagado_ars = pend_ars = pct_pag = 0
+    total_ars = pagado_ars = pend_ars = pct_pag = pct_pend = 0
+    n_pagados = n_pendientes = 0
     vencidos = proximos = pd.DataFrame()
     es_mes_actual = True
 
-# Ingresos del periodo seleccionado
 if not df_ing_todo.empty:
     df_ing_periodo = df_ing_todo[df_ing_todo["Periodo"] == periodo_viendo]
 else:
@@ -547,10 +602,8 @@ total_ing_usd  = df_ing_periodo["Monto USD"].sum() if not df_ing_periodo.empty e
 ing_henry      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="HENRY"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 ing_jaike      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 balance_ars    = total_ing_ars - total_ars
-balance_pct    = int(total_ing_ars / total_ars * 100) if total_ars > 0 else 0
 
-
-# ── PWA & BOTTOM TAB BAR ──
+# ── PWA META TAGS ──
 st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -560,6 +613,7 @@ st.markdown("""
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
 function haptic(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}}
+function openLink(url){try{window.open(url,'_blank');}catch(e){}}
 document.addEventListener('DOMContentLoaded',function(){
   function patchInputs(){
     document.querySelectorAll('input[type="number"]').forEach(function(el){if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','decimal');}});
@@ -576,7 +630,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 """, unsafe_allow_html=True)
 
-# JS chips → botones
+# JS chips → botones sidebar
 st.markdown(f"""
 <script>
 (function(){{
@@ -592,6 +646,7 @@ st.markdown(f"""
 </script>
 """, unsafe_allow_html=True)
 
+# ── BOTTOM TAB BAR ──
 st.markdown(f"""
 <div class="btab-bar">
   <button class="btab {'btab-active' if _sc=='inicio' else ''}"
@@ -616,7 +671,6 @@ st.markdown(f"""
   </button>
 </div>
 """, unsafe_allow_html=True)
-
 
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
@@ -652,12 +706,9 @@ st.markdown(f"""
 
 
 # ══════════════════════════════════════════════════════════════════
-# PANTALLA: INICIO
+# PANTALLA: INICIO — NUEVO DISEÑO COMPACTO
 # ══════════════════════════════════════════════════════════════════
 if st.session_state.screen == "inicio":
-
-    bc = GREEN if balance_ars >= 0 else RED
-    bs = "+" if balance_ars >= 0 else ""
 
     if not es_mes_actual:
         st.markdown(f'<div class="alert alert-b">📅 Historial — <strong>{label_periodo(periodo_viendo)}</strong> (solo lectura)</div>', unsafe_allow_html=True)
@@ -670,39 +721,147 @@ if st.session_state.screen == "inicio":
         if not proximos.empty:
             st.markdown(f'<div class="alert alert-o">Vencen en 3 días: {" · ".join(r["Item"] for _, r in proximos.iterrows())}</div>', unsafe_allow_html=True)
 
-    # ── EL NUEVO DASHBOARD OPTIMIZADO DE 4 TARJETAS ──
-    st.markdown(f"""<div class="kpi-grid-main">
-      <div class="kpi-card"><div class="kpi-lbl">Ingresos</div>
-        <div class="kpi-val" style="color:{GREEN}">{fmt_ars(total_ing_ars)}</div>
-        <div class="kpi-sub">{fmt_usd(total_ing_usd)}</div></div>
-      <div class="kpi-card"><div class="kpi-lbl">Gastos ({pct_pag}% pagado)</div>
-        <div class="kpi-val">{fmt_ars(total_ars)}</div>
-        <div class="kpi-sub">{fmt_usd_from_ars(total_ars, dolar)}</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:{pct_pag}%;background:{ACCENT}"></div></div></div>
-      <div class="kpi-card"><div class="kpi-lbl">Balance</div>
-        <div class="kpi-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div>
-        <div class="kpi-sub">{"Superávit" if balance_ars >= 0 else "Déficit"}</div></div>
-      <div class="kpi-card"><div class="kpi-lbl">Pendiente de pago</div>
-        <div class="kpi-val" style="color:{RED}">{fmt_ars(pend_ars)}</div>
-        <div class="kpi-sub">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
-    </div>""", unsafe_allow_html=True)
+    # ─────────────────────────────────────────
+    # BLOQUE INGRESOS
+    # ─────────────────────────────────────────
+    pct_henry = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
+    pct_jaike = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
 
-    # KPIs Henry / Jaike
-    if total_ing_ars > 0:
-        ph = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
-        pj = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
-        st.markdown(f"""<div class="kpi-grid-2" style="margin-bottom:16px">
-          <div class="kpi-card" style="border-left:3px solid {ACCENT}">
-            <div class="kpi-lbl" style="color:{ACCENT}">Henry</div>
-            <div class="kpi-val" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div>
-            <div class="kpi-sub">{fmt_usd_from_ars(ing_henry, dolar)} · {ph}%</div></div>
-          <div class="kpi-card" style="border-left:3px solid {PURPLE}">
-            <div class="kpi-lbl" style="color:{PURPLE}">Jaike</div>
-            <div class="kpi-val" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div>
-            <div class="kpi-sub">{fmt_usd_from_ars(ing_jaike, dolar)} · {pj}%</div></div>
-        </div>""", unsafe_allow_html=True)
+    ing_usd_str = fmt_usd(total_ing_usd) if total_ing_usd > 0 else fmt_usd_from_ars(total_ing_ars, dolar)
 
-    # Botones agregar (solo mes actual)
+    st.markdown(f'<div class="sec-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+<div class="card-ing">
+  <div class="c-lbl">Total ingresado</div>
+  <div class="c-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
+  <div class="c-sub">{ing_usd_str} · tasa $ {dolar:,.0f}</div>
+  <div class="sep"></div>
+
+  <div class="persona-row">
+    <div class="av av-h">H</div>
+    <div class="persona-body">
+      <div class="persona-name">Henry</div>
+      <div class="persona-sub">{pct_henry}% del total</div>
+    </div>
+    <div>
+      <div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div>
+      <div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div>
+    </div>
+  </div>
+  <div style="margin:5px 0 0 42px">
+    <div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT};"></div></div>
+  </div>
+
+  <div class="persona-row" style="margin-top:10px">
+    <div class="av av-j">J</div>
+    <div class="persona-body">
+      <div class="persona-name">Jaike</div>
+      <div class="persona-sub">{pct_jaike}% del total</div>
+    </div>
+    <div>
+      <div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div>
+      <div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div>
+    </div>
+  </div>
+  <div style="margin:5px 0 0 42px">
+    <div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{PURPLE};"></div></div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # ─────────────────────────────────────────
+    # BLOQUE GASTOS — pagados + pendientes
+    # ─────────────────────────────────────────
+    st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+<div class="card-gastos">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+      <div class="c-lbl">Total del mes</div>
+      <div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div>
+      <div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div>
+    </div>
+    <div style="text-align:right;padding-top:2px">
+      <div class="c-lbl">Ítems</div>
+      <div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df)}</div>
+      <div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div>
+    </div>
+  </div>
+  <div class="sep"></div>
+
+  <!-- PAGADOS -->
+  <div class="bar-section">
+    <div class="bar-row-hdr">
+      <div>
+        <span class="bar-lbl">Pagados</span>
+        <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-left:6px">{n_pagados}</span>
+      </div>
+      <div style="text-align:right">
+        <div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div>
+        <div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div>
+      </div>
+    </div>
+    <div class="bar-bg">
+      <div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div>
+    </div>
+    <div class="bar-meta">
+      <span class="bar-pct">{pct_pag}% del total</span>
+    </div>
+  </div>
+
+  <div style="height:12px;"></div>
+
+  <!-- PENDIENTES -->
+  <div class="bar-section">
+    <div class="bar-row-hdr">
+      <div>
+        <span class="bar-lbl">Pendientes</span>
+        <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-left:6px">{n_pendientes}</span>
+      </div>
+      <div style="text-align:right">
+        <div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div>
+        <div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div>
+      </div>
+    </div>
+    <div class="bar-bg">
+      <div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div>
+    </div>
+    <div class="bar-meta">
+      <span class="bar-pct">{pct_pend}% del total</span>
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # ─────────────────────────────────────────
+    # BLOQUE BALANCE
+    # ─────────────────────────────────────────
+    bc       = GREEN if balance_ars >= 0 else RED
+    bs       = "+" if balance_ars >= 0 else ""
+    bal_tag  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
+    bal_card = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
+
+    st.markdown(f'<div class="sec-lbl">Balance</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+<div class="{bal_card}">
+  {bal_tag}
+  <div style="display:flex;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div class="c-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div>
+      <div class="c-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div>
+    </div>
+  </div>
+  <div class="sep"></div>
+  <div style="display:flex;justify-content:space-between;font-size:12px;color:{TEXT2}">
+    <span>Ingresos <strong style="color:{GREEN}">{fmt_ars(total_ing_ars)}</strong></span>
+    <span>Gastos <strong style="color:{TEXT}">{fmt_ars(total_ars)}</strong></span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # ─────────────────────────────────────────
+    # BOTÓN AGREGAR (solo mes actual)
+    # ─────────────────────────────────────────
     if es_mes_actual:
         ba1, ba2 = st.columns(2)
         with ba1:
@@ -719,29 +878,24 @@ if st.session_state.screen == "inicio":
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        # ── LÓGICA DE CLONACIÓN INTELIGENTE ──
+        # ── CLONACIÓN INTELIGENTE ──
         if not df_maestro.empty:
             periodo_ant = calcular_mes_anterior(periodo_actual)
             df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
-            
             if not df_ant.empty:
                 cats_fijas = ["Servicios", "Suscripciones", "Hogar", "Salud", "Fitness", "Credito/Financiacion"]
                 items_actuales = df_base_periodo["Item"].str.lower().str.strip().tolist() if not df_base_periodo.empty else []
-                
                 df_clonables = df_ant[df_ant["Categoria"].isin(cats_fijas)]
                 df_clonables = df_clonables[~df_clonables["Item"].str.lower().str.strip().isin(items_actuales)]
-                
                 if not df_clonables.empty:
                     with st.expander(f"🔄 Clonar {len(df_clonables)} gastos fijos de {label_periodo(periodo_ant)}"):
-                        st.markdown('<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Se detectaron gastos fijos del mes pasado que aún no están en este mes. Copialos en estado "Pendiente" con un clic.</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px">Gastos fijos del mes pasado aún no registrados en este mes.</div>', unsafe_allow_html=True)
                         for _, r in df_clonables.iterrows():
-                            st.markdown(f'<div style="font-size:14px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1)">{r["Item"]} <span style="float:right;color:var(--text2)">{fmt_ars(r["Monto (ARS)"])}</span></div>', unsafe_allow_html=True)
-                        
+                            st.markdown(f'<div style="font-size:14px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1)">{r["Item"]} <span style="float:right;color:{TEXT2}">{fmt_ars(r["Monto (ARS)"])}</span></div>', unsafe_allow_html=True)
                         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
                         if st.button("Clonar ítems ahora", type="primary", use_container_width=True):
                             nuevos_registros = []
                             y_act, m_act = map(int, periodo_actual.split('-'))
-                            
                             for _, r in df_clonables.iterrows():
                                 nueva_fecha = None
                                 if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
@@ -751,17 +905,11 @@ if st.session_state.screen == "inicio":
                                         nueva_fecha = date(y_act, m_act, dia_seguro)
                                     except:
                                         pass
-
                                 nuevos_registros.append({
-                                    "Categoria": r["Categoria"],
-                                    "Item": r["Item"],
-                                    "Monto (ARS)": r["Monto (ARS)"],
-                                    "Dia Pago": nueva_fecha,
-                                    "Pagado": False,
-                                    "Periodo": periodo_actual,
-                                    "Tasa USD": dolar
+                                    "Categoria": r["Categoria"], "Item": r["Item"],
+                                    "Monto (ARS)": r["Monto (ARS)"], "Dia Pago": nueva_fecha,
+                                    "Pagado": False, "Periodo": periodo_actual, "Tasa USD": dolar
                                 })
-                            
                             if nuevos_registros:
                                 df_nuevos = pd.DataFrame(nuevos_registros)
                                 guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
@@ -828,7 +976,9 @@ if st.session_state.screen == "inicio":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # Lista de gastos por categoría
+    # ─────────────────────────────────────────
+    # LISTA DE GASTOS
+    # ─────────────────────────────────────────
     if df.empty:
         st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
@@ -840,7 +990,7 @@ if st.session_state.screen == "inicio":
             df_vista = df_vista[df_vista["Item"].str.contains(busq.strip(), case=False, na=False)]
 
         cats_orden = df_vista.groupby("Cat").apply(lambda g: g["Pagado"].eq(False).sum()).sort_values(ascending=False).index.tolist()
-        st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="sec-lbl">Gastos por categoría</div>', unsafe_allow_html=True)
 
         for cat in cats_orden:
             df_cat = df_vista[df_vista["Cat"] == cat]
@@ -889,7 +1039,7 @@ if st.session_state.screen == "inicio":
             st.markdown(f'<div class="row"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Distribución por categoría (lista simple, sin gráfico)
+        # Distribución por categoría
         st.markdown(f'<div class="sec-lbl">Por categoría</div><div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
         max_cat = por_cat["Monto (ARS)"].max() if not por_cat.empty else 1
         for _, r in por_cat.iterrows():
@@ -916,7 +1066,7 @@ if st.session_state.screen == "inicio":
         mayor  = df.loc[df["Monto (ARS)"].idxmax(),"Item"] if not df.empty else "-"
         mayor_m = df["Monto (ARS)"].max() if not df.empty else 0
         st.markdown(f"""<div class="grp" style="padding:14px 16px">
-          <div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Resumen</div>
+          <div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Resumen del mes</div>
           <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Total ítems</span><span style="font-weight:600">{len(df)}</span></div>
           <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pagados</span><span style="color:{GREEN};font-weight:600">{n_pag2}</span></div>
           <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pendientes</span><span style="color:{ORANGE};font-weight:600">{n_pend2}</span></div>
@@ -924,12 +1074,30 @@ if st.session_state.screen == "inicio":
           <div style="padding:9px 0;font-size:14px"><span style="color:{TEXT2}">Mayor gasto</span><br><span style="font-weight:600;color:{TEXT}">{mayor}</span><br><span style="font-size:12px;color:{TEXT2}">{fmt_ars(mayor_m)}</span></div>
         </div>""", unsafe_allow_html=True)
 
+        # ─────────────────────────────────────────
+        # BOTÓN GOOGLE SHEETS
+        # ─────────────────────────────────────────
+        st.markdown(f"""
+<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
+    <rect x="6" y="7" width="12" height="1.5" rx=".75" fill="white"/>
+    <rect x="6" y="10.5" width="12" height="1.5" rx=".75" fill="white" opacity=".8"/>
+    <rect x="6" y="14" width="8" height="1.5" rx=".75" fill="white" opacity=".6"/>
+    <rect x="6.75" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
+    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
+  </svg>
+  Abrir planilla para editar montos y fechas
+</a>
+""", unsafe_allow_html=True)
+
         _, ce, _ = st.columns([1,1,1])
         with ce:
             st.download_button("Exportar Excel", data=exportar_excel(df, df_ing_todo),
                                file_name=f"gastos_{periodo_viendo}.xlsx",
                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                use_container_width=True)
+
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: INGRESOS
@@ -942,21 +1110,29 @@ elif st.session_state.screen == "ingresos":
         st.markdown(f'<div class="alert alert-b">📅 Ingresos de <strong>{label_periodo(periodo_viendo)}</strong></div>', unsafe_allow_html=True)
 
     st.markdown(f'<div class="sec-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
-    st.markdown(f"""<div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-lbl">Total</div>
-        <div class="kpi-val" style="color:{GREEN}">{fmt_ars(total_ing_ars)}</div>
-        <div class="kpi-sub">{fmt_usd(total_ing_usd)}</div></div>
-      <div class="kpi-card" style="border-left:3px solid {ACCENT}"><div class="kpi-lbl" style="color:{ACCENT}">Henry</div>
-        <div class="kpi-val" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div>
-        <div class="kpi-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
-      <div class="kpi-card" style="border-left:3px solid {PURPLE}"><div class="kpi-lbl" style="color:{PURPLE}">Jaike</div>
-        <div class="kpi-val" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div>
-        <div class="kpi-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
+    st.markdown(f"""<div class="card-ing">
+      <div class="c-lbl">Total ingresado</div>
+      <div class="c-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
+      <div class="c-sub">{fmt_usd(total_ing_usd)}</div>
+      <div class="sep"></div>
+      <div class="persona-row">
+        <div class="av av-h">H</div>
+        <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry if total_ing_ars > 0 else 0}%</div></div>
+        <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
+      </div>
+      <div style="margin:5px 0 10px 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry if total_ing_ars > 0 else 0}%;background:{ACCENT}"></div></div></div>
+      <div class="persona-row">
+        <div class="av av-j">J</div>
+        <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike if total_ing_ars > 0 else 0}%</div></div>
+        <div><div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
+      </div>
+      <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike if total_ing_ars > 0 else 0}%;background:{PURPLE}"></div></div></div>
     </div>""", unsafe_allow_html=True)
 
-    st.markdown(f'<div class="kpi-card" style="margin-bottom:12px"><div class="kpi-lbl">Balance vs gastos</div><div class="kpi-val" style="color:{bc2}">{bs2}{fmt_ars(balance_ars)}</div><div class="kpi-sub">{"Superávit" if balance_ars>=0 else "Déficit"} · Gastos: {fmt_ars(total_ars)}</div></div>', unsafe_allow_html=True)
+    bal_card2 = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
+    bal_tag2  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
+    st.markdown(f'<div class="{bal_card2}">{bal_tag2}<div class="c-val" style="color:{bc2}">{bs2}{fmt_ars(balance_ars)}</div><div class="c-sub">Gastos: {fmt_ars(total_ars)}</div></div>', unsafe_allow_html=True)
 
-    # Botón agregar ingreso
     if es_mes_actual:
         lbl_i2 = "Cancelar" if st.session_state.show_add_ingreso else "＋ Agregar ingreso"
         if st.button(lbl_i2, type="secondary" if st.session_state.show_add_ingreso else "primary", use_container_width=True, key="btn_ing2"):
@@ -998,7 +1174,6 @@ elif st.session_state.screen == "ingresos":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # Detalle de ingresos del periodo
     if df_ing_periodo.empty:
         st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin ingresos en {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
@@ -1024,6 +1199,7 @@ elif st.session_state.screen == "ingresos":
               </div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
+
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: GASTOS (editor)
@@ -1084,39 +1260,36 @@ elif st.session_state.screen == "gastos":
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                     use_container_width=True)
 
+
 # ══════════════════════════════════════════════════════════════════
-# PANTALLA: TENDENCIAS — análisis histórico completo con ingresos
+# PANTALLA: TENDENCIAS
 # ══════════════════════════════════════════════════════════════════
 elif st.session_state.screen == "tendencias":
     st.markdown('<div class="sec-lbl">Análisis histórico</div>', unsafe_allow_html=True)
 
     if df_maestro.empty or df_maestro["Periodo"].nunique() < 2:
-        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Necesitás al menos 2 meses de datos.<br><br>Seguí registrando y volvé en el mes que viene.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Necesitás al menos 2 meses de datos.<br><br>Seguí registrando y volvé el mes que viene.</div>', unsafe_allow_html=True)
     else:
-        # Construir tabla maestra histórica por periodo
         gasto_m = df_maestro.groupby("Periodo")["Monto (ARS)"].sum().reset_index()
         gasto_m.columns = ["Periodo","Gastos"]
         gasto_m["Label"] = gasto_m["Periodo"].apply(label_periodo)
 
-        # ─ INGRESOS HISTÓRICOS ─
         ing_m = pd.DataFrame()
         if not df_ing_todo.empty and "Periodo" in df_ing_todo.columns:
-            ing_henry_m  = df_ing_todo[df_ing_todo["Persona"].str.upper()=="HENRY"].groupby("Periodo")["Monto ARS"].sum().reset_index()
-            ing_henry_m.columns  = ["Periodo","Henry"]
-            ing_jaike_m  = df_ing_todo[df_ing_todo["Persona"].str.upper()=="JAIKE"].groupby("Periodo")["Monto ARS"].sum().reset_index()
-            ing_jaike_m.columns  = ["Periodo","Jaike"]
-            ing_total_m  = df_ing_todo.groupby("Periodo")["Monto ARS"].sum().reset_index()
-            ing_total_m.columns  = ["Periodo","Ingresos"]
+            ing_henry_m = df_ing_todo[df_ing_todo["Persona"].str.upper()=="HENRY"].groupby("Periodo")["Monto ARS"].sum().reset_index()
+            ing_henry_m.columns = ["Periodo","Henry"]
+            ing_jaike_m = df_ing_todo[df_ing_todo["Persona"].str.upper()=="JAIKE"].groupby("Periodo")["Monto ARS"].sum().reset_index()
+            ing_jaike_m.columns = ["Periodo","Jaike"]
+            ing_total_m = df_ing_todo.groupby("Periodo")["Monto ARS"].sum().reset_index()
+            ing_total_m.columns = ["Periodo","Ingresos"]
             ing_m = ing_total_m.merge(ing_henry_m, on="Periodo", how="left").merge(ing_jaike_m, on="Periodo", how="left").fillna(0)
 
-        # Tabla combinada por periodo
         hist = gasto_m.merge(ing_m, on="Periodo", how="left").fillna(0).sort_values("Periodo", ascending=False)
         hist["Balance"] = hist.get("Ingresos", pd.Series(0, index=hist.index)) - hist["Gastos"]
         hist["Label"]   = hist["Periodo"].apply(label_periodo)
 
         tiene_ingresos = "Ingresos" in hist.columns and hist["Ingresos"].sum() > 0
 
-        # KPIs acumulados
         total_g = hist["Gastos"].sum()
         total_i = hist["Ingresos"].sum() if tiene_ingresos else 0
         bal_tot = total_i - total_g
@@ -1125,7 +1298,7 @@ elif st.session_state.screen == "tendencias":
         bc_t    = GREEN if bal_tot >= 0 else RED
         bs_t    = "+" if bal_tot >= 0 else ""
 
-        st.markdown(f"""<div class="kpi-grid">
+        st.markdown(f"""<div class="kpi-grid-main">
           <div class="kpi-card"><div class="kpi-lbl">Gastos acumulados</div>
             <div class="kpi-val" style="color:{RED}">{fmt_ars(total_g)}</div>
             <div class="kpi-sub">{n_meses} meses · prom. {fmt_ars(prom_g)}/mes</div></div>
@@ -1137,7 +1310,6 @@ elif st.session_state.screen == "tendencias":
             <div class="kpi-sub">{"Superávit total" if bal_tot >= 0 else "Déficit total"}</div></div>
         </div>""", unsafe_allow_html=True)
 
-        # Meses extremos
         mes_max = hist.loc[hist["Gastos"].idxmax()]
         mes_min = hist.loc[hist["Gastos"].idxmin()]
         st.markdown(f"""<div class="kpi-grid-2" style="margin-bottom:14px">
@@ -1149,7 +1321,6 @@ elif st.session_state.screen == "tendencias":
             <div class="kpi-sub">{fmt_ars(mes_min['Gastos'])}</div></div>
         </div>""", unsafe_allow_html=True)
 
-        # ── TABLA HISTÓRICA POR MES (minimalista) ──
         st.markdown('<div class="sec-lbl">Balance real por mes</div><div class="grp">', unsafe_allow_html=True)
 
         max_g = hist["Gastos"].max() if not hist.empty else 1
@@ -1190,13 +1361,11 @@ elif st.session_state.screen == "tendencias":
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # ── APORTES COMBINADOS HENRY VS JAIKE ──
         if tiene_ingresos and "Henry" in hist.columns:
             hist_rev = hist.sort_values("Periodo")
             has_both = hist_rev["Henry"].sum() > 0 and hist_rev["Jaike"].sum() > 0
-
             if has_both:
-                st.markdown('<div class="sec-lbl">Aportes combinados Henry vs Jaike</div>', unsafe_allow_html=True)
+                st.markdown('<div class="sec-lbl">Aportes Henry vs Jaike</div>', unsafe_allow_html=True)
                 fig_stack = go.Figure()
                 fig_stack.add_trace(go.Bar(
                     name="Henry", x=hist_rev["Label"], y=hist_rev["Henry"],
@@ -1209,7 +1378,7 @@ elif st.session_state.screen == "tendencias":
                     hovertemplate="<b>Jaike</b> %{x}<br>%{y:,.0f}<extra></extra>"
                 ))
                 fig_stack.update_layout(
-                    barmode="stack", height=240,
+                    barmode="stack", height=220,
                     margin=dict(t=8,b=8,l=8,r=8),
                     paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
                     legend=dict(font=dict(color=TEXT2,size=12),bgcolor="rgba(0,0,0,0)",orientation="h",x=0,y=1.12),
@@ -1217,11 +1386,10 @@ elif st.session_state.screen == "tendencias":
                     yaxis=dict(showgrid=False,showticklabels=False),
                     bargap=0.3
                 )
-                st.markdown(f'<div class="grp" style="padding:14px 16px"><div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Aporte por persona / mes</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
                 st.plotly_chart(fig_stack, use_container_width=True, config={"displayModeBar": False})
                 st.markdown("</div>", unsafe_allow_html=True)
 
-        # ── RANKING ACUMULADO DE CATEGORÍAS ──
         cat_acum = df_maestro.copy()
         cat_acum["Cat"] = cat_acum["Item"].apply(categorizar)
         cat_rank = cat_acum.groupby("Cat")["Monto (ARS)"].sum().sort_values(ascending=False).reset_index()
@@ -1229,13 +1397,13 @@ elif st.session_state.screen == "tendencias":
 
         st.markdown('<div class="sec-lbl">Ranking acumulado de categorías</div><div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
         max_v = cat_rank["Monto (ARS)"].max()
-        for i, (_, row) in enumerate(cat_rank.iterrows()):
+        for i2, (_, row) in enumerate(cat_rank.iterrows()):
             color = cat_color(row["Cat"])
             bar_w = int(row["Monto (ARS)"] / max_v * 100) if max_v > 0 else 0
             st.markdown(f"""<div style="margin-bottom:11px">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                 <div style="display:flex;align-items:center;gap:7px">
-                  <span style="font-size:11px;font-weight:700;color:{TEXT3};width:18px">#{i+1}</span>
+                  <span style="font-size:11px;font-weight:700;color:{TEXT3};width:18px">#{i2+1}</span>
                   <span style="font-size:14px;color:{TEXT}">{row['Cat']}</span>
                 </div>
                 <div>
