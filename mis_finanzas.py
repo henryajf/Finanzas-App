@@ -88,10 +88,8 @@ html, body, .stApp {{
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;}}
 
 #MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
-[data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {{display:none !important;height:0 !important;overflow:hidden !important;}}
-.stBottomContainer, .stChatFloatingInputContainer {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 90px;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 20px;}}
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -100,7 +98,7 @@ html, body, .stApp {{
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   border-bottom:0.5px solid rgba(255,255,255,0.08);
-  padding:12px 16px 8px;
+  padding:12px 16px 12px;
   margin:0 -16px 14px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
@@ -112,22 +110,48 @@ html, body, .stApp {{
 .dolar-val{{font-size:19px;font-weight:700;color:{ACCENT};letter-spacing:-.01em;}}
 .dolar-trend{{font-size:11px;margin-top:1px;}}
 
-/* ── PERIODO BAR ── */
-.periodo-bar{{
-  display:flex;align-items:center;gap:6px;
-  padding:8px 0 0;margin-top:6px;
-  border-top:0.5px solid rgba(255,255,255,0.06);
-  overflow-x:auto;scrollbar-width:none;
+/* ── TABS NATIVAS (ST.RADIO) ── */
+[data-testid="stRadio"] > div[role="radiogroup"] {{
+    display: flex; flex-direction: row; gap: 6px; flex-wrap: wrap;
+    background: {SURFACE}; padding: 6px; border-radius: 14px;
+    margin-top: 5px; margin-bottom: 5px;
 }}
-.periodo-bar::-webkit-scrollbar{{display:none;}}
-.periodo-chip{{
-  flex-shrink:0;padding:4px 12px;border-radius:20px;
-  font-size:12px;font-weight:600;cursor:pointer;
-  border:none;font-family:-apple-system,sans-serif;
-  transition:all .15s;
+[data-testid="stRadio"] label {{
+    background: {SURF2}; padding: 10px 5px !important; border-radius: 10px !important;
+    margin: 0 !important; cursor: pointer; flex: 1 1 20%;
+    display: flex; justify-content: center; align-items: center;
 }}
-.periodo-chip-active{{background:{ACCENT};color:#fff;}}
-.periodo-chip-inactive{{background:{SURF2};color:{TEXT2};}}
+[data-testid="stRadio"] label[data-checked="true"] {{
+    background: {ACCENT} !important;
+}}
+[data-testid="stRadio"] div[data-testid="stMarkdownContainer"] p {{
+    color: {TEXT2} !important; font-weight: 600 !important;
+    font-size: 13px !important; margin: 0; white-space: nowrap;
+}}
+[data-testid="stRadio"] label[data-checked="true"] p {{
+    color: {TEXT} !important;
+}}
+[data-testid="stRadio"] label div:first-child {{
+    display: none !important; /* Oculta circulito */
+}}
+
+/* ── SELECTBOX DE PERIODO ── */
+div[data-baseweb="select"] {{
+    background: {SURFACE} !important;
+    border-radius: 12px !important;
+    border: none !important;
+}}
+
+/* ── CARDS ── */
+.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
+.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
+.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
+
+.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
+.c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
+.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
 
 /* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
@@ -144,17 +168,6 @@ html, body, .stApp {{
   font-size:14px !important;font-weight:600 !important;
   box-shadow:none !important;
 }}
-
-/* ── CARDS ── */
-.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
-.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
-.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
-
-.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
-.c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
-.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
 
 /* ── BARRAS DE ESTADO ── */
 .bar-section{{margin-top:12px;}}
@@ -264,38 +277,12 @@ html, body, .stApp {{
 .ing-row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
 
-/* ── BOTTOM TAB BAR ── */
-.btab-bar{{
-  position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;
-  z-index:2147483647 !important;display:flex !important;align-items:stretch;
-  background:rgba(0,0,0,0.85) !important;
-  backdrop-filter:saturate(180%) blur(20px);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);
-  border-top:0.5px solid rgba(255,255,255,0.08) !important;
-  padding-bottom:env(safe-area-inset-bottom,0px) !important;
-  height:calc(50px + env(safe-area-inset-bottom,0px)) !important;
-  transform:translateZ(0);will-change:transform;isolation:isolate;
-}}
-.btab{{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;
-  background:transparent;border:none;cursor:pointer;
-  padding:0;
-  color:rgba(255,255,255,0.3);
-  font-size:9px;font-weight:500;
-  font-family:-apple-system,sans-serif;
-  -webkit-tap-highlight-color:transparent;
-  transition:color .15s;
-}}
-.btab-active{{color:{ACCENT} !important;}}
-.btab-ico{{width:20px;height:20px;fill:currentColor;}}
-
 /* ── DATA EDITOR FIX ── */
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
 
 @media(max-width:700px){{
   .ios-title{{font-size:22px;}}
-  .wrap{{padding:0 12px 90px;}}
+  .wrap{{padding:0 12px 20px;}}
   .c-val{{font-size:20px;}}
 }}
 hr{{display:none !important;}}
@@ -310,21 +297,13 @@ def clean_currency(val):
     if isinstance(val, (int, float)): return float(val)
     v = str(val).upper().replace("$", "").replace("ARS", "").replace("U$S", "").replace("USD", "").strip()
     v = v.replace(" ", "").replace("\xa0", "")
-    
-    # Manejar formatos de número (Ej: 1.151.000,00 o 1500,50 o 1.500)
-    if "," in v and "." in v:
-        v = v.replace(".", "").replace(",", ".")
-    elif "," in v:
-        v = v.replace(",", ".")
+    if "," in v and "." in v: v = v.replace(".", "").replace(",", ".")
+    elif "," in v: v = v.replace(",", ".")
     elif "." in v:
         parts = v.split(".")
-        if len(parts) > 1 and len(parts[-1]) == 3:
-            v = v.replace(".", "")  # Era un punto de miles (ej: 1.500 -> 1500)
-            
-    try:
-        return float(v)
-    except:
-        return 0.0
+        if len(parts) > 1 and len(parts[-1]) == 3: v = v.replace(".", "")  
+    try: return float(v)
+    except: return 0.0
 
 @st.cache_resource
 def get_gspread():
@@ -345,8 +324,7 @@ def cargar_datos_maestro():
         return pd.DataFrame()
     
     data = [r for r in data if any(str(c).strip() for c in r)]
-    if not data or len(data) < 2:
-        return pd.DataFrame()
+    if not data or len(data) < 2: return pd.DataFrame()
         
     headers_new = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]
     headers_legacy = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado"]
@@ -366,12 +344,10 @@ def cargar_datos_maestro():
         df["Periodo"] = date.today().strftime("%Y-%m")
         df["Tasa USD"] = 0.0
         
-    # AQUÍ ESTÁ LA MAGIA: Pasamos todo por la función clean_currency
     df["Monto (ARS)"] = df["Monto (ARS)"].apply(clean_currency)
     df["Tasa USD"]    = df["Tasa USD"].apply(clean_currency)
     df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"],   errors="coerce").dt.date
     df["Pagado"]      = df["Pagado"].apply(lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","SI","1"])
-    
     df = df[~((df["Monto (ARS)"] == 0) & (df["Item"].str.strip() == ""))]
     return df.reset_index(drop=True)
 
@@ -391,10 +367,8 @@ def cargar_ingresos():
         filas = [r + [""] * (8 - len(r)) for r in filas if len(r) >= 2]
         if not filas: return pd.DataFrame()
         df = pd.DataFrame(filas, columns=headers)
-        
         for col in ["Monto ARS","Monto USD","Monto Original","Tasa USD/ARS"]:
             df[col] = df[col].apply(clean_currency)
-            
         df["Fecha"]   = pd.to_datetime(df["Fecha"],  errors="coerce").dt.date
         df = df[df["Monto ARS"] > 0]
         df["Periodo"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%Y-%m")
@@ -433,11 +407,9 @@ def guardar_hoja_maestro(df_guardar, dolar_actual=None):
     else:
         if dolar_actual:
             df_up["Tasa USD"] = df_up["Tasa USD"].apply(lambda x: dolar_actual if (x == 0 or pd.isna(x)) else x)
-            
     df_up = df_up[["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]]
     df_up["Dia Pago"] = df_up["Dia Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
     df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
-    
     hoja = get_gspread().open("Gastos_Henry").sheet1
     hoja.clear()
     hoja.append_row(df_up.columns.tolist())
@@ -562,20 +534,6 @@ def label_periodo(p):
     except Exception:
         return p
 
-# ── NAVEGACIÓN EN SIDEBAR ──
-with st.sidebar:
-    for p in periodos_disponibles[:8]:
-        if st.button(label_periodo(p), key=f"nav_periodo_{p}", type="secondary"):
-            st.session_state.periodo_sel = p
-            st.rerun()
-    for screen in ["inicio", "ingresos", "gastos", "tendencias"]:
-        if st.button(screen, key=f"nav_{screen}", type="secondary"):
-            st.session_state.screen = screen
-            st.rerun()
-
-nav_offset = len(periodos_disponibles[:8])
-_sc = st.session_state.screen
-
 # ── FILTRADO DE DATOS ──
 if not df_maestro.empty:
     df_base_periodo = df_maestro[df_maestro["Periodo"] == periodo_viendo].copy()
@@ -620,79 +578,23 @@ st.markdown("""
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
 function haptic(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}}
-function openLink(url){try{window.open(url,'_blank');}catch(e){}}
 document.addEventListener('DOMContentLoaded',function(){
   function patchInputs(){
     document.querySelectorAll('input[type="number"]').forEach(function(el){if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','decimal');}});
-    document.querySelectorAll('input[type="text"]').forEach(function(el){if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','text');}});
   }
-  function killBottom(){
-    var sel=['[data-testid="stBottom"]','[data-testid="stBottomBlockContainer"]','.stBottomContainer','.stChatFloatingInputContainer'];
-    sel.forEach(function(s){document.querySelectorAll(s).forEach(function(el){el.style.cssText='display:none!important;height:0!important;overflow:hidden!important;';});});
-  }
-  patchInputs(); killBottom();
-  var obs=new MutationObserver(function(){patchInputs();killBottom();});
+  patchInputs();
+  var obs=new MutationObserver(function(){patchInputs();});
   obs.observe(document.body,{childList:true,subtree:true});
 });
 </script>
 """, unsafe_allow_html=True)
 
-# JS chips → botones sidebar
-st.markdown(f"""
-<script>
-(function(){{
-  function attachChips(){{
-    var chips=document.querySelectorAll('.periodo-chip');
-    if(!chips.length){{setTimeout(attachChips,200);return;}}
-    chips.forEach(function(chip,idx){{
-      chip.onclick=function(){{haptic(10);var btns=document.querySelectorAll('[data-testid=stBaseButton-secondary]');if(btns[idx])btns[idx].click();}};
-    }});
-  }}
-  attachChips();
-}})();
-</script>
-""", unsafe_allow_html=True)
-
-# ── BOTTOM TAB BAR ──
-st.markdown(f"""
-<div class="btab-bar">
-  <button class="btab {'btab-active' if _sc=='inicio' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset}]&&b[{nav_offset}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    <span>Inicio</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='ingresos' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+1}]&&b[{nav_offset+1}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-    <span>Ingresos</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='gastos' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+2}]&&b[{nav_offset+2}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-    <span>Gastos</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='tendencias' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+3}]&&b[{nav_offset+3}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
-    <span>Tendencias</span>
-  </button>
-</div>
-""", unsafe_allow_html=True)
-
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
 # ── HEADER ──
-if dolar_diff > 0:
-    trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
-elif dolar_diff < 0:
-    trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
-else:
-    trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
-
-chips_html = ""
-for p in periodos_disponibles[:8]:
-    activo = "active" if p == periodo_viendo else "inactive"
-    chips_html += f'<span class="periodo-chip periodo-chip-{activo}" data-periodo="{p}">{label_periodo(p)}</span>'
+if dolar_diff > 0: trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
+elif dolar_diff < 0: trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
+else: trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
 
 st.markdown(f"""
 <div class="ios-hdr">
@@ -707,9 +609,29 @@ st.markdown(f"""
       <div class="dolar-trend">{trend_html}</div>
     </div>
   </div>
-  <div class="periodo-bar" id="periodoBar">{chips_html}</div>
 </div>
 """, unsafe_allow_html=True)
+
+# ── NAVEGACIÓN Y PERIODO (NATIVOS Y ROBUSTOS) ──
+opciones_nav = {"🏠 Inicio": "inicio", "💵 Ingresos": "ingresos", "💳 Gastos": "gastos", "📊 Tendencias": "tendencias"}
+nav_labels = list(opciones_nav.keys())
+current_idx = list(opciones_nav.values()).index(st.session_state.screen) if st.session_state.screen in opciones_nav.values() else 0
+
+sel_nav = st.radio("Navegación", nav_labels, index=current_idx, horizontal=True, label_visibility="collapsed")
+if opciones_nav[sel_nav] != st.session_state.screen:
+    st.session_state.screen = opciones_nav[sel_nav]
+    st.rerun()
+
+st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
+
+opciones_periodos = periodos_disponibles[:8]
+idx_per = opciones_periodos.index(periodo_viendo) if periodo_viendo in opciones_periodos else 0
+nuevo_periodo = st.selectbox("📅 Período seleccionado", opciones_periodos, index=idx_per, format_func=label_periodo, label_visibility="collapsed")
+if nuevo_periodo != st.session_state.periodo_sel:
+    st.session_state.periodo_sel = nuevo_periodo
+    st.rerun()
+
+st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -729,7 +651,6 @@ if st.session_state.screen == "inicio":
 
     pct_henry = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
     pct_jaike = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
-
     ing_usd_str = fmt_usd(total_ing_usd) if total_ing_usd > 0 else fmt_usd_from_ars(total_ing_ars, dolar)
 
     st.markdown(f'<div class="sec-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
@@ -1097,7 +1018,6 @@ elif st.session_state.screen == "gastos":
         }
         COL_ORDER = ("Pagado","Item","Monto (ARS)","USD","Dia Pago","Periodo","Tasa USD")
 
-        # TABLA UNIFICADA (adiós al bug de las pestañas)
         df_edit = st.data_editor(df, column_config=COL_CONFIG, column_order=COL_ORDER,
                                  num_rows="dynamic", use_container_width=True, hide_index=True, key="t_unico")
 
@@ -1223,35 +1143,6 @@ elif st.session_state.screen == "tendencias":
               </div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
-
-        if tiene_ingresos and "Henry" in hist.columns:
-            hist_rev = hist.sort_values("Periodo")
-            has_both = hist_rev["Henry"].sum() > 0 and hist_rev["Jaike"].sum() > 0
-            if has_both:
-                st.markdown('<div class="sec-lbl">Aportes Henry vs Jaike</div>', unsafe_allow_html=True)
-                fig_stack = go.Figure()
-                fig_stack.add_trace(go.Bar(
-                    name="Henry", x=hist_rev["Label"], y=hist_rev["Henry"],
-                    marker_color=ACCENT, opacity=0.85,
-                    hovertemplate="<b>Henry</b> %{x}<br>%{y:,.0f}<extra></extra>"
-                ))
-                fig_stack.add_trace(go.Bar(
-                    name="Jaike", x=hist_rev["Label"], y=hist_rev["Jaike"],
-                    marker_color=PURPLE, opacity=0.85,
-                    hovertemplate="<b>Jaike</b> %{x}<br>%{y:,.0f}<extra></extra>"
-                ))
-                fig_stack.update_layout(
-                    barmode="stack", height=220,
-                    margin=dict(t=8,b=8,l=8,r=8),
-                    paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
-                    legend=dict(font=dict(color=TEXT2,size=12),bgcolor="rgba(0,0,0,0)",orientation="h",x=0,y=1.12),
-                    xaxis=dict(tickfont=dict(color=TEXT2,size=11),showgrid=False,tickangle=-20),
-                    yaxis=dict(showgrid=False,showticklabels=False),
-                    bargap=0.3
-                )
-                st.markdown(f'<div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
-                st.plotly_chart(fig_stack, use_container_width=True, config={"displayModeBar": False})
-                st.markdown("</div>", unsafe_allow_html=True)
 
         cat_acum = df_maestro.copy()
         cat_acum["Cat"] = cat_acum["Item"].apply(categorizar)
