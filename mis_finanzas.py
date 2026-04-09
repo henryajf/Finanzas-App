@@ -94,7 +94,7 @@ html, body, .stApp {{
 [data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {{display:none !important;height:0 !important;overflow:hidden !important;}}
 .stBottomContainer, .stChatFloatingInputContainer {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 90px;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 24px;}}
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -283,31 +283,7 @@ html, body, .stApp {{
 .ing-row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
 
-/* ── BOTTOM TAB BAR ── */
-.btab-bar{{
-  position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;
-  z-index:2147483647 !important;display:flex !important;align-items:stretch;
-  background:rgba(0,0,0,0.85) !important;
-  backdrop-filter:saturate(180%) blur(20px);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);
-  border-top:0.5px solid rgba(255,255,255,0.08) !important;
-  padding-bottom:env(safe-area-inset-bottom,0px) !important;
-  height:calc(50px + env(safe-area-inset-bottom,0px)) !important;
-  transform:translateZ(0);will-change:transform;isolation:isolate;
-}}
-.btab{{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;
-  background:transparent;border:none;cursor:pointer;
-  padding:0;
-  color:rgba(255,255,255,0.3);
-  font-size:9px;font-weight:500;
-  font-family:-apple-system,sans-serif;
-  -webkit-tap-highlight-color:transparent;
-  transition:color .15s;
-}}
-.btab-active{{color:{ACCENT} !important;}}
-.btab-ico{{width:20px;height:20px;fill:currentColor;}}
+
 
 /* ── TABS ── */
 .stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:0.5px solid {SEP} !important;gap:0 !important;padding:0 !important;}}
@@ -319,7 +295,7 @@ html, body, .stApp {{
 
 @media(max-width:700px){{
   .ios-title{{font-size:22px;}}
-  .wrap{{padding:0 12px 90px;}}
+  .wrap{{padding:0 12px 24px;}}
   .c-val{{font-size:20px;}}
 }}
 
@@ -357,6 +333,10 @@ html, body, .stApp {{
 .bal-detail{{display:flex;justify-content:space-between;font-size:12px;color:{TEXT2};margin-top:8px;}}
 .sheets-btn{{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:13px 16px;background:{SURFACE};border:0.5px solid rgba(84,84,88,.55);border-radius:12px;font-size:14px;font-weight:600;color:{TEXT};cursor:pointer;margin-bottom:8px;text-decoration:none;-webkit-tap-highlight-color:transparent;}}
 .sheets-btn:active{{opacity:.6;}}
+/* ── SHEETS BTN PEQUEÑO ── */
+.sheets-btn-sm{{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px 14px;background:{SURF2};border:0.5px solid rgba(84,84,88,.55);border-radius:10px;font-size:14px;font-weight:600;color:{TEXT};cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;height:100%;}}
+.sheets-btn-sm:active{{opacity:.6;}}
+
 /* ── DUAL BAR ── */
 .dualbar-wrap{{margin-top:10px;}}
 .dualbar{{display:flex;height:5px;border-radius:5px;overflow:hidden;gap:2px;background:rgba(255,255,255,.06);}}
@@ -613,8 +593,6 @@ with st.sidebar:
             st.session_state.screen = screen
             st.rerun()
 
-nav_offset = len(periodos_disponibles[:8])
-_sc = st.session_state.screen
 
 # ── FILTRADO DE DATOS ──
 if not df_maestro.empty:
@@ -677,47 +655,6 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 """, unsafe_allow_html=True)
 
-# JS chips → botones sidebar
-st.markdown(f"""
-<script>
-(function(){{
-  function attachChips(){{
-    var chips=document.querySelectorAll('.periodo-chip');
-    if(!chips.length){{setTimeout(attachChips,200);return;}}
-    chips.forEach(function(chip,idx){{
-      chip.onclick=function(){{haptic(10);var btns=document.querySelectorAll('[data-testid=stBaseButton-secondary]');if(btns[idx])btns[idx].click();}};
-    }});
-  }}
-  attachChips();
-}})();
-</script>
-""", unsafe_allow_html=True)
-
-# ── BOTTOM TAB BAR ──
-st.markdown(f"""
-<div class="btab-bar">
-  <button class="btab {'btab-active' if _sc=='inicio' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset}]&&b[{nav_offset}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    <span>Inicio</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='ingresos' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+1}]&&b[{nav_offset+1}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-    <span>Ingresos</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='gastos' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+2}]&&b[{nav_offset+2}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-    <span>Gastos</span>
-  </button>
-  <button class="btab {'btab-active' if _sc=='tendencias' else ''}"
-    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+3}]&&b[{nav_offset+3}].click();}})()">
-    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
-    <span>Tendencias</span>
-  </button>
-</div>
-""", unsafe_allow_html=True)
 
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
@@ -1106,18 +1043,22 @@ if st.session_state.screen == "inicio":
 """, unsafe_allow_html=True)
 
 
-        # ── BOTÓN GOOGLE SHEETS ──
-        st.markdown(f"""
-<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        # ── BOTONES DE ACCIÓN FINAL ──
+        btn_col1, btn_col2 = st.columns(2)
+        with btn_col1:
+            if st.button("✏️  Editar gastos", type="secondary", use_container_width=True, key="btn_ir_gastos"):
+                st.session_state.screen = "gastos"
+                st.rerun()
+        with btn_col2:
+            st.markdown(f"""
+<a class="sheets-btn-sm" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
     <rect x="6.5" y="7" width="11" height="1.4" rx=".7" fill="white"/>
     <rect x="6.5" y="10.5" width="11" height="1.4" rx=".7" fill="white" opacity=".8"/>
     <rect x="6.5" y="14" width="7" height="1.4" rx=".7" fill="white" opacity=".55"/>
-    <rect x="7" y="7" width="1" height="9" rx=".5" fill="white" opacity=".2"/>
-    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".2"/>
   </svg>
-  Abrir planilla — editar montos y fechas
+  Planilla
 </a>
 """, unsafe_allow_html=True)
 
