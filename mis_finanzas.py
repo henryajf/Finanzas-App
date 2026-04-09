@@ -30,6 +30,9 @@ YELLOW  = "#FFD60A"
 PURPLE  = "#BF5AF2"
 PLOTBG  = "rgba(0,0,0,0)"
 
+# URL de tu Google Sheet — reemplazá con el link real
+SHEETS_URL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
+
 CAT_COLORS = {
     "Servicios": "#FF9F0A", "Hogar": "#32D74B", "Supermercado": "#30D158",
     "Comida": "#FF453A", "Transporte": "#0A84FF", "Suscripciones": "#BF5AF2",
@@ -88,8 +91,10 @@ html, body, .stApp {{
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;}}
 
 #MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
+[data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {{display:none !important;height:0 !important;overflow:hidden !important;}}
+.stBottomContainer, .stChatFloatingInputContainer {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 20px;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 90px;}}
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -98,7 +103,7 @@ html, body, .stApp {{
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   border-bottom:0.5px solid rgba(255,255,255,0.08);
-  padding:12px 16px 12px;
+  padding:12px 16px 8px;
   margin:0 -16px 14px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
@@ -110,48 +115,22 @@ html, body, .stApp {{
 .dolar-val{{font-size:19px;font-weight:700;color:{ACCENT};letter-spacing:-.01em;}}
 .dolar-trend{{font-size:11px;margin-top:1px;}}
 
-/* ── TABS NATIVAS (ST.RADIO) ── */
-[data-testid="stRadio"] > div[role="radiogroup"] {{
-    display: flex; flex-direction: row; gap: 6px; flex-wrap: wrap;
-    background: {SURFACE}; padding: 6px; border-radius: 14px;
-    margin-top: 5px; margin-bottom: 5px;
+/* ── PERIODO BAR ── */
+.periodo-bar{{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 0 0;margin-top:6px;
+  border-top:0.5px solid rgba(255,255,255,0.06);
+  overflow-x:auto;scrollbar-width:none;
 }}
-[data-testid="stRadio"] label {{
-    background: {SURF2}; padding: 10px 5px !important; border-radius: 10px !important;
-    margin: 0 !important; cursor: pointer; flex: 1 1 20%;
-    display: flex; justify-content: center; align-items: center;
+.periodo-bar::-webkit-scrollbar{{display:none;}}
+.periodo-chip{{
+  flex-shrink:0;padding:4px 12px;border-radius:20px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  border:none;font-family:-apple-system,sans-serif;
+  transition:all .15s;
 }}
-[data-testid="stRadio"] label[data-checked="true"] {{
-    background: {ACCENT} !important;
-}}
-[data-testid="stRadio"] div[data-testid="stMarkdownContainer"] p {{
-    color: {TEXT2} !important; font-weight: 600 !important;
-    font-size: 13px !important; margin: 0; white-space: nowrap;
-}}
-[data-testid="stRadio"] label[data-checked="true"] p {{
-    color: {TEXT} !important;
-}}
-[data-testid="stRadio"] label div:first-child {{
-    display: none !important;
-}}
-
-/* ── SELECTBOX DE PERIODO ── */
-div[data-baseweb="select"] {{
-    background: {SURFACE} !important;
-    border-radius: 12px !important;
-    border: none !important;
-}}
-
-/* ── CARDS ── */
-.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
-.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
-.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
-
-.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
-.c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
-.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
+.periodo-chip-active{{background:{ACCENT};color:#fff;}}
+.periodo-chip-inactive{{background:{SURF2};color:{TEXT2};}}
 
 /* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
@@ -168,6 +147,17 @@ div[data-baseweb="select"] {{
   font-size:14px !important;font-weight:600 !important;
   box-shadow:none !important;
 }}
+
+/* ── CARDS ── */
+.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
+.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
+.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
+
+.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
+.c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
+.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
 
 /* ── BARRAS DE ESTADO ── */
 .bar-section{{margin-top:12px;}}
@@ -200,6 +190,22 @@ div[data-baseweb="select"] {{
 .balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-bottom:6px;}}
 .balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-bottom:6px;}}
 .balance-detail{{display:flex;justify-content:space-between;font-size:12px;color:{TEXT2};margin-top:8px;}}
+
+/* ── SHEETS BUTTON ── */
+.sheets-btn{{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:14px;
+  background:{SURFACE};
+  border:0.5px solid rgba(84,84,88,0.5);
+  border-radius:14px;
+  font-size:14px;font-weight:600;
+  color:{TEXT};cursor:pointer;
+  margin-top:4px;margin-bottom:10px;
+  text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
+}}
+.sheets-btn:hover{{background:{SURF2};}}
+.sheets-btn:active{{opacity:.7;}}
 
 /* ── SECCION LABEL ── */
 .sec-lbl{{font-size:11px;font-weight:500;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;padding:0 2px;margin:14px 0 6px;}}
@@ -252,25 +258,6 @@ div[data-baseweb="select"] {{
 .toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(50,215,75,.12);color:{GREEN};}}
 .toast-err{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(255,69,58,.12);color:{RED};}}
 
-/* ── PANEL PAGOS PENDIENTES ── */
-.pend-panel{{background:{SURFACE};border-radius:14px;overflow:hidden;margin-bottom:12px;border:1px solid rgba(255,69,58,0.25);}}
-.pend-panel-hdr{{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,69,58,0.08);border-bottom:0.5px solid rgba(255,69,58,0.2);}}
-.pend-panel-title{{font-size:13px;font-weight:700;color:{RED};letter-spacing:.02em;text-transform:uppercase;}}
-.pend-panel-total{{font-size:14px;font-weight:700;color:{RED};}}
-.pend-item{{display:flex;align-items:center;gap:11px;padding:11px 14px;position:relative;}}
-.pend-item::after{{content:'';position:absolute;bottom:0;left:52px;right:0;height:0.5px;background:rgba(255,69,58,0.15);}}
-.pend-item:last-child::after{{display:none;}}
-.pend-item-icon{{width:32px;height:32px;border-radius:8px;flex-shrink:0;overflow:hidden;}}
-.pend-item-body{{flex:1;min-width:0;}}
-.pend-item-name{{font-size:15px;font-weight:500;color:{TEXT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
-.pend-item-sub{{font-size:12px;color:{TEXT2};margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}}
-.pend-item-right{{text-align:right;flex-shrink:0;}}
-.pend-item-ars{{font-size:15px;font-weight:700;color:{TEXT};}}
-.pend-item-usd{{font-size:11px;color:{TEXT2};margin-top:2px;}}
-.pend-footer{{padding:10px 14px;background:rgba(255,69,58,0.05);border-top:0.5px solid rgba(255,69,58,0.15);display:flex;justify-content:space-between;align-items:center;}}
-.pend-footer-lbl{{font-size:12px;color:{TEXT2};}}
-.pend-footer-val{{font-size:14px;font-weight:700;color:{RED};}}
-
 /* ── KPI GRID LEGACY ── */
 .kpi-grid-main{{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}}
 .kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}}
@@ -296,34 +283,94 @@ div[data-baseweb="select"] {{
 .ing-row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
 
-/* ── DATA EDITOR FIX ── */
+/* ── BOTTOM TAB BAR ── */
+.btab-bar{{
+  position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;
+  z-index:2147483647 !important;display:flex !important;align-items:stretch;
+  background:rgba(0,0,0,0.85) !important;
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:0.5px solid rgba(255,255,255,0.08) !important;
+  padding-bottom:env(safe-area-inset-bottom,0px) !important;
+  height:calc(50px + env(safe-area-inset-bottom,0px)) !important;
+  transform:translateZ(0);will-change:transform;isolation:isolate;
+}}
+.btab{{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;
+  background:transparent;border:none;cursor:pointer;
+  padding:0;
+  color:rgba(255,255,255,0.3);
+  font-size:9px;font-weight:500;
+  font-family:-apple-system,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  transition:color .15s;
+}}
+.btab-active{{color:{ACCENT} !important;}}
+.btab-ico{{width:20px;height:20px;fill:currentColor;}}
+
+/* ── TABS ── */
+.stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:0.5px solid {SEP} !important;gap:0 !important;padding:0 !important;}}
+.stTabs [data-baseweb="tab"]{{background:transparent !important;color:{TEXT2} !important;font-size:13px !important;font-weight:500 !important;border-bottom:2px solid transparent !important;padding:9px 14px !important;margin-bottom:-1px !important;}}
+.stTabs [aria-selected="true"]{{color:{ACCENT} !important;border-bottom-color:{ACCENT} !important;}}
+.stTabs [data-baseweb="tab-highlight"]{{display:none !important;}}
+.stTabs [data-baseweb="tab-panel"]{{padding:10px 0 0 !important;}}
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
 
 @media(max-width:700px){{
   .ios-title{{font-size:22px;}}
-  .wrap{{padding:0 12px 20px;}}
+  .wrap{{padding:0 12px 90px;}}
   .c-val{{font-size:20px;}}
 }}
+
+/* ── NUEVAS CARDS INICIO ── */
+.icard{{background:{SURFACE};border-radius:12px;padding:14px 15px;margin-bottom:8px;}}
+.icard-sep{{height:0.5px;background:rgba(84,84,88,0.5);margin:11px 0;}}
+.icard-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}}
+.icard-val{{font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
+.icard-sub{{font-size:11px;color:{TEXT2};margin-top:3px;}}
+.sbar-hdr{{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}}
+.sbar-lbl{{font-size:13px;font-weight:500;color:{TEXT};}}
+.sbar-amt{{font-size:14px;font-weight:700;}}
+.sbar-usd{{font-size:11px;color:{TEXT2};text-align:right;}}
+.sbar-bg{{height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden;margin-bottom:3px;}}
+.sbar-fill{{height:100%;border-radius:5px;}}
+.sbar-foot{{display:flex;justify-content:space-between;}}
+.sbar-pct{{font-size:11px;color:{TEXT2};}}
+.sbar-badge{{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}}
+.sbar-badge-g{{background:rgba(50,215,75,.15);color:{GREEN};}}
+.sbar-badge-r{{background:rgba(255,69,58,.15);color:{RED};}}
+.prow{{display:flex;align-items:center;gap:10px;}}
+.prow+.prow{{margin-top:10px;}}
+.pav{{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}}
+.pav-h{{background:rgba(10,132,255,.18);color:{ACCENT};}}
+.pav-j{{background:rgba(191,90,242,.18);color:{PURPLE};}}
+.prow-body{{flex:1;}}
+.prow-name{{font-size:13px;font-weight:500;color:{TEXT};}}
+.prow-sub{{font-size:11px;color:{TEXT2};}}
+.prow-right{{text-align:right;}}
+.prow-amt{{font-size:14px;font-weight:700;}}
+.prow-usd{{font-size:11px;color:{TEXT2};}}
+.pbar-wrap{{margin:4px 0 0 40px;}}
+.bal-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-bottom:5px;}}
+.bal-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-bottom:5px;}}
+.bal-detail{{display:flex;justify-content:space-between;font-size:12px;color:{TEXT2};margin-top:8px;}}
+.sheets-btn{{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:13px 16px;background:{SURFACE};border:0.5px solid rgba(84,84,88,.55);border-radius:12px;font-size:14px;font-weight:600;color:{TEXT};cursor:pointer;margin-bottom:8px;text-decoration:none;-webkit-tap-highlight-color:transparent;}}
+.sheets-btn:active{{opacity:.6;}}
+/* ── DUAL BAR ── */
+.dualbar-wrap{{margin-top:10px;}}
+.dualbar{{display:flex;height:5px;border-radius:5px;overflow:hidden;gap:2px;background:rgba(255,255,255,.06);}}
+.dualbar-left{{height:100%;border-radius:5px 0 0 5px;transition:width .4s;}}
+.dualbar-right{{height:100%;border-radius:0 5px 5px 0;flex:1;transition:width .4s;}}
+.dualbar-lbls{{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:600;}}
+
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
 </style>""", unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────────
-# CONEXION Y LIMPIEZA DE DATOS
+# CONEXION Y CARGA DE DATOS
 # ──────────────────────────────────────────────────────────────────
-def clean_currency(val):
-    if pd.isna(val) or val == "": return 0.0
-    if isinstance(val, (int, float)): return float(val)
-    v = str(val).upper().replace("$", "").replace("ARS", "").replace("U$S", "").replace("USD", "").strip()
-    v = v.replace(" ", "").replace("\xa0", "")
-    if "," in v and "." in v: v = v.replace(".", "").replace(",", ".")
-    elif "," in v: v = v.replace(",", ".")
-    elif "." in v:
-        parts = v.split(".")
-        if len(parts) > 1 and len(parts[-1]) == 3: v = v.replace(".", "")
-    try: return float(v)
-    except: return 0.0
-
 @st.cache_resource
 def get_gspread():
     scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
@@ -341,15 +388,13 @@ def cargar_datos_maestro():
     except Exception as e:
         st.error(f"Error conectando con Google Sheets: {e}")
         return pd.DataFrame()
-
     data = [r for r in data if any(str(c).strip() for c in r)]
-    if not data or len(data) < 2: return pd.DataFrame()
-
+    if not data or len(data) < 2:
+        return pd.DataFrame()
     headers_new = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]
     headers_legacy = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado"]
     primera = [str(c).strip().lower() for c in data[0]]
     tiene_periodo = "periodo" in primera
-
     if tiene_periodo:
         filas = data[1:]
         filas = [r + [""] * (7 - len(r)) for r in filas if len(r) >= 2]
@@ -362,10 +407,9 @@ def cargar_datos_maestro():
         df = pd.DataFrame(filas, columns=headers_legacy)
         df["Periodo"] = date.today().strftime("%Y-%m")
         df["Tasa USD"] = 0.0
-
-    df["Monto (ARS)"] = df["Monto (ARS)"].apply(clean_currency)
-    df["Tasa USD"]    = df["Tasa USD"].apply(clean_currency)
-    df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"], errors="coerce").dt.date
+    df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors="coerce").fillna(0)
+    df["Tasa USD"]    = pd.to_numeric(df["Tasa USD"],    errors="coerce").fillna(0)
+    df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"],   errors="coerce").dt.date
     df["Pagado"]      = df["Pagado"].apply(lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","SI","1"])
     df = df[~((df["Monto (ARS)"] == 0) & (df["Item"].str.strip() == ""))]
     return df.reset_index(drop=True)
@@ -387,58 +431,45 @@ def cargar_ingresos():
         if not filas: return pd.DataFrame()
         df = pd.DataFrame(filas, columns=headers)
         for col in ["Monto ARS","Monto USD","Monto Original","Tasa USD/ARS"]:
-            df[col] = df[col].apply(clean_currency)
-        df["Fecha"]   = pd.to_datetime(df["Fecha"], errors="coerce").dt.date
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+        df["Fecha"]   = pd.to_datetime(df["Fecha"],  errors="coerce").dt.date
         df = df[df["Monto ARS"] > 0]
         df["Periodo"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%Y-%m")
         return df.reset_index(drop=True)
     except Exception:
         return pd.DataFrame()
 
-# FIX: Función unificada para dolar — evita divergencia entre cachés de distinto TTL
 @st.cache_data(ttl=300)
-def get_dolar_completo():
-    """Retorna (venta_actual, ayer, diff, pct). Una sola llamada, un solo TTL."""
+def get_dolar():
     try:
-        venta = float(requests.get("https://dolarapi.com/v1/dolares/blue", timeout=5).json()["venta"])
+        return float(requests.get("https://dolarapi.com/v1/dolares/blue", timeout=5).json()["venta"])
     except Exception:
-        venta = 1450.0
+        return 1450.0
+
+@st.cache_data(ttl=3600)
+def get_dolar_tendencia():
     try:
+        venta = get_dolar()
         hist = requests.get("https://api.argentinadatos.com/v1/cotizaciones/dolares/blue", timeout=5).json()
         if isinstance(hist, list) and len(hist) >= 2:
             ayer = float(hist[-2].get("venta", venta))
             diff = venta - ayer
-            pct  = round((diff / ayer) * 100, 2) if ayer > 0 else 0.0
+            pct = round((diff / ayer) * 100, 2) if ayer > 0 else 0.0
             return venta, ayer, diff, pct
+        return venta, venta, 0.0, 0.0
     except Exception:
-        pass
-    return venta, venta, 0.0, 0.0
-
-# Mantener compatibilidad con nombre anterior usado en el código
-def get_dolar():
-    return get_dolar_completo()[0]
-
-def get_dolar_tendencia():
-    return get_dolar_completo()
+        return get_dolar(), 0, 0.0, 0.0
 
 def guardar_hoja_maestro(df_guardar, dolar_actual=None):
     df_up = df_guardar.copy()
-    # FIX: Usar columna "Categoria" si existe; si no existe pero existe "Cat", renombrarla
-    if "Categoria" not in df_up.columns and "Cat" in df_up.columns:
-        df_up["Categoria"] = df_up["Cat"]
-    # FIX: Solo recategorizar filas donde Categoria esté vacía, no sobreescribir todas
-    mask_sin_cat = df_up["Categoria"].isna() | (df_up["Categoria"].astype(str).str.strip() == "")
-    if mask_sin_cat.any():
-        df_up.loc[mask_sin_cat, "Categoria"] = df_up.loc[mask_sin_cat, "Item"].apply(categorizar)
+    df_up["Categoria"] = df_up["Item"].apply(categorizar)
     if "Periodo" not in df_up.columns:
         df_up["Periodo"] = date.today().strftime("%Y-%m")
     if "Tasa USD" not in df_up.columns:
         df_up["Tasa USD"] = dolar_actual or 0.0
     else:
         if dolar_actual:
-            df_up["Tasa USD"] = df_up["Tasa USD"].apply(
-                lambda x: dolar_actual if (pd.isna(x) or x == 0) else x
-            )
+            df_up["Tasa USD"] = df_up["Tasa USD"].apply(lambda x: dolar_actual if (x == 0 or pd.isna(x)) else x)
     df_up = df_up[["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]]
     df_up["Dia Pago"] = df_up["Dia Pago"].apply(lambda x: str(x) if pd.notnull(x) else "")
     df_up["Pagado"]   = df_up["Pagado"].apply(lambda x: "TRUE" if x else "FALSE")
@@ -457,21 +488,11 @@ def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tas
     ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
-# FIX: marcar_pagado_maestro ahora busca por Item + Periodo para evitar error de índice
-def marcar_pagado_maestro(item_nombre, periodo_str, df_full, dolar_actual):
+def marcar_pagado_maestro(idx, df_full, dolar_actual):
     df_act = df_full.copy()
-    # Buscar la primera fila que coincida con item y periodo y no esté pagada
-    mask = (
-        (df_act["Item"] == item_nombre) &
-        (df_act["Periodo"] == periodo_str) &
-        (df_act["Pagado"] == False)
-    )
-    if mask.any():
-        idx_target = df_act[mask].index[0]
-        df_act.at[idx_target, "Pagado"] = True
+    if idx < len(df_act):
+        df_act.at[idx, "Pagado"] = True
         guardar_hoja_maestro(df_act, dolar_actual)
-        return True
-    return False
 
 def categorizar(item):
     i = str(item).lower()
@@ -504,8 +525,8 @@ def badge_venc(row):
     if pd.isna(dia) or dia is None: return f'<span class="badge badge-none">Sin fecha</span>'
     diff = (dia - date.today()).days
     fd = dia.strftime("%-d %b")
-    if diff < 0:   return f'<span class="badge badge-venc">Vencido {fd}</span>'
-    if diff == 0:  return f'<span class="badge badge-hoy">Hoy</span>'
+    if diff < 0:  return f'<span class="badge badge-venc">Vencido {fd}</span>'
+    if diff == 0: return f'<span class="badge badge-hoy">Hoy</span>'
     if diff <= 3:  return f'<span class="badge badge-prox">{diff}d — {fd}</span>'
     if diff <= 10: return f'<span class="badge badge-soon">{diff}d — {fd}</span>'
     return f'<span class="badge badge-ok">{fd}</span>'
@@ -518,10 +539,7 @@ def badge_persona(persona):
 
 def procesar(df_base, dolar_live):
     df = df_base.copy()
-    df["Categoria"] = df["Categoria"].where(
-        df["Categoria"].notna() & (df["Categoria"].astype(str).str.strip() != ""),
-        df["Item"].apply(categorizar)
-    )
+    df["Categoria"] = df["Item"].apply(categorizar)
     def calc_usd(row):
         tasa = row.get("Tasa USD", 0)
         t = tasa if tasa and tasa > 0 else dolar_live
@@ -554,8 +572,8 @@ hoy            = date.today()
 hoy_str        = f"{hoy.day} de {MESES[hoy.month-1]} de {hoy.year}"
 periodo_actual = hoy.strftime("%Y-%m")
 
+dolar = get_dolar()
 dolar_val, dolar_ayer, dolar_diff, dolar_pct = get_dolar_tendencia()
-dolar = dolar_val  # valor único consistente para toda la sesión
 
 df_maestro  = cargar_datos_maestro()
 df_ing_todo = cargar_ingresos()
@@ -579,18 +597,32 @@ def label_periodo(p):
     except Exception:
         return p
 
+# ── NAVEGACIÓN EN SIDEBAR ──
+with st.sidebar:
+    for p in periodos_disponibles[:8]:
+        if st.button(label_periodo(p), key=f"nav_periodo_{p}", type="secondary"):
+            st.session_state.periodo_sel = p
+            st.rerun()
+    for screen in ["inicio", "ingresos", "gastos", "tendencias"]:
+        if st.button(screen, key=f"nav_{screen}", type="secondary"):
+            st.session_state.screen = screen
+            st.rerun()
+
+nav_offset = len(periodos_disponibles[:8])
+_sc = st.session_state.screen
+
 # ── FILTRADO DE DATOS ──
 if not df_maestro.empty:
     df_base_periodo = df_maestro[df_maestro["Periodo"] == periodo_viendo].copy()
     df = procesar(df_base_periodo, dolar)
-    total_ars    = df["Monto (ARS)"].sum()
-    pagado_ars   = df[df["Pagado"] == True]["Monto (ARS)"].sum()
-    pend_ars     = total_ars - pagado_ars
-    pct_pag      = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
-    pct_pend     = 100 - pct_pag
-    n_pagados    = int(df["Pagado"].sum())
+    total_ars   = df["Monto (ARS)"].sum()
+    pagado_ars  = df[df["Pagado"] == True]["Monto (ARS)"].sum()
+    pend_ars    = total_ars - pagado_ars
+    pct_pag     = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
+    pct_pend    = 100 - pct_pag
+    n_pagados   = int(df["Pagado"].sum())
     n_pendientes = len(df) - n_pagados
-    por_cat      = df.groupby("Cat")["Monto (ARS)"].sum().reset_index().sort_values("Monto (ARS)", ascending=False)
+    por_cat     = df.groupby("Cat")["Monto (ARS)"].sum().reset_index().sort_values("Monto (ARS)", ascending=False)
     es_mes_actual = (periodo_viendo == periodo_actual)
     vencidos = df[(df["Pagado"]==False) & df["Dia Pago"].notna() & (df["Dia Pago"] < hoy)] if es_mes_actual else pd.DataFrame()
     proximos = df[(df["Pagado"]==False) & df["Dia Pago"].notna() & (df["Dia Pago"] >= hoy) & (df["Dia Pago"] <= hoy + timedelta(days=3))] if es_mes_actual else pd.DataFrame()
@@ -612,8 +644,6 @@ total_ing_usd  = df_ing_periodo["Monto USD"].sum() if not df_ing_periodo.empty e
 ing_henry      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="HENRY"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 ing_jaike      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 balance_ars    = total_ing_ars - total_ars
-pct_henry      = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
-pct_jaike      = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
 
 # ── PWA META TAGS ──
 st.markdown("""
@@ -625,23 +655,79 @@ st.markdown("""
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
 function haptic(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}}
+function openLink(url){try{window.open(url,'_blank');}catch(e){}}
 document.addEventListener('DOMContentLoaded',function(){
   function patchInputs(){
     document.querySelectorAll('input[type="number"]').forEach(function(el){if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','decimal');}});
+    document.querySelectorAll('input[type="text"]').forEach(function(el){if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','text');}});
   }
-  patchInputs();
-  var obs=new MutationObserver(function(){patchInputs();});
+  function killBottom(){
+    var sel=['[data-testid="stBottom"]','[data-testid="stBottomBlockContainer"]','.stBottomContainer','.stChatFloatingInputContainer'];
+    sel.forEach(function(s){document.querySelectorAll(s).forEach(function(el){el.style.cssText='display:none!important;height:0!important;overflow:hidden!important;';});});
+  }
+  patchInputs(); killBottom();
+  var obs=new MutationObserver(function(){patchInputs();killBottom();});
   obs.observe(document.body,{childList:true,subtree:true});
 });
 </script>
 """, unsafe_allow_html=True)
 
+# JS chips → botones sidebar
+st.markdown(f"""
+<script>
+(function(){{
+  function attachChips(){{
+    var chips=document.querySelectorAll('.periodo-chip');
+    if(!chips.length){{setTimeout(attachChips,200);return;}}
+    chips.forEach(function(chip,idx){{
+      chip.onclick=function(){{haptic(10);var btns=document.querySelectorAll('[data-testid=stBaseButton-secondary]');if(btns[idx])btns[idx].click();}};
+    }});
+  }}
+  attachChips();
+}})();
+</script>
+""", unsafe_allow_html=True)
+
+# ── BOTTOM TAB BAR ──
+st.markdown(f"""
+<div class="btab-bar">
+  <button class="btab {'btab-active' if _sc=='inicio' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset}]&&b[{nav_offset}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='ingresos' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+1}]&&b[{nav_offset+1}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+    <span>Ingresos</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='gastos' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+2}]&&b[{nav_offset+2}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+    <span>Gastos</span>
+  </button>
+  <button class="btab {'btab-active' if _sc=='tendencias' else ''}"
+    onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{nav_offset+3}]&&b[{nav_offset+3}].click();}})()">
+    <svg class="btab-ico" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+    <span>Tendencias</span>
+  </button>
+</div>
+""", unsafe_allow_html=True)
+
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
 # ── HEADER ──
-if dolar_diff > 0:   trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
-elif dolar_diff < 0: trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
-else:                trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
+if dolar_diff > 0:
+    trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
+elif dolar_diff < 0:
+    trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
+else:
+    trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
+
+chips_html = ""
+for p in periodos_disponibles[:8]:
+    activo = "active" if p == periodo_viendo else "inactive"
+    chips_html += f'<span class="periodo-chip periodo-chip-{activo}" data-periodo="{p}">{label_periodo(p)}</span>'
 
 st.markdown(f"""
 <div class="ios-hdr">
@@ -656,39 +742,20 @@ st.markdown(f"""
       <div class="dolar-trend">{trend_html}</div>
     </div>
   </div>
+  <div class="periodo-bar" id="periodoBar">{chips_html}</div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAVEGACIÓN Y PERIODO ──
-opciones_nav = {"🏠 Inicio": "inicio", "💵 Ingresos": "ingresos", "💳 Gastos": "gastos", "📊 Tendencias": "tendencias"}
-nav_labels   = list(opciones_nav.keys())
-current_idx  = list(opciones_nav.values()).index(st.session_state.screen) if st.session_state.screen in opciones_nav.values() else 0
-
-sel_nav = st.radio("Navegación", nav_labels, index=current_idx, horizontal=True, label_visibility="collapsed")
-if opciones_nav[sel_nav] != st.session_state.screen:
-    st.session_state.screen = opciones_nav[sel_nav]
-    st.rerun()
-
-st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
-
-opciones_periodos = periodos_disponibles[:8]
-idx_per = opciones_periodos.index(periodo_viendo) if periodo_viendo in opciones_periodos else 0
-nuevo_periodo = st.selectbox("📅 Período seleccionado", opciones_periodos, index=idx_per, format_func=label_periodo, label_visibility="collapsed")
-if nuevo_periodo != st.session_state.periodo_sel:
-    st.session_state.periodo_sel = nuevo_periodo
-    st.rerun()
-
-st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-
 
 # ══════════════════════════════════════════════════════════════════
-# PANTALLA: INICIO
+# PANTALLA: INICIO — NUEVO DISEÑO COMPACTO
 # ══════════════════════════════════════════════════════════════════
 if st.session_state.screen == "inicio":
 
     if not es_mes_actual:
         st.markdown(f'<div class="alert alert-b">📅 Historial — <strong>{label_periodo(periodo_viendo)}</strong> (solo lectura)</div>', unsafe_allow_html=True)
 
+    # Alertas de vencimiento
     if es_mes_actual:
         if not vencidos.empty:
             items_v = " · ".join(r["Item"] for _, r in vencidos.iterrows())
@@ -696,74 +763,107 @@ if st.session_state.screen == "inicio":
         if not proximos.empty:
             st.markdown(f'<div class="alert alert-o">Vencen en 3 días: {" · ".join(r["Item"] for _, r in proximos.iterrows())}</div>', unsafe_allow_html=True)
 
+    # ── CARD INGRESOS ──
+    pct_henry = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
+    pct_jaike = 100 - pct_henry
     ing_usd_str = fmt_usd(total_ing_usd) if total_ing_usd > 0 else fmt_usd_from_ars(total_ing_ars, dolar)
-
-    st.markdown(f'<div class="sec-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
     st.markdown(f"""
-<div class="card-ing">
-  <div class="c-lbl">Total ingresado</div>
-  <div class="c-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
-  <div class="c-sub">{ing_usd_str} · tasa $ {dolar:,.0f}</div>
-  <div class="sep"></div>
-  <div class="persona-row">
-    <div class="av av-h">H</div>
-    <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry}% del total</div></div>
-    <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
+<div class="icard">
+  <div class="icard-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>
+  <div class="icard-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
+  <div class="icard-sub">{ing_usd_str}</div>
+  <div class="icard-sep"></div>
+  <div class="prow">
+    <div class="pav pav-h">H</div>
+    <div class="prow-body"><div class="prow-name">Henry</div><div class="prow-sub">{pct_henry}% · {fmt_usd_from_ars(ing_henry, dolar)}</div></div>
+    <div class="prow-right"><div class="prow-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div></div>
   </div>
-  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT};"></div></div></div>
-  <div class="persona-row" style="margin-top:10px">
-    <div class="av av-j">J</div>
-    <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike}% del total</div></div>
-    <div><div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
+  <div class="prow" style="margin-top:8px">
+    <div class="pav pav-j">J</div>
+    <div class="prow-body"><div class="prow-name">Jaike</div><div class="prow-sub">{pct_jaike}% · {fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
+    <div class="prow-right"><div class="prow-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div></div>
   </div>
-  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{PURPLE};"></div></div></div>
-</div>
-""", unsafe_allow_html=True)
-
-    st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
-    st.markdown(f"""
-<div class="card-gastos">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div></div>
-    <div style="text-align:right;padding-top:2px"><div class="c-lbl">Ítems</div><div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df)}</div><div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div></div>
-  </div>
-  <div class="sep"></div>
-  <div class="bar-section">
-    <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-left:6px">{n_pagados}</span></div>
-      <div style="text-align:right"><div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div></div>
+  <div class="dualbar-wrap">
+    <div class="dualbar">
+      <div class="dualbar-left" style="width:{pct_henry}%;background:{ACCENT};"></div>
+      <div class="dualbar-right" style="width:{pct_jaike}%;background:{PURPLE};"></div>
     </div>
-    <div class="bar-bg"><div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div></div>
-    <div class="bar-meta"><span class="bar-pct">{pct_pag}% del total</span></div>
-  </div>
-  <div style="height:12px;"></div>
-  <div class="bar-section">
-    <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-left:6px">{n_pendientes}</span></div>
-      <div style="text-align:right"><div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
+    <div class="dualbar-lbls">
+      <span style="color:{ACCENT}">Henry {pct_henry}%</span>
+      <span style="color:{PURPLE}">Jaike {pct_jaike}%</span>
     </div>
-    <div class="bar-bg"><div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div></div>
-    <div class="bar-meta"><span class="bar-pct">{pct_pend}% del total</span></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-    bc      = GREEN if balance_ars >= 0 else RED
-    bs      = "+" if balance_ars >= 0 else ""
-    bal_tag = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
-    bal_card = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
-
-    st.markdown(f'<div class="sec-lbl">Balance</div>', unsafe_allow_html=True)
+    # ── CARD GASTOS ──
+    n_pagados_c = int(df["Pagado"].sum()) if not df.empty else 0
+    n_pend_c    = len(df) - n_pagados_c if not df.empty else 0
+    pct_pag_c   = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
+    pct_pend_c  = 100 - pct_pag_c
     st.markdown(f"""
-<div class="{bal_card}">
-  {bal_tag}
-  <div style="display:flex;justify-content:space-between;align-items:flex-end">
-    <div><div class="c-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div><div class="c-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div></div>
+<div class="icard">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div class="icard-lbl">Gastos — {label_periodo(periodo_viendo)}</div>
+      <div class="icard-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div>
+      <div class="icard-sub">{fmt_usd_from_ars(total_ars, dolar)}</div>
+    </div>
+    <div style="text-align:right;padding-top:2px">
+      <div style="font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Ítems</div>
+      <div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df) if not df.empty else 0}</div>
+      <div style="font-size:11px;color:{TEXT2}">{n_pagados_c} pag · {n_pend_c} pend</div>
+    </div>
   </div>
-  <div class="sep"></div>
-  <div style="display:flex;justify-content:space-between;font-size:12px;color:{TEXT2}">
-    <span>Ingresos <strong style="color:{GREEN}">{fmt_ars(total_ing_ars)}</strong></span>
-    <span>Gastos <strong style="color:{TEXT}">{fmt_ars(total_ars)}</strong></span>
+  <div class="icard-sep"></div>
+  <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="width:9px;height:9px;border-radius:50%;background:{GREEN};display:inline-block;flex-shrink:0"></span>
+      <span style="font-size:13px;font-weight:500;color:{TEXT}">Pagados</span>
+      <span class="sbar-badge sbar-badge-g">{n_pagados_c}</span>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:13px;font-weight:700;color:{GREEN}">{fmt_ars(pagado_ars)}</div>
+      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pagado_ars, dolar)}</div>
+    </div>
+  </div>
+  <div class="dualbar">
+    <div class="dualbar-left" style="width:{pct_pag_c}%;background:{GREEN};"></div>
+    <div class="dualbar-right" style="width:{pct_pend_c}%;background:{RED};opacity:0.55;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:6px;margin-bottom:10px">
+    <span style="font-size:11px;color:{GREEN}">{pct_pag_c}% pagado</span>
+    <span style="font-size:11px;color:{RED}">{pct_pend_c}% pendiente</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="width:9px;height:9px;border-radius:50%;background:{RED};display:inline-block;flex-shrink:0"></span>
+      <span style="font-size:13px;font-weight:500;color:{TEXT}">Pendientes</span>
+      <span class="sbar-badge sbar-badge-r">{n_pend_c}</span>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:13px;font-weight:700;color:{RED}">{fmt_ars(pend_ars)}</div>
+      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pend_ars, dolar)}</div>
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # ── CARD BALANCE (compacto, sin barra) ──
+    bc = GREEN if balance_ars >= 0 else RED
+    bs = "+" if balance_ars >= 0 else ""
+    bal_tag = '<span class="bal-tag-pos">Superávit</span>' if balance_ars >= 0 else '<span class="bal-tag-neg">Déficit</span>'
+    st.markdown(f"""
+<div class="icard" style="display:flex;justify-content:space-between;align-items:center;padding:12px 15px">
+  <div>
+    <div class="icard-lbl">Balance</div>
+    <div style="font-size:22px;font-weight:700;color:{bc};letter-spacing:-.02em">{bs}{fmt_ars(balance_ars)}</div>
+    <div style="font-size:11px;color:{TEXT2};margin-top:2px">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div>
+  </div>
+  <div style="text-align:right">
+    {bal_tag}
+    <div style="font-size:11px;color:{TEXT2};margin-top:5px">Ing. <strong style="color:{GREEN}">{fmt_ars(total_ing_ars)}</strong></div>
+    <div style="font-size:11px;color:{TEXT2}">Gas. <strong style="color:{TEXT}">{fmt_ars(total_ars)}</strong></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -784,7 +884,7 @@ if st.session_state.screen == "inicio":
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        # ── CLONAR GASTOS FIJOS ──
+        # ── CLONACIÓN INTELIGENTE ──
         if not df_maestro.empty:
             periodo_ant = calcular_mes_anterior(periodo_actual)
             df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
@@ -821,6 +921,7 @@ if st.session_state.screen == "inicio":
                                 guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
                                 st.rerun()
 
+        # Panel agregar gasto
         if st.session_state.show_add:
             st.markdown('<div class="add-panel">', unsafe_allow_html=True)
             a1, a2, a3, a4 = st.columns([2, 1.2, 1.2, 0.8])
@@ -846,6 +947,7 @@ if st.session_state.screen == "inicio":
                             st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
+        # Panel agregar ingreso
         if st.session_state.show_add_ingreso:
             st.markdown('<div class="add-panel-green">', unsafe_allow_html=True)
             i1, i2, i3 = st.columns([2, 1, 1])
@@ -880,6 +982,9 @@ if st.session_state.screen == "inicio":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
+    # ─────────────────────────────────────────
+    # LISTA DE GASTOS
+    # ─────────────────────────────────────────
     if df.empty:
         st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
@@ -912,121 +1017,26 @@ if st.session_state.screen == "inicio":
                 st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # ══════════════════════════════════════════════════════════════════
-        # PANEL PAGOS PENDIENTES — DETALLADO Y VISIBLE
-        # ══════════════════════════════════════════════════════════════════
+        # Marcar pagado
         if es_mes_actual:
-            pend_items = df_vista[df_vista["Pagado"] == False].copy()
-
+            pend_items = df_vista[df_vista["Pagado"] == False]
             if not pend_items.empty:
-                # Ordenar: vencidos primero, luego por fecha
-                def sort_key_pend(row):
-                    dia = row["Dia Pago"]
-                    if pd.isna(dia) or dia is None:
-                        return date(2099, 12, 31)
-                    return dia
-                pend_items = pend_items.copy()
-                pend_items["_sort"] = pend_items.apply(sort_key_pend, axis=1)
-                pend_items = pend_items.sort_values("_sort").drop(columns=["_sort"])
-
-                total_pend_usd = sum(
-                    (r["Monto (ARS)"] / r["Tasa USD"]) if r.get("Tasa USD", 0) > 0
-                    else (r["Monto (ARS)"] / dolar)
-                    for _, r in pend_items.iterrows()
-                )
-
-                st.markdown(f'<div class="sec-lbl">Pagos pendientes</div>', unsafe_allow_html=True)
-
-                # Construir HTML del panel
-                items_html = ""
-                for _, row in pend_items.iterrows():
-                    color  = cat_color(row["Cat"])
-                    ico    = cat_icon_svg(row["Cat"], color, size=32)
-                    tasa_r = row.get("Tasa USD", 0)
-                    usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
-                    dia    = row["Dia Pago"]
-                    # Estado del vencimiento
-                    if pd.isna(dia) or dia is None:
-                        estado_html = f'<span class="badge badge-none">Sin fecha</span>'
-                        urgencia_bg = ""
-                    else:
-                        diff = (dia - hoy).days
-                        fd   = dia.strftime("%-d %b")
-                        if diff < 0:
-                            estado_html = f'<span class="badge badge-venc">Vencido {fd}</span>'
-                            urgencia_bg = "background:rgba(255,69,58,0.04);"
-                        elif diff == 0:
-                            estado_html = f'<span class="badge badge-hoy">Vence hoy</span>'
-                            urgencia_bg = "background:rgba(255,69,58,0.04);"
-                        elif diff <= 3:
-                            estado_html = f'<span class="badge badge-prox">En {diff}d — {fd}</span>'
-                            urgencia_bg = "background:rgba(255,159,10,0.03);"
-                        elif diff <= 10:
-                            estado_html = f'<span class="badge badge-soon">En {diff}d — {fd}</span>'
-                            urgencia_bg = ""
-                        else:
-                            estado_html = f'<span class="badge badge-ok">{fd}</span>'
-                            urgencia_bg = ""
-
-                    items_html += f"""
-<div class="pend-item" style="{urgencia_bg}">
-  <div class="pend-item-icon">{ico}</div>
-  <div class="pend-item-body">
-    <div class="pend-item-name">{row['Item']}</div>
-    <div class="pend-item-sub">
-      {estado_html}
-      <span style="color:rgba(235,235,245,0.3)">·</span>
-      <span style="font-size:11px;color:{TEXT2}">{row['Cat']}</span>
-    </div>
-  </div>
-  <div class="pend-item-right">
-    <div class="pend-item-ars">{fmt_ars(row['Monto (ARS)'])}</div>
-    <div class="pend-item-usd">U$S {usd_v:,.0f}</div>
-  </div>
-</div>"""
-
-                st.markdown(f"""
-<div class="pend-panel">
-  <div class="pend-panel-hdr">
-    <span class="pend-panel-title">⏳ {len(pend_items)} pago{"s" if len(pend_items)>1 else ""} pendiente{"s" if len(pend_items)>1 else ""}</span>
-    <span class="pend-panel-total">{fmt_ars(pend_ars)}</span>
-  </div>
-  {items_html}
-  <div class="pend-footer">
-    <span class="pend-footer-lbl">Total pendiente · U$S {total_pend_usd:,.0f}</span>
-    <span class="pend-footer-val">{fmt_ars(pend_ars)}</span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-                # Botones de marcar pagado — FIX: usa item+periodo en lugar de idx
-                with st.expander(f"✓ Marcar como pagado"):
-                    for _, row in pend_items.iterrows():
-                        cn, cb = st.columns([3, 1])
+                with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
+                    for idx, row in pend_items.iterrows():
+                        cn, cb = st.columns([3,1])
                         with cn:
-                            dia_str = ""
-                            if pd.notnull(row.get("Dia Pago")) and row["Dia Pago"] is not None:
-                                try:
-                                    dia_str = f" — vence {row['Dia Pago'].strftime('%-d %b')}"
-                                except Exception:
-                                    pass
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} <span style="color:{TEXT2};font-size:12px">{fmt_ars(row["Monto (ARS)"])}{dia_str}</span></div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} — {fmt_ars(row["Monto (ARS)"])}</div>', unsafe_allow_html=True)
                         with cb:
-                            btn_key = f"pay_{row['Item']}_{row.get('Periodo','')}"
-                            if st.button("✓ Pagado", key=btn_key, use_container_width=True):
+                            if st.button("✓ Pagado", key=f"pay_{idx}", use_container_width=True):
                                 try:
-                                    ok = marcar_pagado_maestro(row["Item"], row.get("Periodo", periodo_viendo), df_maestro, dolar)
-                                    if ok:
-                                        st.rerun()
-                                    else:
-                                        st.error("No se encontró el ítem")
+                                    marcar_pagado_maestro(idx, df_maestro, dolar)
+                                    st.rerun()
                                 except Exception as e:
                                     st.error(str(e))
-            else:
-                st.markdown(f'<div class="alert alert-g">✅ Todos los gastos de {label_periodo(periodo_viendo)} están pagados.</div>', unsafe_allow_html=True)
 
+        # Top 5
         st.markdown(f'<div class="sec-lbl">Top 5 gastos</div><div class="grp">', unsafe_allow_html=True)
-        for _, row in df.nlargest(5, "Monto (ARS)").iterrows():
+        for _, row in df.nlargest(5,"Monto (ARS)").iterrows():
             color  = cat_color(row["Cat"])
             pct_t  = int(row["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
             ico    = cat_icon_svg(row["Cat"], color, size=34)
@@ -1035,10 +1045,80 @@ if st.session_state.screen == "inicio":
             st.markdown(f'<div class="row"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-        if st.button("✏️ Editar montos y fechas en la tabla", type="secondary", use_container_width=True):
-            st.session_state.screen = "gastos"
-            st.rerun()
+        # Distribución por categoría
+        st.markdown(f'<div class="sec-lbl">Por categoría</div><div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
+        max_cat = por_cat["Monto (ARS)"].max() if not por_cat.empty else 1
+        for _, r in por_cat.iterrows():
+            pct_c = int(r["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
+            bar_w = int(r["Monto (ARS)"] / max_cat * 100)
+            color = cat_color(r["Cat"])
+            st.markdown(f"""
+            <div style="margin-bottom:10px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                <span style="font-size:13px;color:{TEXT}">{r['Cat']}</span>
+                <div style="text-align:right">
+                  <span style="font-size:13px;font-weight:600;color:{color}">{fmt_ars(r['Monto (ARS)'])}</span>
+                  <span style="font-size:11px;color:{TEXT2};margin-left:6px">{pct_c}%</span>
+                </div>
+              </div>
+              <div style="height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
+                <div style="width:{bar_w}%;height:100%;background:{color};border-radius:3px"></div>
+              </div>
+            </div>""", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Resumen
+        n_pag2 = int(df["Pagado"].sum()); n_pend2 = len(df) - n_pag2
+        mayor  = df.loc[df["Monto (ARS)"].idxmax(),"Item"] if not df.empty else "-"
+        mayor_m = df["Monto (ARS)"].max() if not df.empty else 0
+        st.markdown(f"""<div class="grp" style="padding:14px 16px">
+          <div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Resumen del mes</div>
+          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Total ítems</span><span style="font-weight:600">{len(df)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pagados</span><span style="color:{GREEN};font-weight:600">{n_pag2}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pendientes</span><span style="color:{ORANGE};font-weight:600">{n_pend2}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Vencidos</span><span style="color:{RED};font-weight:600">{len(vencidos)}</span></div>
+          <div style="padding:9px 0;font-size:14px"><span style="color:{TEXT2}">Mayor gasto</span><br><span style="font-weight:600;color:{TEXT}">{mayor}</span><br><span style="font-size:12px;color:{TEXT2}">{fmt_ars(mayor_m)}</span></div>
+        </div>""", unsafe_allow_html=True)
+
+        # ─────────────────────────────────────────
+        # BOTÓN GOOGLE SHEETS
+        # ─────────────────────────────────────────
+        st.markdown(f"""
+<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
+    <rect x="6" y="7" width="12" height="1.5" rx=".75" fill="white"/>
+    <rect x="6" y="10.5" width="12" height="1.5" rx=".75" fill="white" opacity=".8"/>
+    <rect x="6" y="14" width="8" height="1.5" rx=".75" fill="white" opacity=".6"/>
+    <rect x="6.75" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
+    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
+  </svg>
+  Abrir planilla para editar montos y fechas
+</a>
+""", unsafe_allow_html=True)
+
+
+        # ── BOTÓN GOOGLE SHEETS ──
+        st.markdown(f"""
+<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
+    <rect x="6.5" y="7" width="11" height="1.4" rx=".7" fill="white"/>
+    <rect x="6.5" y="10.5" width="11" height="1.4" rx=".7" fill="white" opacity=".8"/>
+    <rect x="6.5" y="14" width="7" height="1.4" rx=".7" fill="white" opacity=".55"/>
+    <rect x="7" y="7" width="1" height="9" rx=".5" fill="white" opacity=".2"/>
+    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".2"/>
+  </svg>
+  Abrir planilla — editar montos y fechas
+</a>
+""", unsafe_allow_html=True)
+
+        _, ce, _ = st.columns([1,1,1])
+        with ce:
+            st.download_button("Exportar Excel", data=exportar_excel(df, df_ing_todo),
+                               file_name=f"gastos_{periodo_viendo}.xlsx",
+                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                               use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -1059,17 +1139,21 @@ elif st.session_state.screen == "ingresos":
       <div class="sep"></div>
       <div class="persona-row">
         <div class="av av-h">H</div>
-        <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry}%</div></div>
+        <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry if total_ing_ars > 0 else 0}%</div></div>
         <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
       </div>
-      <div style="margin:5px 0 10px 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT}"></div></div></div>
+      <div style="margin:5px 0 10px 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry if total_ing_ars > 0 else 0}%;background:{ACCENT}"></div></div></div>
       <div class="persona-row">
         <div class="av av-j">J</div>
-        <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike}%</div></div>
+        <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike if total_ing_ars > 0 else 0}%</div></div>
         <div><div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
       </div>
-      <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{PURPLE}"></div></div></div>
+      <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike if total_ing_ars > 0 else 0}%;background:{PURPLE}"></div></div></div>
     </div>""", unsafe_allow_html=True)
+
+    bal_card2 = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
+    bal_tag2  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
+    st.markdown(f'<div class="{bal_card2}">{bal_tag2}<div class="c-val" style="color:{bc2}">{bs2}{fmt_ars(balance_ars)}</div><div class="c-sub">Gastos: {fmt_ars(total_ars)}</div></div>', unsafe_allow_html=True)
 
     if es_mes_actual:
         lbl_i2 = "Cancelar" if st.session_state.show_add_ingreso else "＋ Agregar ingreso"
@@ -1149,36 +1233,39 @@ elif st.session_state.screen == "gastos":
         if not es_mes_actual:
             st.markdown(f'<div class="alert alert-o">📅 Editando <strong>{label_periodo(periodo_viendo)}</strong>. Guardar reescribirá la hoja maestra.</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px">Editá montos, vencimientos o marcá pagos. <strong>Guardá para sincronizar.</strong><br>(Los gastos pendientes salen automáticamente arriba).</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px">Editá, agregá o marcá pagos. Guardá para sincronizar.</div>', unsafe_allow_html=True)
 
+        tab_todos, tab_pend, tab_pag = st.tabs([
+            f"Todos  {len(df)}",
+            f"Pendientes  {len(df[df['Pagado']==False])}",
+            f"Pagados  {len(df[df['Pagado']==True])}"
+        ])
         COL_CONFIG = {
-            "Pagado":      st.column_config.CheckboxColumn("Pagado", width="small"),
-            "Item":        st.column_config.TextColumn("Ítem"),
-            "Monto (ARS)": st.column_config.NumberColumn("ARS", format="$ %d"),
-            "USD":         st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
-            "Dia Pago":    st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
-            "Periodo":     st.column_config.TextColumn("Periodo", disabled=True, width="small"),
-            "Tasa USD":    st.column_config.NumberColumn("Tasa $", disabled=True, width="small"),
+            "Pagado":     st.column_config.CheckboxColumn("Pagado", width="small"),
+            "Item":       st.column_config.TextColumn("Ítem"),
+            "Monto (ARS)":st.column_config.NumberColumn("ARS", format="$ %d"),
+            "USD":        st.column_config.NumberColumn("USD", format="U$S %.0f", disabled=True, width="small"),
+            "Dia Pago":   st.column_config.DateColumn("Vencimiento", format="DD/MM/YY"),
+            "Periodo":    st.column_config.TextColumn("Periodo", disabled=True, width="small"),
+            "Tasa USD":   st.column_config.NumberColumn("Tasa $", disabled=True, width="small"),
         }
         COL_ORDER = ("Pagado","Item","Monto (ARS)","USD","Dia Pago","Periodo","Tasa USD")
 
-        df_edit = st.data_editor(df, column_config=COL_CONFIG, column_order=COL_ORDER,
-                                 num_rows="dynamic", use_container_width=True, hide_index=True, key="t_unico")
+        def render_tabla(data, key):
+            return st.data_editor(data, column_config=COL_CONFIG, column_order=COL_ORDER,
+                                   num_rows="dynamic", use_container_width=True, hide_index=True, key=key)
+
+        with tab_todos: df_edit = render_tabla(df, "t_todos")
+        with tab_pend:  render_tabla(df[df["Pagado"]==False].copy(), "t_pend")
+        with tab_pag:   render_tabla(df[df["Pagado"]==True].copy(), "t_pag")
 
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         bc1, bc2, bc3 = st.columns([2.5, 0.8, 0.8])
         with bc1:
             if st.button("Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
-                    # FIX: Asegurar que df_edit tenga columna Categoria antes de concatenar
-                    df_edit_save = df_edit.copy()
-                    if "Categoria" not in df_edit_save.columns:
-                        if "Cat" in df_edit_save.columns:
-                            df_edit_save["Categoria"] = df_edit_save["Cat"]
-                        else:
-                            df_edit_save["Categoria"] = df_edit_save["Item"].apply(categorizar)
-                    df_otros = df_maestro[df_maestro["Periodo"] != periodo_viendo].copy()
-                    df_combinado = pd.concat([df_otros, df_edit_save], ignore_index=True)
+                    df_otros    = df_maestro[df_maestro["Periodo"] != periodo_viendo].copy()
+                    df_combinado = pd.concat([df_otros, df_edit], ignore_index=True)
                     guardar_hoja_maestro(df_combinado, dolar)
                     st.markdown('<div class="toast-ok">Cambios guardados</div>', unsafe_allow_html=True)
                     st.rerun()
@@ -1263,10 +1350,10 @@ elif st.session_state.screen == "tendencias":
 
         for _, row in hist.iterrows():
             g      = row["Gastos"]
-            i      = row.get("Ingresos", 0)
-            henry  = row.get("Henry", 0)
-            jaike  = row.get("Jaike", 0)
-            bal    = row.get("Balance", 0)
+            i      = row.get("Ingresos",0)
+            henry  = row.get("Henry",0)
+            jaike  = row.get("Jaike",0)
+            bal    = row.get("Balance",0)
             bc_r   = GREEN if bal >= 0 else RED
             bs_r   = "+" if bal >= 0 else ""
             bar_g  = int(g / max_g * 100) if max_g > 0 else 0
@@ -1295,6 +1382,35 @@ elif st.session_state.screen == "tendencias":
               </div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
+
+        if tiene_ingresos and "Henry" in hist.columns:
+            hist_rev = hist.sort_values("Periodo")
+            has_both = hist_rev["Henry"].sum() > 0 and hist_rev["Jaike"].sum() > 0
+            if has_both:
+                st.markdown('<div class="sec-lbl">Aportes Henry vs Jaike</div>', unsafe_allow_html=True)
+                fig_stack = go.Figure()
+                fig_stack.add_trace(go.Bar(
+                    name="Henry", x=hist_rev["Label"], y=hist_rev["Henry"],
+                    marker_color=ACCENT, opacity=0.85,
+                    hovertemplate="<b>Henry</b> %{x}<br>%{y:,.0f}<extra></extra>"
+                ))
+                fig_stack.add_trace(go.Bar(
+                    name="Jaike", x=hist_rev["Label"], y=hist_rev["Jaike"],
+                    marker_color=PURPLE, opacity=0.85,
+                    hovertemplate="<b>Jaike</b> %{x}<br>%{y:,.0f}<extra></extra>"
+                ))
+                fig_stack.update_layout(
+                    barmode="stack", height=220,
+                    margin=dict(t=8,b=8,l=8,r=8),
+                    paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
+                    legend=dict(font=dict(color=TEXT2,size=12),bgcolor="rgba(0,0,0,0)",orientation="h",x=0,y=1.12),
+                    xaxis=dict(tickfont=dict(color=TEXT2,size=11),showgrid=False,tickangle=-20),
+                    yaxis=dict(showgrid=False,showticklabels=False),
+                    bargap=0.3
+                )
+                st.markdown(f'<div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
+                st.plotly_chart(fig_stack, use_container_width=True, config={"displayModeBar": False})
+                st.markdown("</div>", unsafe_allow_html=True)
 
         cat_acum = df_maestro.copy()
         cat_acum["Cat"] = cat_acum["Item"].apply(categorizar)
