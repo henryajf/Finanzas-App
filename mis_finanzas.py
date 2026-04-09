@@ -363,6 +363,11 @@ html, body, .stApp {{
 .dualbar-left{{height:100%;border-radius:5px 0 0 5px;transition:width .4s;}}
 .dualbar-right{{height:100%;border-radius:0 5px 5px 0;flex:1;transition:width .4s;}}
 .dualbar-lbls{{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:600;}}
+/* ── DUAL DATA (labels alineados a cada segmento) ── */
+.dual-data{{display:flex;justify-content:space-between;align-items:flex-start;margin-top:2px;}}
+.dual-data-left{{text-align:left;flex:1;}}
+.dual-data-right{{text-align:right;flex:1;}}
+
 
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
@@ -773,24 +778,30 @@ if st.session_state.screen == "inicio":
   <div class="icard-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
   <div class="icard-sub">{ing_usd_str}</div>
   <div class="icard-sep"></div>
-  <div class="prow">
-    <div class="pav pav-h">H</div>
-    <div class="prow-body"><div class="prow-name">Henry</div><div class="prow-sub">{pct_henry}% · {fmt_usd_from_ars(ing_henry, dolar)}</div></div>
-    <div class="prow-right"><div class="prow-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div></div>
+
+  <!-- barra dual -->
+  <div class="dualbar" style="margin-bottom:6px">
+    <div class="dualbar-left" style="width:{pct_henry}%;background:{ACCENT};"></div>
+    <div class="dualbar-right" style="width:{pct_jaike}%;background:{PURPLE};"></div>
   </div>
-  <div class="prow" style="margin-top:8px">
-    <div class="pav pav-j">J</div>
-    <div class="prow-body"><div class="prow-name">Jaike</div><div class="prow-sub">{pct_jaike}% · {fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
-    <div class="prow-right"><div class="prow-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div></div>
-  </div>
-  <div class="dualbar-wrap">
-    <div class="dualbar">
-      <div class="dualbar-left" style="width:{pct_henry}%;background:{ACCENT};"></div>
-      <div class="dualbar-right" style="width:{pct_jaike}%;background:{PURPLE};"></div>
+
+  <!-- etiquetas alineadas con cada segmento -->
+  <div class="dual-data">
+    <div class="dual-data-left">
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+        <div class="pav pav-h" style="width:22px;height:22px;font-size:10px">H</div>
+        <span style="font-size:13px;font-weight:500;color:{TEXT}">Henry</span>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:{ACCENT}">{fmt_ars(ing_henry)}</div>
+      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(ing_henry, dolar)} · {pct_henry}%</div>
     </div>
-    <div class="dualbar-lbls">
-      <span style="color:{ACCENT}">Henry {pct_henry}%</span>
-      <span style="color:{PURPLE}">Jaike {pct_jaike}%</span>
+    <div class="dual-data-right">
+      <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:2px">
+        <span style="font-size:13px;font-weight:500;color:{TEXT}">Jaike</span>
+        <div class="pav pav-j" style="width:22px;height:22px;font-size:10px">J</div>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:{PURPLE}">{fmt_ars(ing_jaike)}</div>
+      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(ing_jaike, dolar)} · {pct_jaike}%</div>
     </div>
   </div>
 </div>
@@ -803,47 +814,44 @@ if st.session_state.screen == "inicio":
     pct_pend_c  = 100 - pct_pag_c
     st.markdown(f"""
 <div class="icard">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
     <div>
       <div class="icard-lbl">Gastos — {label_periodo(periodo_viendo)}</div>
       <div class="icard-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div>
       <div class="icard-sub">{fmt_usd_from_ars(total_ars, dolar)}</div>
     </div>
     <div style="text-align:right;padding-top:2px">
-      <div style="font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Ítems</div>
+      <div style="font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Ítems</div>
       <div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df) if not df.empty else 0}</div>
       <div style="font-size:11px;color:{TEXT2}">{n_pagados_c} pag · {n_pend_c} pend</div>
     </div>
   </div>
-  <div class="icard-sep"></div>
-  <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-    <div style="display:flex;align-items:center;gap:6px">
-      <span style="width:9px;height:9px;border-radius:50%;background:{GREEN};display:inline-block;flex-shrink:0"></span>
-      <span style="font-size:13px;font-weight:500;color:{TEXT}">Pagados</span>
-      <span class="sbar-badge sbar-badge-g">{n_pagados_c}</span>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:13px;font-weight:700;color:{GREEN}">{fmt_ars(pagado_ars)}</div>
-      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pagado_ars, dolar)}</div>
-    </div>
-  </div>
-  <div class="dualbar">
+
+  <!-- barra dual -->
+  <div class="dualbar" style="margin-bottom:6px">
     <div class="dualbar-left" style="width:{pct_pag_c}%;background:{GREEN};"></div>
-    <div class="dualbar-right" style="width:{pct_pend_c}%;background:{RED};opacity:0.55;"></div>
+    <div class="dualbar-right" style="width:{pct_pend_c}%;background:{RED};opacity:0.7;"></div>
   </div>
-  <div style="display:flex;justify-content:space-between;margin-top:6px;margin-bottom:10px">
-    <span style="font-size:11px;color:{GREEN}">{pct_pag_c}% pagado</span>
-    <span style="font-size:11px;color:{RED}">{pct_pend_c}% pendiente</span>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <div style="display:flex;align-items:center;gap:6px">
-      <span style="width:9px;height:9px;border-radius:50%;background:{RED};display:inline-block;flex-shrink:0"></span>
-      <span style="font-size:13px;font-weight:500;color:{TEXT}">Pendientes</span>
-      <span class="sbar-badge sbar-badge-r">{n_pend_c}</span>
+
+  <!-- etiquetas alineadas con cada segmento -->
+  <div class="dual-data">
+    <div class="dual-data-left">
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+        <span style="width:8px;height:8px;border-radius:50%;background:{GREEN};display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:12px;font-weight:600;color:{TEXT}">Pagados</span>
+        <span class="sbar-badge sbar-badge-g">{n_pagados_c}</span>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:{GREEN}">{fmt_ars(pagado_ars)}</div>
+      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pagado_ars, dolar)} · {pct_pag_c}%</div>
     </div>
-    <div style="text-align:right">
-      <div style="font-size:13px;font-weight:700;color:{RED}">{fmt_ars(pend_ars)}</div>
-      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pend_ars, dolar)}</div>
+    <div class="dual-data-right">
+      <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:2px">
+        <span class="sbar-badge sbar-badge-r">{n_pend_c}</span>
+        <span style="font-size:12px;font-weight:600;color:{TEXT}">Pendientes</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:{RED};display:inline-block;flex-shrink:0"></span>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:{RED}">{fmt_ars(pend_ars)}</div>
+      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pend_ars, dolar)} · {pct_pend_c}%</div>
     </div>
   </div>
 </div>
