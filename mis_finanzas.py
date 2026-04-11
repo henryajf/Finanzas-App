@@ -30,9 +30,6 @@ YELLOW  = "#FFD60A"
 PURPLE  = "#BF5AF2"
 PLOTBG  = "rgba(0,0,0,0)"
 
-# URL de tu Google Sheet — reemplazá con el link real
-SHEETS_URL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
-
 CAT_COLORS = {
     "Servicios": "#FF9F0A", "Hogar": "#32D74B", "Supermercado": "#30D158",
     "Comida": "#FF453A", "Transporte": "#0A84FF", "Suscripciones": "#BF5AF2",
@@ -91,10 +88,8 @@ html, body, .stApp {{
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;}}
 
 #MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
-[data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {{display:none !important;height:0 !important;overflow:hidden !important;}}
-.stBottomContainer, .stChatFloatingInputContainer {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 88px;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 120px;}} /* Margen extra para que la píldora no tape el final */
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -103,7 +98,7 @@ html, body, .stApp {{
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   border-bottom:0.5px solid rgba(255,255,255,0.08);
-  padding:12px 16px 8px;
+  padding:12px 16px 12px;
   margin:0 -16px 14px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
@@ -115,22 +110,96 @@ html, body, .stApp {{
 .dolar-val{{font-size:19px;font-weight:700;color:{ACCENT};letter-spacing:-.01em;}}
 .dolar-trend{{font-size:11px;margin-top:1px;}}
 
-/* ── PERIODO BAR ── */
-.periodo-bar{{
-  display:flex;align-items:center;gap:6px;
-  padding:8px 0 0;margin-top:6px;
-  border-top:0.5px solid rgba(255,255,255,0.06);
-  overflow-x:auto;scrollbar-width:none;
+/* ── BARRA INFERIOR FLOTANTE TIPO PÍLDORA (GLASSMORPHISM) ── */
+.pill-nav {{
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(30, 30, 32, 0.75); /* Oscuro con transparencia */
+  backdrop-filter: saturate(180%) blur(15px);
+  -webkit-backdrop-filter: saturate(180%) blur(15px);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 8px 8px;
+  border-radius: 50px;
+  z-index: 999999;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
 }}
-.periodo-bar::-webkit-scrollbar{{display:none;}}
-.periodo-chip{{
-  flex-shrink:0;padding:4px 12px;border-radius:20px;
-  font-size:12px;font-weight:600;cursor:pointer;
-  border:none;font-family:-apple-system,sans-serif;
-  transition:all .15s;
+.pill-item {{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 50px;
+  color: #8E8E93; /* Gris claro */
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }}
-.periodo-chip-active{{background:{ACCENT};color:#fff;}}
-.periodo-chip-inactive{{background:{SURF2};color:{TEXT2};}}
+.pill-item:hover {{
+  color: #FFFFFF;
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px); /* Pequeña elevación hover */
+}}
+.pill-item svg {{
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  transition: transform 0.3s ease;
+}}
+.pill-item.active {{
+  background: linear-gradient(135deg, #BF5AF2, #5E5CE6); /* Gradiente Violeta */
+  color: #FFFFFF;
+  box-shadow: 0 4px 15px rgba(191, 90, 242, 0.35); /* Glow suave */
+}}
+.pill-item.active svg {{
+  transform: scale(1.15); /* Crece un poquito el ícono activo */
+}}
+
+@media (max-width: 650px) {{
+  .pill-nav {{
+    width: 94%;
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    justify-content: space-between;
+    padding: 6px 8px;
+  }}
+  .pill-item {{
+    padding: 12px 14px;
+  }}
+  .pill-item span {{
+    display: none; /* Oculta el texto en celular de los inactivos */
+  }}
+  .pill-item.active span {{
+    display: block; /* Solo muestra texto en el activo */
+  }}
+}}
+
+
+/* ── SELECTBOX DE PERIODO ── */
+div[data-baseweb="select"] {{
+    background: {SURFACE} !important;
+    border-radius: 12px !important;
+    border: none !important;
+}}
+
+/* ── CARDS ── */
+.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
+.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
+.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
+.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
+
+.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
+.c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
+.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
 
 /* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
@@ -147,17 +216,6 @@ html, body, .stApp {{
   font-size:14px !important;font-weight:600 !important;
   box-shadow:none !important;
 }}
-
-/* ── CARDS ── */
-.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
-.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
-.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
-
-.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
-.c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
-.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
 
 /* ── BARRAS DE ESTADO ── */
 .bar-section{{margin-top:12px;}}
@@ -190,22 +248,6 @@ html, body, .stApp {{
 .balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-bottom:6px;}}
 .balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-bottom:6px;}}
 .balance-detail{{display:flex;justify-content:space-between;font-size:12px;color:{TEXT2};margin-top:8px;}}
-
-/* ── SHEETS BUTTON ── */
-.sheets-btn{{
-  display:flex;align-items:center;justify-content:center;gap:9px;
-  width:100%;padding:14px;
-  background:{SURFACE};
-  border:0.5px solid rgba(84,84,88,0.5);
-  border-radius:14px;
-  font-size:14px;font-weight:600;
-  color:{TEXT};cursor:pointer;
-  margin-top:4px;margin-bottom:10px;
-  text-decoration:none;
-  -webkit-tap-highlight-color:transparent;
-}}
-.sheets-btn:hover{{background:{SURF2};}}
-.sheets-btn:active{{opacity:.7;}}
 
 /* ── SECCION LABEL ── */
 .sec-lbl{{font-size:11px;font-weight:500;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;padding:0 2px;margin:14px 0 6px;}}
@@ -283,158 +325,33 @@ html, body, .stApp {{
 .ing-row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
 
-
-
-/* ── TABS ── */
-.stTabs [data-baseweb="tab-list"]{{background:transparent !important;border-bottom:0.5px solid {SEP} !important;gap:0 !important;padding:0 !important;}}
-.stTabs [data-baseweb="tab"]{{background:transparent !important;color:{TEXT2} !important;font-size:13px !important;font-weight:500 !important;border-bottom:2px solid transparent !important;padding:9px 14px !important;margin-bottom:-1px !important;}}
-.stTabs [aria-selected="true"]{{color:{ACCENT} !important;border-bottom-color:{ACCENT} !important;}}
-.stTabs [data-baseweb="tab-highlight"]{{display:none !important;}}
-.stTabs [data-baseweb="tab-panel"]{{padding:10px 0 0 !important;}}
+/* ── DATA EDITOR FIX ── */
 [data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:none !important;border-radius:12px !important;overflow:hidden !important;}}
 
 @media(max-width:700px){{
   .ios-title{{font-size:22px;}}
-  .wrap{{padding:0 12px 88px;}}
   .c-val{{font-size:20px;}}
 }}
-
-/* ── NUEVAS CARDS INICIO ── */
-.icard{{background:{SURFACE};border-radius:12px;padding:14px 15px;margin-bottom:8px;}}
-.icard-sep{{height:0.5px;background:rgba(84,84,88,0.5);margin:11px 0;}}
-.icard-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}}
-.icard-val{{font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
-.icard-sub{{font-size:11px;color:{TEXT2};margin-top:3px;}}
-.sbar-hdr{{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}}
-.sbar-lbl{{font-size:13px;font-weight:500;color:{TEXT};}}
-.sbar-amt{{font-size:14px;font-weight:700;}}
-.sbar-usd{{font-size:11px;color:{TEXT2};text-align:right;}}
-.sbar-bg{{height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden;margin-bottom:3px;}}
-.sbar-fill{{height:100%;border-radius:5px;}}
-.sbar-foot{{display:flex;justify-content:space-between;}}
-.sbar-pct{{font-size:11px;color:{TEXT2};}}
-.sbar-badge{{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}}
-.sbar-badge-g{{background:rgba(50,215,75,.15);color:{GREEN};}}
-.sbar-badge-r{{background:rgba(255,69,58,.15);color:{RED};}}
-.prow{{display:flex;align-items:center;gap:10px;}}
-.prow+.prow{{margin-top:10px;}}
-.pav{{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}}
-.pav-h{{background:rgba(10,132,255,.18);color:{ACCENT};}}
-.pav-j{{background:rgba(191,90,242,.18);color:{PURPLE};}}
-.prow-body{{flex:1;}}
-.prow-name{{font-size:13px;font-weight:500;color:{TEXT};}}
-.prow-sub{{font-size:11px;color:{TEXT2};}}
-.prow-right{{text-align:right;}}
-.prow-amt{{font-size:14px;font-weight:700;}}
-.prow-usd{{font-size:11px;color:{TEXT2};}}
-.pbar-wrap{{margin:4px 0 0 40px;}}
-.bal-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-bottom:5px;}}
-.bal-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-bottom:5px;}}
-.bal-detail{{display:flex;justify-content:space-between;font-size:12px;color:{TEXT2};margin-top:8px;}}
-.sheets-btn{{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:13px 16px;background:{SURFACE};border:0.5px solid rgba(84,84,88,.55);border-radius:12px;font-size:14px;font-weight:600;color:{TEXT};cursor:pointer;margin-bottom:8px;text-decoration:none;-webkit-tap-highlight-color:transparent;}}
-.sheets-btn:active{{opacity:.6;}}
-/* ── SHEETS BTN PEQUEÑO ── */
-.sheets-btn-sm{{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px 14px;background:{SURF2};border:0.5px solid rgba(84,84,88,.55);border-radius:10px;font-size:14px;font-weight:600;color:{TEXT};cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;height:100%;}}
-.sheets-btn-sm:active{{opacity:.6;}}
-/* ── HIDDEN NAV BUTTONS (pill targets) ── */
-[data-testid="stBaseButton-secondary"][kind="secondary"]:has(+ [data-testid]),
-button[data-testid="baseButton-secondary"][aria-label="pill_nav_inicio"],
-button[data-testid="baseButton-secondary"][aria-label="pill_nav_ingresos"],
-button[data-testid="baseButton-secondary"][aria-label="pill_nav_gastos"],
-button[data-testid="baseButton-secondary"][aria-label="pill_nav_tendencias"]
-{{ display:none !important; }}
-/* hide via key class — Streamlit adds data-key attribute */
-[data-key="pill_nav_inicio"],[data-key="pill_nav_ingresos"],
-[data-key="pill_nav_gastos"],[data-key="pill_nav_tendencias"]
-{{ display:none !important; height:0 !important; overflow:hidden !important; margin:0 !important; padding:0 !important; }}
-
-/* ── PILL NAVBAR ── */
-.pill-nav-wrap{{
-  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
-  z-index:2147483647;
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}}
-.pill-nav{{
-  display:flex;align-items:center;gap:4px;
-  background:rgba(28,28,30,0.82);
-  backdrop-filter:saturate(180%) blur(24px);
-  -webkit-backdrop-filter:saturate(180%) blur(24px);
-  border:0.5px solid rgba(255,255,255,0.10);
-  border-radius:100px;
-  padding:6px 8px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.45);
-}}
-.pill-btn{{
-  display:flex;align-items:center;gap:6px;
-  padding:8px 14px;
-  border-radius:100px;
-  border:none;cursor:pointer;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
-  font-size:13px;font-weight:600;
-  color:rgba(255,255,255,0.5);
-  background:transparent;
-  transition:all .22s cubic-bezier(.4,0,.2,1);
-  -webkit-tap-highlight-color:transparent;
-  white-space:nowrap;
-}}
-.pill-btn svg{{
-  transition:all .22s cubic-bezier(.4,0,.2,1);
-  flex-shrink:0;
-}}
-.pill-btn:hover{{
-  color:rgba(255,255,255,0.85);
-  background:rgba(255,255,255,0.06);
-  transform:scale(1.04);
-}}
-.pill-btn:active{{transform:scale(0.96);}}
-.pill-btn-active{{
-  background:linear-gradient(135deg,#7C3AED,#9F5CF7) !important;
-  color:#fff !important;
-  box-shadow:0 2px 16px rgba(124,58,237,0.45);
-}}
-.pill-btn-active svg{{opacity:1 !important;}}
-.pill-btn-icon{{
-  display:flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:100px;
-  padding:6px;
-  border:none;cursor:pointer;
-  background:transparent;
-  color:rgba(255,255,255,0.45);
-  transition:all .22s cubic-bezier(.4,0,.2,1);
-  -webkit-tap-highlight-color:transparent;
-}}
-.pill-btn-icon:hover{{
-  color:rgba(255,255,255,0.85);
-  background:rgba(255,255,255,0.08);
-  transform:scale(1.1);
-}}
-.pill-btn-icon:active{{transform:scale(0.92);}}
-.pill-btn-icon-active{{
-  color:#fff !important;
-  background:linear-gradient(135deg,#7C3AED,#9F5CF7) !important;
-  box-shadow:0 2px 12px rgba(124,58,237,0.4);
-}}
-
-
-/* ── DUAL BAR ── */
-.dualbar-wrap{{margin-top:10px;}}
-.dualbar{{display:flex;height:5px;border-radius:5px;overflow:hidden;gap:2px;background:rgba(255,255,255,.06);}}
-.dualbar-left{{height:100%;border-radius:5px 0 0 5px;transition:width .4s;}}
-.dualbar-right{{height:100%;border-radius:0 5px 5px 0;flex:1;transition:width .4s;}}
-.dualbar-lbls{{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:600;}}
-/* ── DUAL DATA (labels alineados a cada segmento) ── */
-.dual-data{{display:flex;justify-content:space-between;align-items:flex-start;margin-top:2px;}}
-.dual-data-left{{text-align:left;flex:1;}}
-.dual-data-right{{text-align:right;flex:1;}}
-
-
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
 </style>""", unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────────
-# CONEXION Y CARGA DE DATOS
+# CONEXION Y LIMPIEZA DE DATOS (EL FIX PARA QUE NO SE PONGAN EN CERO)
 # ──────────────────────────────────────────────────────────────────
+def clean_currency(val):
+    if pd.isna(val) or val == "": return 0.0
+    if isinstance(val, (int, float)): return float(val)
+    v = str(val).upper().replace("$", "").replace("ARS", "").replace("U$S", "").replace("USD", "").strip()
+    v = v.replace(" ", "").replace("\xa0", "")
+    if "," in v and "." in v: v = v.replace(".", "").replace(",", ".")
+    elif "," in v: v = v.replace(",", ".")
+    elif "." in v:
+        parts = v.split(".")
+        if len(parts) > 1 and len(parts[-1]) == 3: v = v.replace(".", "")  
+    try: return float(v)
+    except: return 0.0
+
 @st.cache_resource
 def get_gspread():
     scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
@@ -452,13 +369,15 @@ def cargar_datos_maestro():
     except Exception as e:
         st.error(f"Error conectando con Google Sheets: {e}")
         return pd.DataFrame()
+    
     data = [r for r in data if any(str(c).strip() for c in r)]
-    if not data or len(data) < 2:
-        return pd.DataFrame()
+    if not data or len(data) < 2: return pd.DataFrame()
+        
     headers_new = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado","Periodo","Tasa USD"]
     headers_legacy = ["Categoria","Item","Monto (ARS)","Dia Pago","Pagado"]
     primera = [str(c).strip().lower() for c in data[0]]
     tiene_periodo = "periodo" in primera
+    
     if tiene_periodo:
         filas = data[1:]
         filas = [r + [""] * (7 - len(r)) for r in filas if len(r) >= 2]
@@ -471,8 +390,9 @@ def cargar_datos_maestro():
         df = pd.DataFrame(filas, columns=headers_legacy)
         df["Periodo"] = date.today().strftime("%Y-%m")
         df["Tasa USD"] = 0.0
-    df["Monto (ARS)"] = pd.to_numeric(df["Monto (ARS)"], errors="coerce").fillna(0)
-    df["Tasa USD"]    = pd.to_numeric(df["Tasa USD"],    errors="coerce").fillna(0)
+        
+    df["Monto (ARS)"] = df["Monto (ARS)"].apply(clean_currency)
+    df["Tasa USD"]    = df["Tasa USD"].apply(clean_currency)
     df["Dia Pago"]    = pd.to_datetime(df["Dia Pago"],   errors="coerce").dt.date
     df["Pagado"]      = df["Pagado"].apply(lambda x: str(x).strip().upper() in ["TRUE","VERDADERO","SI","1"])
     df = df[~((df["Monto (ARS)"] == 0) & (df["Item"].str.strip() == ""))]
@@ -495,7 +415,7 @@ def cargar_ingresos():
         if not filas: return pd.DataFrame()
         df = pd.DataFrame(filas, columns=headers)
         for col in ["Monto ARS","Monto USD","Monto Original","Tasa USD/ARS"]:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+            df[col] = df[col].apply(clean_currency)
         df["Fecha"]   = pd.to_datetime(df["Fecha"],  errors="coerce").dt.date
         df = df[df["Monto ARS"] > 0]
         df["Periodo"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%Y-%m")
@@ -661,20 +581,6 @@ def label_periodo(p):
     except Exception:
         return p
 
-# ── NAVEGACIÓN EN SIDEBAR ──
-with st.sidebar:
-    for p in periodos_disponibles[:8]:
-        if st.button(label_periodo(p), key=f"nav_periodo_{p}", type="secondary"):
-            st.session_state.periodo_sel = p
-            st.rerun()
-
-# ── HIDDEN NAV BUTTONS (en main DOM, ocultos con CSS, para que pill los encuentre) ──
-if st.button("inicio",     key="pill_nav_inicio",     type="secondary"): st.session_state.screen = "inicio";     st.rerun()
-if st.button("ingresos",   key="pill_nav_ingresos",   type="secondary"): st.session_state.screen = "ingresos";   st.rerun()
-if st.button("gastos",     key="pill_nav_gastos",     type="secondary"): st.session_state.screen = "gastos";     st.rerun()
-if st.button("tendencias", key="pill_nav_tendencias", type="secondary"): st.session_state.screen = "tendencias"; st.rerun()
-
-
 # ── FILTRADO DE DATOS ──
 if not df_maestro.empty:
     df_base_periodo = df_maestro[df_maestro["Periodo"] == periodo_viendo].copy()
@@ -709,7 +615,7 @@ ing_henry      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="HENRY"][
 ing_jaike      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 balance_ars    = total_ing_ars - total_ars
 
-# ── PWA META TAGS ──
+# ── PWA META TAGS & JAVASCRIPT DE NAVEGACION ──
 st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -718,124 +624,64 @@ st.markdown("""
 <meta name="apple-mobile-web-app-title" content="Finanzas AR">
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
-function haptic(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}}
-function openLink(url){try{window.open(url,'_blank');}catch(e){}}
+window.haptic = function(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}};
+window.clickPillNav = function(targetText) {
+    window.haptic(10);
+    const btns = Array.from(document.querySelectorAll('button p')).filter(p => p.textContent === targetText);
+    if(btns.length > 0) btns[0].parentElement.click();
+};
+
 document.addEventListener('DOMContentLoaded',function(){
   function patchInputs(){
     document.querySelectorAll('input[type="number"]').forEach(function(el){if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','decimal');}});
-    document.querySelectorAll('input[type="text"]').forEach(function(el){if(!el.getAttribute('inputmode')){el.setAttribute('inputmode','text');}});
   }
-  function killBottom(){
-    var sel=['[data-testid="stBottom"]','[data-testid="stBottomBlockContainer"]','.stBottomContainer','.stChatFloatingInputContainer'];
-    sel.forEach(function(s){document.querySelectorAll(s).forEach(function(el){el.style.cssText='display:none!important;height:0!important;overflow:hidden!important;';});});
-  }
-  patchInputs(); killBottom();
-  var obs=new MutationObserver(function(){patchInputs();killBottom();});
+  patchInputs();
+  var obs=new MutationObserver(function(){patchInputs();});
   obs.observe(document.body,{childList:true,subtree:true});
 });
 </script>
 """, unsafe_allow_html=True)
 
-# ── PILL NAVBAR ──
+
+# ── BOTONES OCULTOS EN EL SIDEBAR (EL MOTOR DE NAVEGACIÓN) ──
+with st.sidebar:
+    if st.button("HIDDEN_inicio"): st.session_state.screen = "inicio"; st.rerun()
+    if st.button("HIDDEN_ingresos"): st.session_state.screen = "ingresos"; st.rerun()
+    if st.button("HIDDEN_gastos"): st.session_state.screen = "gastos"; st.rerun()
+    if st.button("HIDDEN_tendencias"): st.session_state.screen = "tendencias"; st.rerun()
+
+
 _sc = st.session_state.screen
 
-def _pill_active(screen):
-    return "pill-btn-active" if _sc == screen else ""
-
-def _icon_active(screen):
-    return "pill-btn-icon-active" if _sc == screen else ""
-
+# ── LA PÍLDORA FLOTANTE (HTML/CSS) ──
 st.markdown(f"""
-<div class="pill-nav-wrap">
-  <div class="pill-nav">
-
-    <button class="pill-btn {_pill_active('inicio')}"
-      onclick="(function(){{haptic(8);navTo('pill_nav_inicio');}})()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-      </svg>
-      Inicio
-    </button>
-
-    <button class="pill-btn-icon {_icon_active('ingresos')}"
-      title="Ingresos"
-      onclick="(function(){{haptic(8);navTo('pill_nav_ingresos');}})()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
-      </svg>
-    </button>
-
-    <button class="pill-btn-icon {_icon_active('gastos')}"
-      title="Editar gastos"
-      onclick="(function(){{haptic(8);navTo('pill_nav_gastos');}})()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-      </svg>
-    </button>
-
-    <button class="pill-btn-icon {_icon_active('tendencias')}"
-      title="Tendencias"
-      onclick="(function(){{haptic(8);navTo('pill_nav_tendencias');}})()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
-      </svg>
-    </button>
-
+<div class="pill-nav">
+  <div class="pill-item {'active' if _sc=='inicio' else ''}" onclick="window.clickPillNav('HIDDEN_inicio')">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>Inicio</span>
+  </div>
+  <div class="pill-item {'active' if _sc=='ingresos' else ''}" onclick="window.clickPillNav('HIDDEN_ingresos')">
+    <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+    <span>Ingresos</span>
+  </div>
+  <div class="pill-item {'active' if _sc=='gastos' else ''}" onclick="window.clickPillNav('HIDDEN_gastos')">
+    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+    <span>Gastos</span>
+  </div>
+  <div class="pill-item {'active' if _sc=='tendencias' else ''}" onclick="window.clickPillNav('HIDDEN_tendencias')">
+    <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+    <span>Tendencias</span>
   </div>
 </div>
-<script>
-function navTo(key) {{
-  // Streamlit renders button's parent div with data-testid containing the key
-  // Try multiple selectors Streamlit uses across versions
-  var sel = [
-    '[data-testid="stBaseButton-secondary"] p',
-    'button[kind="secondary"]',
-    '[data-testid="stBaseButton-secondary"]'
-  ];
-  var labels = {{
-    'pill_nav_inicio': 'inicio',
-    'pill_nav_ingresos': 'ingresos',
-    'pill_nav_gastos': 'gastos',
-    'pill_nav_tendencias': 'tendencias'
-  }};
-  var label = labels[key];
-  if (!label) return;
-  // Search all buttons in the full document including iframes
-  function tryClick(doc) {{
-    var btns = doc.querySelectorAll('button');
-    for (var i = 0; i < btns.length; i++) {{
-      var t = btns[i].innerText || btns[i].textContent || '';
-      if (t.trim() === label) {{
-        btns[i].click();
-        return true;
-      }}
-    }}
-    return false;
-  }}
-  if (tryClick(document)) return;
-  var frames = document.querySelectorAll('iframe');
-  for (var j = 0; j < frames.length; j++) {{
-    try {{
-      if (tryClick(frames[j].contentDocument || frames[j].contentWindow.document)) return;
-    }} catch(e) {{}}
-  }}
-}}
-</script>""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
 
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
 # ── HEADER ──
-if dolar_diff > 0:
-    trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
-elif dolar_diff < 0:
-    trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
-else:
-    trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
-
-chips_html = ""
-for p in periodos_disponibles[:8]:
-    activo = "active" if p == periodo_viendo else "inactive"
-    chips_html += f'<span class="periodo-chip periodo-chip-{activo}" data-periodo="{p}">{label_periodo(p)}</span>'
+if dolar_diff > 0: trend_html = f'<span style="color:{RED};font-size:11px;font-weight:700">▲ {dolar_pct:+.1f}%</span>'
+elif dolar_diff < 0: trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
+else: trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
 
 st.markdown(f"""
 <div class="ios-hdr">
@@ -850,20 +696,28 @@ st.markdown(f"""
       <div class="dolar-trend">{trend_html}</div>
     </div>
   </div>
-  <div class="periodo-bar" id="periodoBar">{chips_html}</div>
 </div>
 """, unsafe_allow_html=True)
 
 
+opciones_periodos = periodos_disponibles[:8]
+idx_per = opciones_periodos.index(periodo_viendo) if periodo_viendo in opciones_periodos else 0
+nuevo_periodo = st.selectbox("📅 Período seleccionado", opciones_periodos, index=idx_per, format_func=label_periodo, label_visibility="collapsed")
+if nuevo_periodo != st.session_state.periodo_sel:
+    st.session_state.periodo_sel = nuevo_periodo
+    st.rerun()
+
+st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+
+
 # ══════════════════════════════════════════════════════════════════
-# PANTALLA: INICIO — NUEVO DISEÑO COMPACTO
+# PANTALLA: INICIO
 # ══════════════════════════════════════════════════════════════════
 if st.session_state.screen == "inicio":
 
     if not es_mes_actual:
         st.markdown(f'<div class="alert alert-b">📅 Historial — <strong>{label_periodo(periodo_viendo)}</strong> (solo lectura)</div>', unsafe_allow_html=True)
 
-    # Alertas de vencimiento
     if es_mes_actual:
         if not vencidos.empty:
             items_v = " · ".join(r["Item"] for _, r in vencidos.iterrows())
@@ -871,110 +725,76 @@ if st.session_state.screen == "inicio":
         if not proximos.empty:
             st.markdown(f'<div class="alert alert-o">Vencen en 3 días: {" · ".join(r["Item"] for _, r in proximos.iterrows())}</div>', unsafe_allow_html=True)
 
-    # ── CARD INGRESOS ──
     pct_henry = int(ing_henry / total_ing_ars * 100) if total_ing_ars > 0 else 0
-    pct_jaike = 100 - pct_henry
+    pct_jaike = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
     ing_usd_str = fmt_usd(total_ing_usd) if total_ing_usd > 0 else fmt_usd_from_ars(total_ing_ars, dolar)
+
+    st.markdown(f'<div class="sec-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
     st.markdown(f"""
-<div class="icard">
-  <div class="icard-lbl">Ingresos — {label_periodo(periodo_viendo)}</div>
-  <div class="icard-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
-  <div class="icard-sub">{ing_usd_str}</div>
-  <div class="icard-sep"></div>
-
-  <!-- barra dual -->
-  <div class="dualbar" style="margin-bottom:6px">
-    <div class="dualbar-left" style="width:{pct_henry}%;background:{ACCENT};"></div>
-    <div class="dualbar-right" style="width:{pct_jaike}%;background:{PURPLE};"></div>
+<div class="card-ing">
+  <div class="c-lbl">Total ingresado</div>
+  <div class="c-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "Sin datos"}</div>
+  <div class="c-sub">{ing_usd_str} · tasa $ {dolar:,.0f}</div>
+  <div class="sep"></div>
+  <div class="persona-row">
+    <div class="av av-h">H</div>
+    <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry}% del total</div></div>
+    <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
   </div>
+  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT};"></div></div></div>
+  <div class="persona-row" style="margin-top:10px">
+    <div class="av av-j">J</div>
+    <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike}% del total</div></div>
+    <div><div class="persona-amt" style="color:{PURPLE}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
+  </div>
+  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{PURPLE};"></div></div></div>
+</div>
+""", unsafe_allow_html=True)
 
-  <!-- etiquetas alineadas con cada segmento -->
-  <div class="dual-data">
-    <div class="dual-data-left">
-      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
-        <div class="pav pav-h" style="width:22px;height:22px;font-size:10px">H</div>
-        <span style="font-size:13px;font-weight:500;color:{TEXT}">Henry</span>
-      </div>
-      <div style="font-size:15px;font-weight:700;color:{ACCENT}">{fmt_ars(ing_henry)}</div>
-      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(ing_henry, dolar)} · {pct_henry}%</div>
+    st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+<div class="card-gastos">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div></div>
+    <div style="text-align:right;padding-top:2px"><div class="c-lbl">Ítems</div><div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df)}</div><div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div></div>
+  </div>
+  <div class="sep"></div>
+  <div class="bar-section">
+    <div class="bar-row-hdr">
+      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-left:6px">{n_pagados}</span></div>
+      <div style="text-align:right"><div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div></div>
     </div>
-    <div class="dual-data-right">
-      <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:2px">
-        <span style="font-size:13px;font-weight:500;color:{TEXT}">Jaike</span>
-        <div class="pav pav-j" style="width:22px;height:22px;font-size:10px">J</div>
-      </div>
-      <div style="font-size:15px;font-weight:700;color:{PURPLE}">{fmt_ars(ing_jaike)}</div>
-      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(ing_jaike, dolar)} · {pct_jaike}%</div>
+    <div class="bar-bg"><div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div></div>
+    <div class="bar-meta"><span class="bar-pct">{pct_pag}% del total</span></div>
+  </div>
+  <div style="height:12px;"></div>
+  <div class="bar-section">
+    <div class="bar-row-hdr">
+      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-left:6px">{n_pendientes}</span></div>
+      <div style="text-align:right"><div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
     </div>
+    <div class="bar-bg"><div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div></div>
+    <div class="bar-meta"><span class="bar-pct">{pct_pend}% del total</span></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-    # ── CARD GASTOS ──
-    n_pagados_c = int(df["Pagado"].sum()) if not df.empty else 0
-    n_pend_c    = len(df) - n_pagados_c if not df.empty else 0
-    pct_pag_c   = int(pagado_ars / total_ars * 100) if total_ars > 0 else 0
-    pct_pend_c  = 100 - pct_pag_c
+    bc       = GREEN if balance_ars >= 0 else RED
+    bs       = "+" if balance_ars >= 0 else ""
+    bal_tag  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
+    bal_card = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
+
+    st.markdown(f'<div class="sec-lbl">Balance</div>', unsafe_allow_html=True)
     st.markdown(f"""
-<div class="icard">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-    <div>
-      <div class="icard-lbl">Gastos — {label_periodo(periodo_viendo)}</div>
-      <div class="icard-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div>
-      <div class="icard-sub">{fmt_usd_from_ars(total_ars, dolar)}</div>
-    </div>
-    <div style="text-align:right;padding-top:2px">
-      <div style="font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Ítems</div>
-      <div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df) if not df.empty else 0}</div>
-      <div style="font-size:11px;color:{TEXT2}">{n_pagados_c} pag · {n_pend_c} pend</div>
-    </div>
+<div class="{bal_card}">
+  {bal_tag}
+  <div style="display:flex;justify-content:space-between;align-items:flex-end">
+    <div><div class="c-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div><div class="c-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div></div>
   </div>
-
-  <!-- barra dual -->
-  <div class="dualbar" style="margin-bottom:6px">
-    <div class="dualbar-left" style="width:{pct_pag_c}%;background:{GREEN};"></div>
-    <div class="dualbar-right" style="width:{pct_pend_c}%;background:{RED};opacity:0.7;"></div>
-  </div>
-
-  <!-- etiquetas alineadas con cada segmento -->
-  <div class="dual-data">
-    <div class="dual-data-left">
-      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
-        <span style="width:8px;height:8px;border-radius:50%;background:{GREEN};display:inline-block;flex-shrink:0"></span>
-        <span style="font-size:12px;font-weight:600;color:{TEXT}">Pagados</span>
-        <span class="sbar-badge sbar-badge-g">{n_pagados_c}</span>
-      </div>
-      <div style="font-size:15px;font-weight:700;color:{GREEN}">{fmt_ars(pagado_ars)}</div>
-      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pagado_ars, dolar)} · {pct_pag_c}%</div>
-    </div>
-    <div class="dual-data-right">
-      <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:2px">
-        <span class="sbar-badge sbar-badge-r">{n_pend_c}</span>
-        <span style="font-size:12px;font-weight:600;color:{TEXT}">Pendientes</span>
-        <span style="width:8px;height:8px;border-radius:50%;background:{RED};display:inline-block;flex-shrink:0"></span>
-      </div>
-      <div style="font-size:15px;font-weight:700;color:{RED}">{fmt_ars(pend_ars)}</div>
-      <div style="font-size:11px;color:{TEXT2}">{fmt_usd_from_ars(pend_ars, dolar)} · {pct_pend_c}%</div>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # ── CARD BALANCE (compacto, sin barra) ──
-    bc = GREEN if balance_ars >= 0 else RED
-    bs = "+" if balance_ars >= 0 else ""
-    bal_tag = '<span class="bal-tag-pos">Superávit</span>' if balance_ars >= 0 else '<span class="bal-tag-neg">Déficit</span>'
-    st.markdown(f"""
-<div class="icard" style="display:flex;justify-content:space-between;align-items:center;padding:12px 15px">
-  <div>
-    <div class="icard-lbl">Balance</div>
-    <div style="font-size:22px;font-weight:700;color:{bc};letter-spacing:-.02em">{bs}{fmt_ars(balance_ars)}</div>
-    <div style="font-size:11px;color:{TEXT2};margin-top:2px">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div>
-  </div>
-  <div style="text-align:right">
-    {bal_tag}
-    <div style="font-size:11px;color:{TEXT2};margin-top:5px">Ing. <strong style="color:{GREEN}">{fmt_ars(total_ing_ars)}</strong></div>
-    <div style="font-size:11px;color:{TEXT2}">Gas. <strong style="color:{TEXT}">{fmt_ars(total_ars)}</strong></div>
+  <div class="sep"></div>
+  <div style="display:flex;justify-content:space-between;font-size:12px;color:{TEXT2}">
+    <span>Ingresos <strong style="color:{GREEN}">{fmt_ars(total_ing_ars)}</strong></span>
+    <span>Gastos <strong style="color:{TEXT}">{fmt_ars(total_ars)}</strong></span>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -995,7 +815,6 @@ if st.session_state.screen == "inicio":
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        # ── CLONACIÓN INTELIGENTE ──
         if not df_maestro.empty:
             periodo_ant = calcular_mes_anterior(periodo_actual)
             df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
@@ -1032,7 +851,6 @@ if st.session_state.screen == "inicio":
                                 guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
                                 st.rerun()
 
-        # Panel agregar gasto
         if st.session_state.show_add:
             st.markdown('<div class="add-panel">', unsafe_allow_html=True)
             a1, a2, a3, a4 = st.columns([2, 1.2, 1.2, 0.8])
@@ -1058,7 +876,6 @@ if st.session_state.screen == "inicio":
                             st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # Panel agregar ingreso
         if st.session_state.show_add_ingreso:
             st.markdown('<div class="add-panel-green">', unsafe_allow_html=True)
             i1, i2, i3 = st.columns([2, 1, 1])
@@ -1093,9 +910,6 @@ if st.session_state.screen == "inicio":
                         st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # ─────────────────────────────────────────
-    # LISTA DE GASTOS
-    # ─────────────────────────────────────────
     if df.empty:
         st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
@@ -1128,7 +942,6 @@ if st.session_state.screen == "inicio":
                 st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # Marcar pagado
         if es_mes_actual:
             pend_items = df_vista[df_vista["Pagado"] == False]
             if not pend_items.empty:
@@ -1145,7 +958,6 @@ if st.session_state.screen == "inicio":
                                 except Exception as e:
                                     st.error(str(e))
 
-        # Top 5
         st.markdown(f'<div class="sec-lbl">Top 5 gastos</div><div class="grp">', unsafe_allow_html=True)
         for _, row in df.nlargest(5,"Monto (ARS)").iterrows():
             color  = cat_color(row["Cat"])
@@ -1155,85 +967,6 @@ if st.session_state.screen == "inicio":
             usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
             st.markdown(f'<div class="row"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
-
-        # Distribución por categoría
-        st.markdown(f'<div class="sec-lbl">Por categoría</div><div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
-        max_cat = por_cat["Monto (ARS)"].max() if not por_cat.empty else 1
-        for _, r in por_cat.iterrows():
-            pct_c = int(r["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
-            bar_w = int(r["Monto (ARS)"] / max_cat * 100)
-            color = cat_color(r["Cat"])
-            st.markdown(f"""
-            <div style="margin-bottom:10px">
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                <span style="font-size:13px;color:{TEXT}">{r['Cat']}</span>
-                <div style="text-align:right">
-                  <span style="font-size:13px;font-weight:600;color:{color}">{fmt_ars(r['Monto (ARS)'])}</span>
-                  <span style="font-size:11px;color:{TEXT2};margin-left:6px">{pct_c}%</span>
-                </div>
-              </div>
-              <div style="height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
-                <div style="width:{bar_w}%;height:100%;background:{color};border-radius:3px"></div>
-              </div>
-            </div>""", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # Resumen
-        n_pag2 = int(df["Pagado"].sum()); n_pend2 = len(df) - n_pag2
-        mayor  = df.loc[df["Monto (ARS)"].idxmax(),"Item"] if not df.empty else "-"
-        mayor_m = df["Monto (ARS)"].max() if not df.empty else 0
-        st.markdown(f"""<div class="grp" style="padding:14px 16px">
-          <div style="font-size:12px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Resumen del mes</div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Total ítems</span><span style="font-weight:600">{len(df)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pagados</span><span style="color:{GREEN};font-weight:600">{n_pag2}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Pendientes</span><span style="color:{ORANGE};font-weight:600">{n_pend2}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid {SEP};font-size:14px"><span style="color:{TEXT2}">Vencidos</span><span style="color:{RED};font-weight:600">{len(vencidos)}</span></div>
-          <div style="padding:9px 0;font-size:14px"><span style="color:{TEXT2}">Mayor gasto</span><br><span style="font-weight:600;color:{TEXT}">{mayor}</span><br><span style="font-size:12px;color:{TEXT2}">{fmt_ars(mayor_m)}</span></div>
-        </div>""", unsafe_allow_html=True)
-
-        # ─────────────────────────────────────────
-        # BOTÓN GOOGLE SHEETS
-        # ─────────────────────────────────────────
-        st.markdown(f"""
-<a class="sheets-btn" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
-    <rect x="6" y="7" width="12" height="1.5" rx=".75" fill="white"/>
-    <rect x="6" y="10.5" width="12" height="1.5" rx=".75" fill="white" opacity=".8"/>
-    <rect x="6" y="14" width="8" height="1.5" rx=".75" fill="white" opacity=".6"/>
-    <rect x="6.75" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
-    <rect x="12" y="7" width="1" height="9" rx=".5" fill="white" opacity=".25"/>
-  </svg>
-  Abrir planilla para editar montos y fechas
-</a>
-""", unsafe_allow_html=True)
-
-
-        # ── BOTONES DE ACCIÓN FINAL ──
-        btn_col1, btn_col2 = st.columns(2)
-        with btn_col1:
-            if st.button("✏️  Editar gastos", type="secondary", use_container_width=True, key="btn_ir_gastos"):
-                st.session_state.screen = "gastos"
-                st.rerun()
-        with btn_col2:
-            st.markdown(f"""
-<a class="sheets-btn-sm" href="{SHEETS_URL}" target="_blank" onclick="haptic(20)">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="2" width="18" height="20" rx="3" fill="#34a853"/>
-    <rect x="6.5" y="7" width="11" height="1.4" rx=".7" fill="white"/>
-    <rect x="6.5" y="10.5" width="11" height="1.4" rx=".7" fill="white" opacity=".8"/>
-    <rect x="6.5" y="14" width="7" height="1.4" rx=".7" fill="white" opacity=".55"/>
-  </svg>
-  Planilla
-</a>
-""", unsafe_allow_html=True)
-
-        _, ce, _ = st.columns([1,1,1])
-        with ce:
-            st.download_button("Exportar Excel", data=exportar_excel(df, df_ing_todo),
-                               file_name=f"gastos_{periodo_viendo}.xlsx",
-                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                               use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -1265,10 +998,6 @@ elif st.session_state.screen == "ingresos":
       </div>
       <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike if total_ing_ars > 0 else 0}%;background:{PURPLE}"></div></div></div>
     </div>""", unsafe_allow_html=True)
-
-    bal_card2 = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
-    bal_tag2  = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
-    st.markdown(f'<div class="{bal_card2}">{bal_tag2}<div class="c-val" style="color:{bc2}">{bs2}{fmt_ars(balance_ars)}</div><div class="c-sub">Gastos: {fmt_ars(total_ars)}</div></div>', unsafe_allow_html=True)
 
     if es_mes_actual:
         lbl_i2 = "Cancelar" if st.session_state.show_add_ingreso else "＋ Agregar ingreso"
@@ -1348,13 +1077,8 @@ elif st.session_state.screen == "gastos":
         if not es_mes_actual:
             st.markdown(f'<div class="alert alert-o">📅 Editando <strong>{label_periodo(periodo_viendo)}</strong>. Guardar reescribirá la hoja maestra.</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px">Editá, agregá o marcá pagos. Guardá para sincronizar.</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px">Editá montos, vencimientos o marcá pagos. <strong>Guardá para sincronizar.</strong><br>(Los gastos pendientes salen automáticamente arriba).</div>', unsafe_allow_html=True)
 
-        tab_todos, tab_pend, tab_pag = st.tabs([
-            f"Todos  {len(df)}",
-            f"Pendientes  {len(df[df['Pagado']==False])}",
-            f"Pagados  {len(df[df['Pagado']==True])}"
-        ])
         COL_CONFIG = {
             "Pagado":     st.column_config.CheckboxColumn("Pagado", width="small"),
             "Item":       st.column_config.TextColumn("Ítem"),
@@ -1366,20 +1090,15 @@ elif st.session_state.screen == "gastos":
         }
         COL_ORDER = ("Pagado","Item","Monto (ARS)","USD","Dia Pago","Periodo","Tasa USD")
 
-        def render_tabla(data, key):
-            return st.data_editor(data, column_config=COL_CONFIG, column_order=COL_ORDER,
-                                   num_rows="dynamic", use_container_width=True, hide_index=True, key=key)
-
-        with tab_todos: df_edit = render_tabla(df, "t_todos")
-        with tab_pend:  render_tabla(df[df["Pagado"]==False].copy(), "t_pend")
-        with tab_pag:   render_tabla(df[df["Pagado"]==True].copy(), "t_pag")
+        df_edit = st.data_editor(df, column_config=COL_CONFIG, column_order=COL_ORDER,
+                                 num_rows="dynamic", use_container_width=True, hide_index=True, key="t_unico")
 
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         bc1, bc2, bc3 = st.columns([2.5, 0.8, 0.8])
         with bc1:
             if st.button("Guardar y Sincronizar", type="primary", use_container_width=True):
                 try:
-                    df_otros    = df_maestro[df_maestro["Periodo"] != periodo_viendo].copy()
+                    df_otros = df_maestro[df_maestro["Periodo"] != periodo_viendo].copy()
                     df_combinado = pd.concat([df_otros, df_edit], ignore_index=True)
                     guardar_hoja_maestro(df_combinado, dolar)
                     st.markdown('<div class="toast-ok">Cambios guardados</div>', unsafe_allow_html=True)
@@ -1396,7 +1115,6 @@ elif st.session_state.screen == "gastos":
                                     file_name=f"gastos_{periodo_viendo}.xlsx",
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                     use_container_width=True)
-
 
 # ══════════════════════════════════════════════════════════════════
 # PANTALLA: TENDENCIAS
@@ -1497,35 +1215,6 @@ elif st.session_state.screen == "tendencias":
               </div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
-
-        if tiene_ingresos and "Henry" in hist.columns:
-            hist_rev = hist.sort_values("Periodo")
-            has_both = hist_rev["Henry"].sum() > 0 and hist_rev["Jaike"].sum() > 0
-            if has_both:
-                st.markdown('<div class="sec-lbl">Aportes Henry vs Jaike</div>', unsafe_allow_html=True)
-                fig_stack = go.Figure()
-                fig_stack.add_trace(go.Bar(
-                    name="Henry", x=hist_rev["Label"], y=hist_rev["Henry"],
-                    marker_color=ACCENT, opacity=0.85,
-                    hovertemplate="<b>Henry</b> %{x}<br>%{y:,.0f}<extra></extra>"
-                ))
-                fig_stack.add_trace(go.Bar(
-                    name="Jaike", x=hist_rev["Label"], y=hist_rev["Jaike"],
-                    marker_color=PURPLE, opacity=0.85,
-                    hovertemplate="<b>Jaike</b> %{x}<br>%{y:,.0f}<extra></extra>"
-                ))
-                fig_stack.update_layout(
-                    barmode="stack", height=220,
-                    margin=dict(t=8,b=8,l=8,r=8),
-                    paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
-                    legend=dict(font=dict(color=TEXT2,size=12),bgcolor="rgba(0,0,0,0)",orientation="h",x=0,y=1.12),
-                    xaxis=dict(tickfont=dict(color=TEXT2,size=11),showgrid=False,tickangle=-20),
-                    yaxis=dict(showgrid=False,showticklabels=False),
-                    bargap=0.3
-                )
-                st.markdown(f'<div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
-                st.plotly_chart(fig_stack, use_container_width=True, config={"displayModeBar": False})
-                st.markdown("</div>", unsafe_allow_html=True)
 
         cat_acum = df_maestro.copy()
         cat_acum["Cat"] = cat_acum["Item"].apply(categorizar)
