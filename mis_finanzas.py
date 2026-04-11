@@ -731,44 +731,41 @@ def _pill_active(screen):
 def _icon_active(screen):
     return "pill-btn-icon-active" if _sc == screen else ""
 
-# índices de los botones del sidebar: primero los periodos (hasta 8), luego las 4 pantallas
-_n_per = len(periodos_disponibles[:8])
-
 st.markdown(f"""
 <div class="pill-nav-wrap">
   <div class="pill-nav">
 
     <!-- Inicio -->
     <button class="pill-btn {_pill_active('inicio')}"
-      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+0}]&&b[{_n_per+0}].click();}})()">
+      onclick="(function(){{haptic(8);var b=document.querySelector('[data-testid=stBaseButton-secondary][key=nav_inicio],button[aria-label=nav_inicio]');if(b){{b.click();return;}}var all=document.querySelectorAll('[data-testid=stBaseButton-secondary]');for(var i=0;i<all.length;i++){{if(all[i].innerText.trim()==='inicio'){{all[i].click();return;}}}}}})()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
       </svg>
       Inicio
     </button>
 
-    <!-- Ingresos (ícono solo) -->
+    <!-- Ingresos -->
     <button class="pill-btn-icon {_icon_active('ingresos')}"
       title="Ingresos"
-      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+1}]&&b[{_n_per+1}].click();}})()">
+      onclick="(function(){{haptic(8);var all=document.querySelectorAll('[data-testid=stBaseButton-secondary]');for(var i=0;i<all.length;i++){{if(all[i].innerText.trim()==='ingresos'){{all[i].click();return;}}}}}})()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
       </svg>
     </button>
 
-    <!-- Gastos / Editar (ícono solo) -->
+    <!-- Editar gastos -->
     <button class="pill-btn-icon {_icon_active('gastos')}"
       title="Editar gastos"
-      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+2}]&&b[{_n_per+2}].click();}})()">
+      onclick="(function(){{haptic(8);var all=document.querySelectorAll('[data-testid=stBaseButton-secondary]');for(var i=0;i<all.length;i++){{if(all[i].innerText.trim()==='gastos'){{all[i].click();return;}}}}}})()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
       </svg>
     </button>
 
-    <!-- Tendencias (ícono solo) -->
+    <!-- Tendencias -->
     <button class="pill-btn-icon {_icon_active('tendencias')}"
       title="Tendencias"
-      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+3}]&&b[{_n_per+3}].click();}})()">
+      onclick="(function(){{haptic(8);var all=document.querySelectorAll('[data-testid=stBaseButton-secondary]');for(var i=0;i<all.length;i++){{if(all[i].innerText.trim()==='tendencias'){{all[i].click();return;}}}}}})()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
       </svg>
