@@ -94,7 +94,7 @@ html, body, .stApp {{
 [data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {{display:none !important;height:0 !important;overflow:hidden !important;}}
 .stBottomContainer, .stChatFloatingInputContainer {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 24px;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 88px;}}
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -295,7 +295,7 @@ html, body, .stApp {{
 
 @media(max-width:700px){{
   .ios-title{{font-size:22px;}}
-  .wrap{{padding:0 12px 24px;}}
+  .wrap{{padding:0 12px 88px;}}
   .c-val{{font-size:20px;}}
 }}
 
@@ -336,6 +336,73 @@ html, body, .stApp {{
 /* ── SHEETS BTN PEQUEÑO ── */
 .sheets-btn-sm{{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px 14px;background:{SURF2};border:0.5px solid rgba(84,84,88,.55);border-radius:10px;font-size:14px;font-weight:600;color:{TEXT};cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;height:100%;}}
 .sheets-btn-sm:active{{opacity:.6;}}
+/* ── PILL NAVBAR ── */
+.pill-nav-wrap{{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  z-index:2147483647;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}}
+.pill-nav{{
+  display:flex;align-items:center;gap:4px;
+  background:rgba(28,28,30,0.82);
+  backdrop-filter:saturate(180%) blur(24px);
+  -webkit-backdrop-filter:saturate(180%) blur(24px);
+  border:0.5px solid rgba(255,255,255,0.10);
+  border-radius:100px;
+  padding:6px 8px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.45);
+}}
+.pill-btn{{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 14px;
+  border-radius:100px;
+  border:none;cursor:pointer;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+  font-size:13px;font-weight:600;
+  color:rgba(255,255,255,0.5);
+  background:transparent;
+  transition:all .22s cubic-bezier(.4,0,.2,1);
+  -webkit-tap-highlight-color:transparent;
+  white-space:nowrap;
+}}
+.pill-btn svg{{
+  transition:all .22s cubic-bezier(.4,0,.2,1);
+  flex-shrink:0;
+}}
+.pill-btn:hover{{
+  color:rgba(255,255,255,0.85);
+  background:rgba(255,255,255,0.06);
+  transform:scale(1.04);
+}}
+.pill-btn:active{{transform:scale(0.96);}}
+.pill-btn-active{{
+  background:linear-gradient(135deg,#7C3AED,#9F5CF7) !important;
+  color:#fff !important;
+  box-shadow:0 2px 16px rgba(124,58,237,0.45);
+}}
+.pill-btn-active svg{{opacity:1 !important;}}
+.pill-btn-icon{{
+  display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:100px;
+  padding:6px;
+  border:none;cursor:pointer;
+  background:transparent;
+  color:rgba(255,255,255,0.45);
+  transition:all .22s cubic-bezier(.4,0,.2,1);
+  -webkit-tap-highlight-color:transparent;
+}}
+.pill-btn-icon:hover{{
+  color:rgba(255,255,255,0.85);
+  background:rgba(255,255,255,0.08);
+  transform:scale(1.1);
+}}
+.pill-btn-icon:active{{transform:scale(0.92);}}
+.pill-btn-icon-active{{
+  color:#fff !important;
+  background:linear-gradient(135deg,#7C3AED,#9F5CF7) !important;
+  box-shadow:0 2px 12px rgba(124,58,237,0.4);
+}}
+
 
 /* ── DUAL BAR ── */
 .dualbar-wrap{{margin-top:10px;}}
@@ -655,6 +722,61 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 """, unsafe_allow_html=True)
 
+# ── PILL NAVBAR ──
+_sc = st.session_state.screen
+
+def _pill_active(screen):
+    return "pill-btn-active" if _sc == screen else ""
+
+def _icon_active(screen):
+    return "pill-btn-icon-active" if _sc == screen else ""
+
+# índices de los botones del sidebar: primero los periodos (hasta 8), luego las 4 pantallas
+_n_per = len(periodos_disponibles[:8])
+
+st.markdown(f"""
+<div class="pill-nav-wrap">
+  <div class="pill-nav">
+
+    <!-- Inicio -->
+    <button class="pill-btn {_pill_active('inicio')}"
+      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+0}]&&b[{_n_per+0}].click();}})()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      Inicio
+    </button>
+
+    <!-- Ingresos (ícono solo) -->
+    <button class="pill-btn-icon {_icon_active('ingresos')}"
+      title="Ingresos"
+      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+1}]&&b[{_n_per+1}].click();}})()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+      </svg>
+    </button>
+
+    <!-- Gastos / Editar (ícono solo) -->
+    <button class="pill-btn-icon {_icon_active('gastos')}"
+      title="Editar gastos"
+      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+2}]&&b[{_n_per+2}].click();}})()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
+    </button>
+
+    <!-- Tendencias (ícono solo) -->
+    <button class="pill-btn-icon {_icon_active('tendencias')}"
+      title="Tendencias"
+      onclick="(function(){{haptic(8);var b=document.querySelectorAll('[data-testid=stBaseButton-secondary]');b[{_n_per+3}]&&b[{_n_per+3}].click();}})()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+      </svg>
+    </button>
+
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
 
