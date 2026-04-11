@@ -89,7 +89,7 @@ html, body, .stApp {{
 
 #MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 140px;}} /* Margen extra para que la píldora no tape el final */
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 120px;}} /* Margen extra para que la píldora no tape el final */
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -113,14 +113,14 @@ html, body, .stApp {{
 /* ── BARRA INFERIOR FLOTANTE TIPO PÍLDORA (GLASSMORPHISM) ── */
 .pill-nav {{
   position: fixed;
-  bottom: 45px; /* Subida para alejarla del marco inferior */
+  bottom: 25px;
   left: 50%;
-  transform: translate(-50%, 0);
+  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: rgba(30, 30, 32, 0.75);
+  background: rgba(30, 30, 32, 0.75); /* Oscuro con transparencia */
   backdrop-filter: saturate(180%) blur(15px);
   -webkit-backdrop-filter: saturate(180%) blur(15px);
   border: 1px solid rgba(255,255,255,0.06);
@@ -128,7 +128,6 @@ html, body, .stApp {{
   border-radius: 50px;
   z-index: 999999;
   box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
-  transition: transform 0.4s cubic-bezier(0.3, 1, 0.3, 1), opacity 0.3s ease; /* Transición suave de ocultamiento */
 }}
 .pill-item {{
   display: flex;
@@ -137,7 +136,7 @@ html, body, .stApp {{
   gap: 8px;
   padding: 10px 18px;
   border-radius: 50px;
-  color: #8E8E93;
+  color: #8E8E93; /* Gris claro */
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -148,7 +147,7 @@ html, body, .stApp {{
 .pill-item:hover {{
   color: #FFFFFF;
   background: rgba(255,255,255,0.08);
-  transform: translateY(-2px);
+  transform: translateY(-2px); /* Pequeña elevación hover */
 }}
 .pill-item svg {{
   width: 20px;
@@ -157,18 +156,18 @@ html, body, .stApp {{
   transition: transform 0.3s ease;
 }}
 .pill-item.active {{
-  background: linear-gradient(135deg, #BF5AF2, #5E5CE6);
+  background: linear-gradient(135deg, #BF5AF2, #5E5CE6); /* Gradiente Violeta */
   color: #FFFFFF;
-  box-shadow: 0 4px 15px rgba(191, 90, 242, 0.35);
+  box-shadow: 0 4px 15px rgba(191, 90, 242, 0.35); /* Glow suave */
 }}
 .pill-item.active svg {{
-  transform: scale(1.15);
+  transform: scale(1.15); /* Crece un poquito el ícono activo */
 }}
 
 @media (max-width: 650px) {{
   .pill-nav {{
     width: 94%;
-    bottom: max(35px, env(safe-area-inset-bottom, 35px)); /* Subida en móviles también */
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
     justify-content: space-between;
     padding: 6px 8px;
   }}
@@ -176,12 +175,13 @@ html, body, .stApp {{
     padding: 12px 14px;
   }}
   .pill-item span {{
-    display: none;
+    display: none; /* Oculta el texto en celular de los inactivos */
   }}
   .pill-item.active span {{
-    display: block;
+    display: block; /* Solo muestra texto en el activo */
   }}
 }}
+
 
 /* ── SELECTBOX DE PERIODO ── */
 div[data-baseweb="select"] {{
@@ -615,7 +615,7 @@ ing_henry      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="HENRY"][
 ing_jaike      = df_ing_periodo[df_ing_periodo["Persona"].str.upper()=="JAIKE"]["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 balance_ars    = total_ing_ars - total_ars
 
-# ── PWA META TAGS & JAVASCRIPT DE SCROLL/NAVEGACION ──
+# ── PWA META TAGS & JAVASCRIPT DE NAVEGACION ──
 st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -625,39 +625,11 @@ st.markdown("""
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
 window.haptic = function(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}};
-
 window.clickPillNav = function(targetText) {
     window.haptic(10);
     const btns = Array.from(document.querySelectorAll('button p')).filter(p => p.textContent === targetText);
     if(btns.length > 0) btns[0].parentElement.click();
 };
-
-if(!window.scrollSetupDone) {
-    window.scrollSetupDone = true;
-    let lastScrollY = 0;
-    
-    window.addEventListener('scroll', function(e) {
-        let target = e.target;
-        let currentScrollY = target.scrollTop || window.scrollY;
-        if(currentScrollY === undefined) return;
-
-        let nav = document.querySelector('.pill-nav');
-        if(nav) {
-            if(currentScrollY > lastScrollY && currentScrollY > 50) {
-                // Al bajar: Oculta la barra mandándola hacia abajo
-                nav.style.transform = 'translate(-50%, 150px)';
-                nav.style.opacity = '0';
-                nav.style.pointerEvents = 'none';
-            } else {
-                // Al subir: Muestra la barra nuevamente
-                nav.style.transform = 'translate(-50%, 0)';
-                nav.style.opacity = '1';
-                nav.style.pointerEvents = 'auto';
-            }
-        }
-        lastScrollY = currentScrollY;
-    }, true); // Captura el evento en cualquier contenedor interno
-}
 
 document.addEventListener('DOMContentLoaded',function(){
   function patchInputs(){
@@ -671,12 +643,13 @@ document.addEventListener('DOMContentLoaded',function(){
 """, unsafe_allow_html=True)
 
 
-# ── BOTONES OCULTOS EN EL SIDEBAR (MOTOR DE NAVEGACIÓN) ──
+# ── BOTONES OCULTOS EN EL SIDEBAR (EL MOTOR DE NAVEGACIÓN) ──
 with st.sidebar:
     if st.button("HIDDEN_inicio"): st.session_state.screen = "inicio"; st.rerun()
     if st.button("HIDDEN_ingresos"): st.session_state.screen = "ingresos"; st.rerun()
     if st.button("HIDDEN_gastos"): st.session_state.screen = "gastos"; st.rerun()
     if st.button("HIDDEN_tendencias"): st.session_state.screen = "tendencias"; st.rerun()
+
 
 _sc = st.session_state.screen
 
