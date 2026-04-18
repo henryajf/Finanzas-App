@@ -9,6 +9,12 @@ from datetime import date, timedelta
 
 st.set_page_config(page_title="Finanzas AR", page_icon="💳", layout="wide", initial_sidebar_state="collapsed")
 
+# ── Leer navegación desde query params (viene del JS de la píldora) ──
+_qp = st.query_params.get("nav", None)
+if _qp in ["inicio", "ingresos", "gastos", "tendencias"]:
+    st.session_state["screen"] = _qp
+    st.query_params.clear()
+
 for k, v in [("screen", "inicio"), ("show_add", False), ("show_add_ingreso", False), ("periodo_sel", None), ("tend_mes_exp", None)]:
     if k not in st.session_state:
         st.session_state[k] = v
@@ -712,10 +718,11 @@ st.markdown("""
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
 <script>
 window.haptic = function(ms){try{navigator.vibrate&&navigator.vibrate(ms||50);}catch(e){}};
-window.clickPillNav = function(targetText) {
+window.navTo = function(screen) {
     window.haptic(10);
-    const btns = Array.from(document.querySelectorAll('button p')).filter(p => p.textContent === targetText);
-    if(btns.length > 0) btns[0].parentElement.click();
+    const url = new URL(window.location.href);
+    url.searchParams.set('nav', screen);
+    window.location.href = url.toString();
 };
 document.addEventListener('DOMContentLoaded',function(){
   function patchInputs(){
@@ -728,31 +735,24 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 """, unsafe_allow_html=True)
 
-# ── BOTONES OCULTOS SIDEBAR ──
-with st.sidebar:
-    if st.button("HIDDEN_inicio"): st.session_state.screen = "inicio"; st.rerun()
-    if st.button("HIDDEN_ingresos"): st.session_state.screen = "ingresos"; st.rerun()
-    if st.button("HIDDEN_gastos"): st.session_state.screen = "gastos"; st.rerun()
-    if st.button("HIDDEN_tendencias"): st.session_state.screen = "tendencias"; st.rerun()
-
 _sc = st.session_state.screen
 
 # ── PÍLDORA FLOTANTE ──
 st.markdown(f"""
 <div class="pill-nav">
-  <div class="pill-item {'active' if _sc=='inicio' else ''}" onclick="window.clickPillNav('HIDDEN_inicio')">
+  <div class="pill-item {'active' if _sc=='inicio' else ''}" onclick="window.navTo('inicio')">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     <span>Inicio</span>
   </div>
-  <div class="pill-item {'active' if _sc=='ingresos' else ''}" onclick="window.clickPillNav('HIDDEN_ingresos')">
+  <div class="pill-item {'active' if _sc=='ingresos' else ''}" onclick="window.navTo('ingresos')">
     <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
     <span>Ingresos</span>
   </div>
-  <div class="pill-item {'active' if _sc=='gastos' else ''}" onclick="window.clickPillNav('HIDDEN_gastos')">
+  <div class="pill-item {'active' if _sc=='gastos' else ''}" onclick="window.navTo('gastos')">
     <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
     <span>Gastos</span>
   </div>
-  <div class="pill-item {'active' if _sc=='tendencias' else ''}" onclick="window.clickPillNav('HIDDEN_tendencias')">
+  <div class="pill-item {'active' if _sc=='tendencias' else ''}" onclick="window.navTo('tendencias')">
     <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
     <span>Tendencias</span>
   </div>
