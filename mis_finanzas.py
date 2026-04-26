@@ -113,9 +113,8 @@ html, body, .stApp {{
 /* ── PÍLDORA FLOTANTE NATIVA ── */
 .pill-outer {{
   position: fixed;
-  bottom: 25px;
-  left: 0;
-  right: 0;
+  bottom: 24px;
+  left: 0; right: 0;
   display: flex;
   justify-content: center;
   z-index: 999999;
@@ -124,18 +123,18 @@ html, body, .stApp {{
 .pill-inner {{
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(22, 22, 24, 0.92);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 6px 8px;
+  gap: 1px;
+  background: rgba(16,16,18,0.97);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 0.5px solid rgba(255,255,255,0.08);
+  padding: 3px 4px;
   border-radius: 50px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
   pointer-events: all;
 }}
 .pill-inner [data-testid="stHorizontalBlock"] {{
-  gap: 4px !important;
+  gap: 1px !important;
   flex-wrap: nowrap !important;
 }}
 .pill-inner [data-testid="column"] {{
@@ -146,32 +145,32 @@ html, body, .stApp {{
 .pill-inner .stButton > button {{
   background: transparent !important;
   border: none !important;
-  color: #8E8E93 !important;
+  color: rgba(235,235,245,0.35) !important;
   border-radius: 50px !important;
-  padding: 9px 20px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
+  padding: 7px 17px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
   font-family: -apple-system, sans-serif !important;
-  transition: all 0.2s ease !important;
+  letter-spacing: 0.02em !important;
+  transition: color 0.12s ease, background 0.12s ease !important;
   white-space: nowrap !important;
   min-height: 0 !important;
-  line-height: 1.4 !important;
+  line-height: 1.3 !important;
   box-shadow: none !important;
   width: auto !important;
 }}
 .pill-inner .stButton > button:hover {{
-  background: rgba(255,255,255,0.09) !important;
-  color: #fff !important;
-  transform: translateY(-1px);
+  color: rgba(235,235,245,0.75) !important;
+  background: rgba(255,255,255,0.05) !important;
 }}
 .pill-active .stButton > button {{
-  background: linear-gradient(135deg, #BF5AF2, #5E5CE6) !important;
-  color: #fff !important;
-  box-shadow: 0 4px 16px rgba(191,90,242,0.4) !important;
+  background: rgba(255,255,255,0.08) !important;
+  color: #FFFFFF !important;
+  font-weight: 500 !important;
 }}
 @media (max-width: 600px) {{
   .pill-outer {{ bottom: max(16px, env(safe-area-inset-bottom, 16px)); }}
-  .pill-inner .stButton > button {{ padding: 10px 14px !important; font-size: 12px !important; }}
+  .pill-inner .stButton > button {{ padding: 8px 12px !important; font-size: 11px !important; }}
 }}
 
 /* ── SELECTBOX ── */
@@ -194,18 +193,37 @@ div[data-baseweb="select"] {{
 
 /* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
-  background:{ACCENT} !important;color:#fff !important;border:none !important;
-  border-radius:10px !important;padding:10px 18px !important;
+  background:rgba(10,132,255,0.12) !important;
+  color:{ACCENT} !important;
+  border:0.5px solid rgba(10,132,255,0.28) !important;
+  border-radius:8px !important;
+  padding:7px 15px !important;
   font-family:-apple-system,sans-serif !important;
-  font-size:14px !important;font-weight:600 !important;
+  font-size:13px !important;
+  font-weight:500 !important;
+  letter-spacing:0.01em !important;
   box-shadow:none !important;
+  transition:background 0.12s ease, border-color 0.12s ease !important;
+}}
+.stButton>button[kind="primary"]:hover{{
+  background:rgba(10,132,255,0.2) !important;
+  border-color:rgba(10,132,255,0.45) !important;
 }}
 .stButton>button[kind="secondary"]{{
-  background:{SURF2} !important;color:{TEXT2} !important;border:none !important;
-  border-radius:10px !important;padding:10px 18px !important;
+  background:transparent !important;
+  color:rgba(235,235,245,0.4) !important;
+  border:0.5px solid rgba(255,255,255,0.10) !important;
+  border-radius:8px !important;
+  padding:7px 15px !important;
   font-family:-apple-system,sans-serif !important;
-  font-size:14px !important;font-weight:600 !important;
+  font-size:13px !important;
+  font-weight:400 !important;
   box-shadow:none !important;
+  transition:background 0.12s ease, color 0.12s ease !important;
+}}
+.stButton>button[kind="secondary"]:hover{{
+  background:rgba(255,255,255,0.05) !important;
+  color:rgba(235,235,245,0.7) !important;
 }}
 
 /* ── BARRAS DE ESTADO ── */
