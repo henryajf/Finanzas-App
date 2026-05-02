@@ -1117,8 +1117,10 @@ elif st.session_state.screen == "gastos":
         }
         COL_ORDER = ("Pagado","Item","Monto (ARS)","USD","Dia Pago","Periodo","Tasa USD")
 
+        # FIX: reset_index evita el bug de st.data_editor con índices desordenados
+        # cuando el DataFrame fue ordenado previamente (sort_values en procesar()).
         df_edit = st.data_editor(
-            df,
+            df.reset_index(drop=True),
             column_config=COL_CONFIG,
             column_order=COL_ORDER,
             num_rows="dynamic",
