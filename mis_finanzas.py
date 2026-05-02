@@ -501,10 +501,12 @@ def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tas
     ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
-def marcar_pagado_maestro(idx, df_full, dolar_actual):
+def marcar_pagado_maestro(idx, df_full, dolar_actual, nuevo_monto=None):
     df_act = df_full.copy()
     if idx < len(df_act):
         df_act.at[idx, "Pagado"] = True
+        if nuevo_monto is not None and nuevo_monto > 0:
+            df_act.at[idx, "Monto (ARS)"] = float(nuevo_monto)
         guardar_hoja_maestro(df_act, dolar_actual)
 
 def categorizar(item):
@@ -967,13 +969,22 @@ if st.session_state.screen == "inicio":
             if not pend_items.empty:
                 with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
                     for idx, row in pend_items.iterrows():
-                        cn, cb = st.columns([3,1])
+                        cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} — {fmt_ars(row["Monto (ARS)"])}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
+                        with cm:
+                            monto_input = st.number_input(
+                                "Monto ARS",
+                                min_value=0,
+                                step=100,
+                                value=int(row["Monto (ARS)"]) if row["Monto (ARS)"] > 0 else 0,
+                                key=f"monto_pay_{idx}",
+                                label_visibility="collapsed"
+                            )
                         with cb:
                             if st.button("✓ Pagado", key=f"pay_{idx}", use_container_width=True):
                                 try:
-                                    marcar_pagado_maestro(idx, df_maestro, dolar)
+                                    marcar_pagado_maestro(idx, df_maestro, dolar, nuevo_monto=monto_input)
                                     st.rerun()
                                 except Exception as e:
                                     st.error(str(e))
@@ -1185,13 +1196,22 @@ elif st.session_state.screen == "gastos":
             if not pend_quick.empty:
                 with st.expander(f"⚡ Marcar pagados rápido ({len(pend_quick)} pendientes)"):
                     for idx, row in pend_quick.iterrows():
-                        cn, cb = st.columns([3,1])
+                        cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0">{row["Item"]} — {fmt_ars(row["Monto (ARS)"])}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
+                        with cm:
+                            monto_quick = st.number_input(
+                                "Monto ARS",
+                                min_value=0,
+                                step=100,
+                                value=int(row["Monto (ARS)"]) if row["Monto (ARS)"] > 0 else 0,
+                                key=f"monto_qpay_{idx}",
+                                label_visibility="collapsed"
+                            )
                         with cb:
                             if st.button("✓ Pagado", key=f"qpay_{idx}", use_container_width=True):
                                 try:
-                                    marcar_pagado_maestro(idx, df_maestro, dolar)
+                                    marcar_pagado_maestro(idx, df_maestro, dolar, nuevo_monto=monto_quick)
                                     st.rerun()
                                 except Exception as e:
                                     st.error(str(e))
