@@ -970,10 +970,10 @@ if st.session_state.screen == "inicio":
             pend_items = df_vista[df_vista["Pagado"] == False]
             if not pend_items.empty:
                 with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
-                    for _, row in pend_items.iterrows():
-                        # ── FIX: key por Item+Periodo, monto leído desde session_state ──
-                        _key_monto = f"monto_pay_{row['Item']}_{row['Periodo']}"
-                        _key_btn   = f"pay_{row['Item']}_{row['Periodo']}"
+                    for _i, (_, row) in enumerate(pend_items.iterrows()):
+                        # ── FIX: key por índice+Item+Periodo para evitar duplicados ──
+                        _key_monto = f"monto_pay_{_i}_{row['Item']}_{row['Periodo']}"
+                        _key_btn   = f"pay_{_i}_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
                             st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
@@ -1197,10 +1197,10 @@ elif st.session_state.screen == "gastos":
             pend_quick = df[df["Pagado"] == False]
             if not pend_quick.empty:
                 with st.expander(f"⚡ Marcar pagados rápido ({len(pend_quick)} pendientes)"):
-                    for _, row in pend_quick.iterrows():
-                        # ── FIX: key por Item+Periodo, monto leído desde session_state ──
-                        _key_monto = f"monto_qpay_{row['Item']}_{row['Periodo']}"
-                        _key_btn   = f"qpay_{row['Item']}_{row['Periodo']}"
+                    for _i, (_, row) in enumerate(pend_quick.iterrows()):
+                        # ── FIX: key por índice+Item+Periodo para evitar duplicados ──
+                        _key_monto = f"monto_qpay_{_i}_{row['Item']}_{row['Periodo']}"
+                        _key_btn   = f"qpay_{_i}_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
                             st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
