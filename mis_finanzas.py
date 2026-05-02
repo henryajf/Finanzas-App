@@ -501,12 +501,14 @@ def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tas
     ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
-def marcar_pagado_maestro(idx, df_full, dolar_actual, nuevo_monto=None):
+# ── FIX DEFINITIVO: identificar por Item+Periodo, no por idx ──
+def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuevo_monto=None):
     df_act = df_full.copy()
-    if idx < len(df_act):
-        df_act.at[idx, "Pagado"] = True
+    mask = (df_act["Item"] == item_nombre) & (df_act["Periodo"] == periodo_item)
+    if mask.any():
+        df_act.loc[mask, "Pagado"] = True
         if nuevo_monto is not None and nuevo_monto > 0:
-            df_act.at[idx, "Monto (ARS)"] = float(nuevo_monto)
+            df_act.loc[mask, "Monto (ARS)"] = float(nuevo_monto)
         guardar_hoja_maestro(df_act, dolar_actual)
 
 def categorizar(item):
@@ -968,23 +970,27 @@ if st.session_state.screen == "inicio":
             pend_items = df_vista[df_vista["Pagado"] == False]
             if not pend_items.empty:
                 with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
-                    for idx, row in pend_items.iterrows():
+                    for _, row in pend_items.iterrows():
+                        # ── FIX: key por Item+Periodo, monto leído desde session_state ──
+                        _key_monto = f"monto_pay_{row['Item']}_{row['Periodo']}"
+                        _key_btn   = f"pay_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
                             st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
                         with cm:
-                            monto_input = st.number_input(
+                            st.number_input(
                                 "Monto ARS",
                                 min_value=0,
                                 step=100,
                                 value=int(row["Monto (ARS)"]) if row["Monto (ARS)"] > 0 else 0,
-                                key=f"monto_pay_{idx}",
+                                key=_key_monto,
                                 label_visibility="collapsed"
                             )
                         with cb:
-                            if st.button("✓ Pagado", key=f"pay_{idx}", use_container_width=True):
+                            if st.button("✓ Pagado", key=_key_btn, use_container_width=True):
                                 try:
-                                    marcar_pagado_maestro(idx, df_maestro, dolar, nuevo_monto=monto_input)
+                                    monto_guardado = st.session_state.get(_key_monto, row["Monto (ARS)"])
+                                    marcar_pagado_maestro(row["Item"], row["Periodo"], df_maestro, dolar, nuevo_monto=monto_guardado)
                                     st.rerun()
                                 except Exception as e:
                                     st.error(str(e))
@@ -1128,8 +1134,6 @@ elif st.session_state.screen == "gastos":
         }
         COL_ORDER = ("Pagado","Item","Monto (ARS)","USD","Dia Pago","Periodo","Tasa USD")
 
-        # FIX: reset_index evita el bug de st.data_editor con índices desordenados
-        # cuando el DataFrame fue ordenado previamente (sort_values en procesar()).
         df_edit = st.data_editor(
             df.reset_index(drop=True),
             column_config=COL_CONFIG,
@@ -1167,7 +1171,6 @@ elif st.session_state.screen == "gastos":
                     use_container_width=True
                 )
 
-        # ── RESUMEN RÁPIDO DEBAJO DEL EDITOR ──
         st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
         st.markdown(f'<div class="sec-lbl">Resumen rápido</div>', unsafe_allow_html=True)
         st.markdown(f"""
@@ -1190,28 +1193,31 @@ elif st.session_state.screen == "gastos":
 </div>
 """, unsafe_allow_html=True)
 
-        # ── MARCAR PAGADOS RÁPIDO ──
         if es_mes_actual:
             pend_quick = df[df["Pagado"] == False]
             if not pend_quick.empty:
                 with st.expander(f"⚡ Marcar pagados rápido ({len(pend_quick)} pendientes)"):
-                    for idx, row in pend_quick.iterrows():
+                    for _, row in pend_quick.iterrows():
+                        # ── FIX: key por Item+Periodo, monto leído desde session_state ──
+                        _key_monto = f"monto_qpay_{row['Item']}_{row['Periodo']}"
+                        _key_btn   = f"qpay_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
                             st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
                         with cm:
-                            monto_quick = st.number_input(
+                            st.number_input(
                                 "Monto ARS",
                                 min_value=0,
                                 step=100,
                                 value=int(row["Monto (ARS)"]) if row["Monto (ARS)"] > 0 else 0,
-                                key=f"monto_qpay_{idx}",
+                                key=_key_monto,
                                 label_visibility="collapsed"
                             )
                         with cb:
-                            if st.button("✓ Pagado", key=f"qpay_{idx}", use_container_width=True):
+                            if st.button("✓ Pagado", key=_key_btn, use_container_width=True):
                                 try:
-                                    marcar_pagado_maestro(idx, df_maestro, dolar, nuevo_monto=monto_quick)
+                                    monto_guardado = st.session_state.get(_key_monto, row["Monto (ARS)"])
+                                    marcar_pagado_maestro(row["Item"], row["Periodo"], df_maestro, dolar, nuevo_monto=monto_guardado)
                                     st.rerun()
                                 except Exception as e:
                                     st.error(str(e))
