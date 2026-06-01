@@ -514,11 +514,11 @@ def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuev
 def categorizar(item):
     i = str(item).lower()
     if any(x in i for x in ["mercadocredito","tarjeta","visa","mastercard","amex","credito","banco","financiamiento","cuota"]): return "Credito/Financiacion"
-    elif any(x in i for x in ["luz","edenor","edesur","agua","aysa","gas","metrogas"]): return "Servicios"
+    elif any(x in i for x in ["luz","edenor","edesur","agua","aysa","gas","metrogas","personal"]): return "Servicios"
     elif any(x in i for x in ["super","coto","carrefour","dia","jumbo","disco","mercado","almacen","chino"]): return "Supermercado"
     elif any(x in i for x in ["alquiler","expensas","abl","limpieza"]): return "Hogar"
     elif any(x in i for x in ["nafta","ypf","shell","axion","uber","cabify","taxi","peaje","sube","transporte"]): return "Transporte"
-    elif any(x in i for x in ["netflix","spotify","prime","hbo","disney","youtube","telecentro","fibertel","internet","claro","personal","movistar","meli","google","apple","vpn"]): return "Suscripciones"
+    elif any(x in i for x in ["netflix","spotify","prime","hbo","disney","youtube","telecentro","fibertel","internet","claro","movistar","meli","google","apple","vpn"]): return "Suscripciones"
     elif any(x in i for x in ["gym","gimnasio","megatlon","sportclub","crossfit"]): return "Fitness"
     elif any(x in i for x in ["farmacia","osde","swiss","galeno","medico","salud","depilife"]): return "Salud"
     elif any(x in i for x in ["mc","burger","pedidosya","rappi","helado","pizza","restaurante","bar","cafe"]): return "Comida/Delivery"
