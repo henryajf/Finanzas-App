@@ -123,18 +123,18 @@ html, body, .stApp {{
 .pill-inner {{
   display: inline-flex;
   align-items: center;
-  gap: 1px;
-  background: rgba(16,16,18,0.97);
+  gap: 2px;
+  background: rgba(20,20,22,0.98);
   backdrop-filter: blur(28px) saturate(160%);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
-  border: 0.5px solid rgba(255,255,255,0.08);
-  padding: 3px 4px;
+  border: 0.5px solid rgba(255,255,255,0.10);
+  padding: 4px 5px;
   border-radius: 50px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.04);
   pointer-events: all;
 }}
 .pill-inner [data-testid="stHorizontalBlock"] {{
-  gap: 1px !important;
+  gap: 2px !important;
   flex-wrap: nowrap !important;
 }}
 .pill-inner [data-testid="column"] {{
@@ -147,11 +147,11 @@ html, body, .stApp {{
   border: none !important;
   color: rgba(235,235,245,0.35) !important;
   border-radius: 50px !important;
-  padding: 7px 17px !important;
+  padding: 8px 18px !important;
   font-size: 12px !important;
   font-weight: 400 !important;
   font-family: -apple-system, sans-serif !important;
-  letter-spacing: 0.02em !important;
+  letter-spacing: 0.01em !important;
   transition: color 0.12s ease, background 0.12s ease !important;
   white-space: nowrap !important;
   min-height: 0 !important;
@@ -164,13 +164,14 @@ html, body, .stApp {{
   background: rgba(255,255,255,0.05) !important;
 }}
 .pill-active .stButton > button {{
-  background: rgba(255,255,255,0.08) !important;
-  color: #FFFFFF !important;
-  font-weight: 500 !important;
+  background: linear-gradient(135deg, rgba(10,132,255,0.22), rgba(10,132,255,0.10)) !important;
+  border: 0.5px solid rgba(10,132,255,0.30) !important;
+  color: #4DA8FF !important;
+  font-weight: 600 !important;
 }}
 @media (max-width: 600px) {{
   .pill-outer {{ bottom: max(16px, env(safe-area-inset-bottom, 16px)); }}
-  .pill-inner .stButton > button {{ padding: 8px 12px !important; font-size: 11px !important; }}
+  .pill-inner .stButton > button {{ padding: 8px 13px !important; font-size: 11px !important; }}
 }}
 
 /* ── SELECTBOX ── */
@@ -181,11 +182,11 @@ div[data-baseweb="select"] {{
 }}
 
 /* ── CARDS ── */
-.card{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;}}
-.card-ing{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-gastos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};}}
-.card-balance-pos{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};}}
-.card-balance-neg{{background:{SURFACE};border-radius:14px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};}}
+.card{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border:0.5px solid rgba(255,255,255,0.07);}}
+.card-ing{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
+.card-gastos{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
+.card-balance-pos{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
+.card-balance-neg{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
 
 .c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
 .c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
@@ -193,37 +194,40 @@ div[data-baseweb="select"] {{
 
 /* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
-  background:rgba(10,132,255,0.12) !important;
-  color:{ACCENT} !important;
-  border:0.5px solid rgba(10,132,255,0.28) !important;
-  border-radius:8px !important;
-  padding:7px 15px !important;
+  background:#0A84FF !important;
+  color:#ffffff !important;
+  border:none !important;
+  border-radius:12px !important;
+  padding:10px 18px !important;
+  font-family:-apple-system,sans-serif !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+  letter-spacing:-.01em !important;
+  box-shadow:none !important;
+  transition:background 0.12s ease, transform 0.08s ease !important;
+}}
+.stButton>button[kind="primary"]:hover{{
+  background:#1A8FFF !important;
+  transform:translateY(-1px) !important;
+}}
+.stButton>button[kind="primary"]:active{{
+  transform:scale(0.98) !important;
+}}
+.stButton>button[kind="secondary"]{{
+  background:rgba(255,255,255,0.07) !important;
+  color:rgba(235,235,245,0.75) !important;
+  border:0.5px solid rgba(255,255,255,0.13) !important;
+  border-radius:12px !important;
+  padding:10px 18px !important;
   font-family:-apple-system,sans-serif !important;
   font-size:13px !important;
   font-weight:500 !important;
-  letter-spacing:0.01em !important;
-  box-shadow:none !important;
-  transition:background 0.12s ease, border-color 0.12s ease !important;
-}}
-.stButton>button[kind="primary"]:hover{{
-  background:rgba(10,132,255,0.2) !important;
-  border-color:rgba(10,132,255,0.45) !important;
-}}
-.stButton>button[kind="secondary"]{{
-  background:transparent !important;
-  color:rgba(235,235,245,0.4) !important;
-  border:0.5px solid rgba(255,255,255,0.10) !important;
-  border-radius:8px !important;
-  padding:7px 15px !important;
-  font-family:-apple-system,sans-serif !important;
-  font-size:13px !important;
-  font-weight:400 !important;
   box-shadow:none !important;
   transition:background 0.12s ease, color 0.12s ease !important;
 }}
 .stButton>button[kind="secondary"]:hover{{
-  background:rgba(255,255,255,0.05) !important;
-  color:rgba(235,235,245,0.7) !important;
+  background:rgba(255,255,255,0.11) !important;
+  color:rgba(235,235,245,0.9) !important;
 }}
 
 /* ── BARRAS DE ESTADO ── */
@@ -254,8 +258,8 @@ div[data-baseweb="select"] {{
 .persona-amt-sub{{font-size:11px;color:{TEXT2};text-align:right;}}
 
 /* ── BALANCE ── */
-.balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-bottom:6px;}}
-.balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-bottom:6px;}}
+.balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(50,215,75,.18);color:{GREEN};border:0.5px solid rgba(50,215,75,.25);margin-bottom:6px;}}
+.balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,69,58,.18);color:{RED};border:0.5px solid rgba(255,69,58,.25);margin-bottom:6px;}}
 
 /* ── SECCION LABEL ── */
 .sec-lbl{{font-size:11px;font-weight:500;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;padding:0 2px;margin:14px 0 6px;}}
@@ -268,11 +272,11 @@ div[data-baseweb="select"] {{
 .alert-b{{background:rgba(10,132,255,.1);color:#5BA4FF;}}
 
 /* ── GRUPOS / FILAS ── */
-.grp{{background:{SURFACE};border-radius:14px;overflow:hidden;margin-bottom:8px;}}
+.grp{{background:{SURFACE};border-radius:16px;overflow:hidden;margin-bottom:8px;border:0.5px solid rgba(255,255,255,0.07);}}
 .grp-hdr{{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:0.5px solid {SEP};}}
 .grp-hdr-lbl{{flex:1;font-size:12px;font-weight:600;color:{TEXT2};letter-spacing:.03em;text-transform:uppercase;}}
 .grp-hdr-amt{{font-size:13px;font-weight:600;}}
-.pend-badge{{font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(255,69,58,.18);color:{RED};margin-left:3px;}}
+.pend-badge{{font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(255,69,58,.18);color:{RED};border:0.5px solid rgba(255,69,58,.25);margin-left:3px;}}
 .row{{display:flex;align-items:center;gap:11px;padding:10px 13px;position:relative;}}
 .row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
 .row:last-child::after{{display:none;}}
@@ -287,26 +291,26 @@ div[data-baseweb="select"] {{
 
 /* ── BADGES ── */
 .badge{{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap;}}
-.badge-paid{{background:rgba(50,215,75,.15);color:{GREEN};}}
-.badge-venc{{background:rgba(255,69,58,.18);color:{RED};}}
-.badge-hoy{{background:rgba(255,69,58,.18);color:{RED};}}
-.badge-prox{{background:rgba(255,159,10,.15);color:{ORANGE};}}
-.badge-soon{{background:rgba(255,214,10,.12);color:{YELLOW};}}
-.badge-ok{{background:rgba(50,215,75,.1);color:{GREEN};}}
-.badge-none{{background:rgba(99,99,102,.3);color:{TEXT2};}}
-.badge-henry{{background:rgba(10,132,255,.15);color:{ACCENT};}}
-.badge-jaike{{background:rgba(191,90,242,.15);color:{PURPLE};}}
+.badge-paid{{background:rgba(50,215,75,.18);color:{GREEN};border:0.5px solid rgba(50,215,75,.25);}}
+.badge-venc{{background:rgba(255,69,58,.18);color:{RED};border:0.5px solid rgba(255,69,58,.25);}}
+.badge-hoy{{background:rgba(255,69,58,.18);color:{RED};border:0.5px solid rgba(255,69,58,.25);}}
+.badge-prox{{background:rgba(255,159,10,.18);color:{ORANGE};border:0.5px solid rgba(255,159,10,.25);}}
+.badge-soon{{background:rgba(255,214,10,.12);color:{YELLOW};border:0.5px solid rgba(255,214,10,.20);}}
+.badge-ok{{background:rgba(50,215,75,.12);color:{GREEN};border:0.5px solid rgba(50,215,75,.20);}}
+.badge-none{{background:rgba(99,99,102,.3);color:{TEXT2};border:0.5px solid rgba(99,99,102,.4);}}
+.badge-henry{{background:rgba(10,132,255,.18);color:{ACCENT};border:0.5px solid rgba(10,132,255,.25);}}
+.badge-jaike{{background:rgba(191,90,242,.18);color:{PURPLE};border:0.5px solid rgba(191,90,242,.25);}}
 
 /* ── ADD PANELS ── */
-.add-panel{{background:{SURFACE};border-radius:14px;padding:14px;margin-bottom:10px;}}
-.add-panel-green{{background:{SURFACE};border-radius:14px;padding:14px;margin-bottom:10px;border-left:3px solid {GREEN};}}
+.add-panel{{background:{SURFACE};border-radius:16px;padding:14px;margin-bottom:10px;border:0.5px solid rgba(255,255,255,0.09);}}
+.add-panel-green{{background:{SURFACE};border-radius:16px;padding:14px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
 .stTextInput>div>div>input,.stNumberInput>div>div>input{{
   background:{SURF2} !important;border:none !important;border-radius:9px !important;
   color:{TEXT} !important;font-size:15px !important;
   font-family:-apple-system,sans-serif !important;
 }}
-.toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(50,215,75,.12);color:{GREEN};}}
-.toast-err{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(255,69,58,.12);color:{RED};}}
+.toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(50,215,75,.12);color:{GREEN};border:0.5px solid rgba(50,215,75,.20);}}
+.toast-err{{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(255,69,58,.12);color:{RED};border:0.5px solid rgba(255,69,58,.20);}}
 
 /* ── KPI GRID ── */
 .kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}}
@@ -314,7 +318,7 @@ div[data-baseweb="select"] {{
 @media(max-width:700px){{
   .kpi-grid-3{{grid-template-columns:1fr 1fr;}}
 }}
-.kpi-card{{background:{SURFACE};border-radius:12px;padding:14px 15px;}}
+.kpi-card{{background:rgba(255,255,255,0.04);border-radius:16px;padding:16px;border:0.5px solid rgba(255,255,255,0.09);}}
 .kpi-lbl{{font-size:11px;font-weight:500;color:{TEXT2};margin-bottom:5px;letter-spacing:.01em;}}
 .kpi-val{{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
 .kpi-sub{{font-size:11px;color:{TEXT2};margin-top:4px;}}
@@ -327,16 +331,17 @@ div[data-baseweb="select"] {{
   gap: 12px;
   background: {SURFACE};
   border-radius: 16px;
+  border: 0.5px solid rgba(255,255,255,0.07);
 }}
 .mes-dot {{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
 .mes-title {{flex:1;}}
 .mes-nombre {{font-size:16px;font-weight:600;color:{TEXT};}}
 .mes-subtitle {{font-size:12px;color:{TEXT2};margin-top:2px;}}
-.mes-balance-pos {{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};}}
-.mes-balance-neg {{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};}}
+.mes-balance-pos {{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(50,215,75,.18);color:{GREEN};border:0.5px solid rgba(50,215,75,.25);}}
+.mes-balance-neg {{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(255,69,58,.18);color:{RED};border:0.5px solid rgba(255,69,58,.25);}}
 .mes-body-grid {{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;}}
 @media(max-width:600px){{.mes-body-grid{{grid-template-columns:1fr 1fr;}}}}
-.mes-mini-kpi {{background:{SURF2};border-radius:10px;padding:10px 12px;}}
+.mes-mini-kpi {{background:{SURF2};border-radius:12px;padding:10px 12px;border:0.5px solid rgba(255,255,255,0.06);}}
 .mes-mini-lbl {{font-size:10px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}}
 .mes-mini-val {{font-size:16px;font-weight:700;line-height:1.1;}}
 .mes-mini-sub {{font-size:10px;color:{TEXT2};margin-top:2px;}}
@@ -352,8 +357,8 @@ div[data-baseweb="select"] {{
 .aporte-name {{font-size:13px;font-weight:500;color:{TEXT};}}
 .aporte-pct {{font-size:11px;color:{TEXT2};}}
 .aporte-amt {{font-size:14px;font-weight:700;text-align:right;}}
-.var-badge-pos {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(50,215,75,.12);color:{GREEN};}}
-.var-badge-neg {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(255,69,58,.12);color:{RED};}}
+.var-badge-pos {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(50,215,75,.12);color:{GREEN};border:0.5px solid rgba(50,215,75,.20);}}
+.var-badge-neg {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(255,69,58,.12);color:{RED};border:0.5px solid rgba(255,69,58,.20);}}
 .var-badge-neu {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(99,99,102,.2);color:{TEXT2};}}
 .hist-row{{display:flex;align-items:center;padding:10px 14px;border-bottom:0.5px solid {SEP};gap:10px;}}
 .hist-row:last-child{{border-bottom:none;}}
@@ -368,6 +373,7 @@ div[data-baseweb="select"] {{
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
 </style>""", unsafe_allow_html=True)
+
 
 # ──────────────────────────────────────────────────────────────────
 # CONEXION Y LIMPIEZA
@@ -501,7 +507,6 @@ def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tas
     ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
-# ── FIX DEFINITIVO: identificar por Item+Periodo, no por idx ──
 def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuevo_monto=None):
     df_act = df_full.copy()
     mask = (df_act["Item"] == item_nombre) & (df_act["Periodo"] == periodo_item)
@@ -581,6 +586,7 @@ def calcular_mes_anterior(periodo_str):
     y, m = map(int, periodo_str.split('-'))
     if m == 1: return f"{y-1}-12"
     else: return f"{y}-{m-1:02d}"
+
 
 # ── CARGA INICIAL ──
 MESES = ["enero","febrero","marzo","abril","mayo","junio",
@@ -675,7 +681,7 @@ document.addEventListener('DOMContentLoaded',function(){
 _sc = st.session_state.screen
 
 # ══════════════════════════════════════════════════════════════════
-# PÍLDORA DE NAVEGACIÓN NATIVA STREAMLIT
+# PÍLDORA DE NAVEGACIÓN
 # ══════════════════════════════════════════════════════════════════
 _nav_items = [
     ("inicio",     "🏠", "Inicio"),
@@ -785,7 +791,7 @@ if st.session_state.screen == "inicio":
   <div class="sep"></div>
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(50,215,75,.15);color:{GREEN};margin-left:6px">{n_pagados}</span></div>
+      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(50,215,75,.18);color:{GREEN};border:0.5px solid rgba(50,215,75,.25);margin-left:6px">{n_pagados}</span></div>
       <div style="text-align:right"><div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div></div>
@@ -794,7 +800,7 @@ if st.session_state.screen == "inicio":
   <div style="height:12px;"></div>
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.15);color:{RED};margin-left:6px">{n_pendientes}</span></div>
+      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.18);color:{RED};border:0.5px solid rgba(255,69,58,.25);margin-left:6px">{n_pendientes}</span></div>
       <div style="text-align:right"><div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div></div>
@@ -841,41 +847,58 @@ if st.session_state.screen == "inicio":
                 st.rerun()
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
+        # ── DUPLICAR: toma el último mes con datos reales ──
         if not df_maestro.empty:
-            periodo_ant = calcular_mes_anterior(periodo_actual)
-            df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant]
+            periodos_con_datos = sorted(
+                df_maestro[df_maestro["Periodo"] != periodo_actual]["Periodo"].dropna().unique(),
+                reverse=True
+            )
+            periodo_ant = periodos_con_datos[0] if periodos_con_datos else None
+            df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant] if periodo_ant else pd.DataFrame()
             if not df_ant.empty:
-                cats_fijas = ["Servicios","Suscripciones","Hogar","Salud","Fitness","Credito/Financiacion"]
-                items_actuales = df_base_periodo["Item"].str.lower().str.strip().tolist() if not df_base_periodo.empty else []
-                df_clonables = df_ant[df_ant["Categoria"].isin(cats_fijas)]
-                df_clonables = df_clonables[~df_clonables["Item"].str.lower().str.strip().isin(items_actuales)]
-                if not df_clonables.empty:
-                    with st.expander(f"🔄 Clonar {len(df_clonables)} gastos fijos de {label_periodo(periodo_ant)}"):
-                        st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px">Gastos fijos del mes pasado aún no registrados en este mes.</div>', unsafe_allow_html=True)
+                df_clonables = df_ant.copy()
+                with st.expander(f"🔄 Duplicar todos los ítems de {label_periodo(periodo_ant)} ({len(df_clonables)} ítems)"):
+                    st.markdown(
+                        f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px">'
+                        f'Se copiarán <strong style="color:{TEXT}">todos los {len(df_clonables)} ítems</strong> '
+                        f'del mes anterior al período actual, marcados como pendientes.</div>',
+                        unsafe_allow_html=True
+                    )
+                    for _, r in df_clonables.iterrows():
+                        color_c = cat_color(categorizar(r["Item"]))
+                        st.markdown(
+                            f'<div style="font-size:14px;padding:7px 0;border-bottom:0.5px solid rgba(255,255,255,0.07);'
+                            f'display:flex;justify-content:space-between;align-items:center">'
+                            f'<span style="color:{TEXT}">{r["Item"]}</span>'
+                            f'<span style="color:{color_c};font-weight:600">{fmt_ars(r["Monto (ARS)"])}</span></div>',
+                            unsafe_allow_html=True
+                        )
+                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+                    if st.button(f"✅ Duplicar {len(df_clonables)} ítems ahora", type="primary", use_container_width=True):
+                        nuevos_registros = []
+                        y_act, m_act = map(int, periodo_actual.split('-'))
                         for _, r in df_clonables.iterrows():
-                            st.markdown(f'<div style="font-size:14px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1)">{r["Item"]} <span style="float:right;color:{TEXT2}">{fmt_ars(r["Monto (ARS)"])}</span></div>', unsafe_allow_html=True)
-                        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-                        if st.button("Clonar ítems ahora", type="primary", use_container_width=True):
-                            nuevos_registros = []
-                            y_act, m_act = map(int, periodo_actual.split('-'))
-                            for _, r in df_clonables.iterrows():
-                                nueva_fecha = None
-                                if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
-                                    try:
-                                        old_d = pd.to_datetime(r["Dia Pago"])
-                                        dia_seguro = min(old_d.day, 28)
-                                        nueva_fecha = date(y_act, m_act, dia_seguro)
-                                    except:
-                                        pass
-                                nuevos_registros.append({
-                                    "Categoria": r["Categoria"], "Item": r["Item"],
-                                    "Monto (ARS)": r["Monto (ARS)"], "Dia Pago": nueva_fecha,
-                                    "Pagado": False, "Periodo": periodo_actual, "Tasa USD": dolar
-                                })
-                            if nuevos_registros:
-                                df_nuevos = pd.DataFrame(nuevos_registros)
-                                guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
-                                st.rerun()
+                            nueva_fecha = None
+                            if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
+                                try:
+                                    old_d = pd.to_datetime(r["Dia Pago"])
+                                    dia_seguro = min(old_d.day, 28)
+                                    nueva_fecha = date(y_act, m_act, dia_seguro)
+                                except:
+                                    pass
+                            nuevos_registros.append({
+                                "Categoria": categorizar(r["Item"]),
+                                "Item": r["Item"],
+                                "Monto (ARS)": r["Monto (ARS)"],
+                                "Dia Pago": nueva_fecha,
+                                "Pagado": False,
+                                "Periodo": periodo_actual,
+                                "Tasa USD": dolar
+                            })
+                        if nuevos_registros:
+                            df_nuevos = pd.DataFrame(nuevos_registros)
+                            guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
+                            st.rerun()
 
         if st.session_state.show_add:
             st.markdown('<div class="add-panel">', unsafe_allow_html=True)
@@ -971,7 +994,6 @@ if st.session_state.screen == "inicio":
             if not pend_items.empty:
                 with st.expander(f"Marcar como pagado ({len(pend_items)} pendientes)"):
                     for _i, (_, row) in enumerate(pend_items.iterrows()):
-                        # ── FIX: key por índice+Item+Periodo para evitar duplicados ──
                         _key_monto = f"monto_pay_{_i}_{row['Item']}_{row['Periodo']}"
                         _key_btn   = f"pay_{_i}_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
@@ -979,12 +1001,9 @@ if st.session_state.screen == "inicio":
                             st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
                         with cm:
                             st.number_input(
-                                "Monto ARS",
-                                min_value=0,
-                                step=100,
+                                "Monto ARS", min_value=0, step=100,
                                 value=int(row["Monto (ARS)"]) if row["Monto (ARS)"] > 0 else 0,
-                                key=_key_monto,
-                                label_visibility="collapsed"
+                                key=_key_monto, label_visibility="collapsed"
                             )
                         with cb:
                             if st.button("✓ Pagado", key=_key_btn, use_container_width=True):
@@ -1105,7 +1124,7 @@ elif st.session_state.screen == "ingresos":
 
 
 # ══════════════════════════════════════════════════════════════════
-# PANTALLA: GASTOS (editor de tabla — sincroniza con Sheets)
+# PANTALLA: GASTOS
 # ══════════════════════════════════════════════════════════════════
 elif st.session_state.screen == "gastos":
 
@@ -1118,7 +1137,7 @@ elif st.session_state.screen == "gastos":
             st.markdown(f'<div class="alert alert-o">📅 Editando <strong>{label_periodo(periodo_viendo)}</strong>. Guardar reescribirá la hoja maestra.</div>', unsafe_allow_html=True)
         else:
             st.markdown(f"""
-<div style="background:{SURF2};border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:{TEXT2};line-height:1.6;">
+<div style="background:{SURF2};border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:{TEXT2};line-height:1.6;border:0.5px solid rgba(255,255,255,0.07);">
   ✏️ Editá montos, fechas de vencimiento o marcá ítems como pagados directamente en la tabla.<br>
   <strong style="color:{TEXT}">Presioná "Guardar y sincronizar"</strong> para escribir los cambios en Google Sheets.
 </div>""", unsafe_allow_html=True)
@@ -1198,7 +1217,6 @@ elif st.session_state.screen == "gastos":
             if not pend_quick.empty:
                 with st.expander(f"⚡ Marcar pagados rápido ({len(pend_quick)} pendientes)"):
                     for _i, (_, row) in enumerate(pend_quick.iterrows()):
-                        # ── FIX: key por índice+Item+Periodo para evitar duplicados ──
                         _key_monto = f"monto_qpay_{_i}_{row['Item']}_{row['Periodo']}"
                         _key_btn   = f"qpay_{_i}_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
@@ -1206,12 +1224,9 @@ elif st.session_state.screen == "gastos":
                             st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
                         with cm:
                             st.number_input(
-                                "Monto ARS",
-                                min_value=0,
-                                step=100,
+                                "Monto ARS", min_value=0, step=100,
                                 value=int(row["Monto (ARS)"]) if row["Monto (ARS)"] > 0 else 0,
-                                key=_key_monto,
-                                label_visibility="collapsed"
+                                key=_key_monto, label_visibility="collapsed"
                             )
                         with cb:
                             if st.button("✓ Pagado", key=_key_btn, use_container_width=True):
@@ -1389,7 +1404,7 @@ elif st.session_state.screen == "tendencias":
             else:
                 var_badge = f'<span class="var-badge-neu">primer mes</span>'
 
-            actual_badge = f'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(10,132,255,.2);color:{ACCENT};margin-left:6px">actual</span>' if es_actual else ""
+            actual_badge = f'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(10,132,255,.2);color:{ACCENT};border:0.5px solid rgba(10,132,255,.30);margin-left:6px">actual</span>' if es_actual else ""
 
             exp_key    = f"exp_{periodo_r}"
             is_expanded = st.session_state.get(exp_key, es_actual)
@@ -1424,7 +1439,7 @@ elif st.session_state.screen == "tendencias":
                 kpi_bal_html = f'<div class="mes-mini-kpi"><div class="mes-mini-lbl">Balance</div><div class="mes-mini-val" style="color:{GREEN if balance_r>=0 else RED}">{bal_sym}{fmt_ars(balance_r)}</div><div class="mes-mini-sub">{"Superávit" if balance_r >= 0 else "Déficit"}</div></div>' if tiene_ingresos else ""
 
                 st.markdown(f"""
-<div style="background:{SURFACE};border-radius:0 0 16px 16px;padding:0 16px 16px;border-top:0.5px solid rgba(84,84,88,0.3);margin-bottom:4px;">
+<div style="background:{SURFACE};border-radius:0 0 16px 16px;padding:0 16px 16px;border-top:0.5px solid rgba(84,84,88,0.3);border:0.5px solid rgba(255,255,255,0.07);border-top:none;margin-bottom:4px;">
   <div class="mes-body-grid" style="grid-template-columns:{'1fr 1fr 1fr' if tiene_ingresos else '1fr 1fr'};">
     <div class="mes-mini-kpi">
       <div class="mes-mini-lbl">Gastos</div>
