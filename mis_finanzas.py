@@ -98,6 +98,7 @@ html, body, .stApp {{
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   border-bottom:0.5px solid rgba(255,255,255,0.08);
+  box-shadow:0 4px 20px rgba(0,0,0,0.35);
   padding:12px 16px 12px;
   margin:0 -16px 14px;
 }}
@@ -168,6 +169,7 @@ html, body, .stApp {{
   border: 0.5px solid rgba(10,132,255,0.30) !important;
   color: #4DA8FF !important;
   font-weight: 600 !important;
+  box-shadow: 0 0 12px rgba(10,132,255,0.25) !important;
 }}
 @media (max-width: 600px) {{
   .pill-outer {{ bottom: max(16px, env(safe-area-inset-bottom, 16px)); }}
@@ -182,11 +184,11 @@ div[data-baseweb="select"] {{
 }}
 
 /* ── CARDS ── */
-.card{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border:0.5px solid rgba(255,255,255,0.07);}}
-.card-ing{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
-.card-gastos{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
-.card-balance-pos{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
-.card-balance-neg{{background:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
+.card{{background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));background-color:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border:0.5px solid rgba(255,255,255,0.07);box-shadow:0 1px 2px rgba(0,0,0,0.35), 0 4px 14px rgba(0,0,0,0.22);}}
+.card-ing{{background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));background-color:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);box-shadow:0 1px 2px rgba(0,0,0,0.35), 0 4px 14px rgba(50,215,75,0.06);}}
+.card-gastos{{background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));background-color:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {ACCENT};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);box-shadow:0 1px 2px rgba(0,0,0,0.35), 0 4px 14px rgba(10,132,255,0.06);}}
+.card-balance-pos{{background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));background-color:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);box-shadow:0 1px 2px rgba(0,0,0,0.35), 0 4px 14px rgba(50,215,75,0.08);}}
+.card-balance-neg{{background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));background-color:{SURFACE};border-radius:16px;padding:14px 15px;margin-bottom:8px;border-left:3px solid {RED};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);box-shadow:0 1px 2px rgba(0,0,0,0.35), 0 4px 14px rgba(255,69,58,0.08);}}
 
 .c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}}
 .c-val{{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
@@ -237,7 +239,8 @@ div[data-baseweb="select"] {{
 .bar-amt{{font-size:14px;font-weight:700;}}
 .bar-usd{{font-size:11px;color:{TEXT2};margin-top:1px;text-align:right;}}
 .bar-bg{{height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden;margin-bottom:2px;}}
-.bar-fill{{height:100%;border-radius:5px;}}
+.bar-fill{{height:100%;border-radius:5px;transition:width 0.7s cubic-bezier(.22,1,.36,1);animation:barGrow 0.7s cubic-bezier(.22,1,.36,1);}}
+@keyframes barGrow{{from{{width:0 !important;}}}}
 .bar-meta{{display:flex;justify-content:space-between;}}
 .bar-pct{{font-size:11px;color:{TEXT2};}}
 .bar-n{{font-size:11px;font-weight:600;padding:1px 6px;border-radius:20px;}}
@@ -272,7 +275,7 @@ div[data-baseweb="select"] {{
 .alert-b{{background:rgba(10,132,255,.1);color:#5BA4FF;}}
 
 /* ── GRUPOS / FILAS ── */
-.grp{{background:{SURFACE};border-radius:16px;overflow:hidden;margin-bottom:8px;border:0.5px solid rgba(255,255,255,0.07);}}
+.grp{{background:{SURFACE};border-radius:16px;overflow:hidden;margin-bottom:8px;border:0.5px solid rgba(255,255,255,0.07);box-shadow:0 1px 2px rgba(0,0,0,0.35), 0 4px 14px rgba(0,0,0,0.22);}}
 .grp-hdr{{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:0.5px solid {SEP};}}
 .grp-hdr-lbl{{flex:1;font-size:12px;font-weight:600;color:{TEXT2};letter-spacing:.03em;text-transform:uppercase;}}
 .grp-hdr-amt{{font-size:13px;font-weight:600;}}
@@ -302,8 +305,8 @@ div[data-baseweb="select"] {{
 .badge-jaike{{background:rgba(191,90,242,.18);color:{PURPLE};border:0.5px solid rgba(191,90,242,.25);}}
 
 /* ── ADD PANELS ── */
-.add-panel{{background:{SURFACE};border-radius:16px;padding:14px;margin-bottom:10px;border:0.5px solid rgba(255,255,255,0.09);}}
-.add-panel-green{{background:{SURFACE};border-radius:16px;padding:14px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);}}
+.add-panel{{background:{SURFACE};border-radius:16px;padding:14px;margin-bottom:10px;border:0.5px solid rgba(255,255,255,0.09);box-shadow:0 4px 18px rgba(0,0,0,0.3);}}
+.add-panel-green{{background:{SURFACE};border-radius:16px;padding:14px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:0.5px solid rgba(255,255,255,0.07);border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07);box-shadow:0 4px 18px rgba(50,215,75,0.08);}}
 .stTextInput>div>div>input,.stNumberInput>div>div>input{{
   background:{SURF2} !important;border:none !important;border-radius:9px !important;
   color:{TEXT} !important;font-size:15px !important;
@@ -318,7 +321,7 @@ div[data-baseweb="select"] {{
 @media(max-width:700px){{
   .kpi-grid-3{{grid-template-columns:1fr 1fr;}}
 }}
-.kpi-card{{background:rgba(255,255,255,0.04);border-radius:16px;padding:16px;border:0.5px solid rgba(255,255,255,0.09);}}
+.kpi-card{{background:linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));border-radius:16px;padding:16px;border:0.5px solid rgba(255,255,255,0.09);box-shadow:0 1px 2px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.25);transition:transform 0.15s ease;}}
 .kpi-lbl{{font-size:11px;font-weight:500;color:{TEXT2};margin-bottom:5px;letter-spacing:.01em;}}
 .kpi-val{{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
 .kpi-sub{{font-size:11px;color:{TEXT2};margin-top:4px;}}
@@ -332,6 +335,7 @@ div[data-baseweb="select"] {{
   background: {SURFACE};
   border-radius: 16px;
   border: 0.5px solid rgba(255,255,255,0.07);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.2);
 }}
 .mes-dot {{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
 .mes-title {{flex:1;}}
@@ -349,7 +353,7 @@ div[data-baseweb="select"] {{
 .cat-bar-row:last-child {{border-bottom:none;}}
 .cat-bar-name {{font-size:13px;color:{TEXT};width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
 .cat-bar-track {{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}}
-.cat-bar-fill {{height:100%;border-radius:4px;}}
+.cat-bar-fill {{height:100%;border-radius:4px;transition:width 0.7s cubic-bezier(.22,1,.36,1);animation:barGrow 0.7s cubic-bezier(.22,1,.36,1);}}
 .cat-bar-amt {{font-size:12px;font-weight:600;min-width:80px;text-align:right;}}
 .aporte-row {{display:flex;align-items:center;gap:10px;padding:8px 0;}}
 .aporte-av {{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}}
@@ -519,7 +523,7 @@ def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuev
 def categorizar(item):
     i = str(item).lower()
     if any(x in i for x in ["mercadocredito","tarjeta","visa","mastercard","amex","credito","banco","financiamiento","cuota"]): return "Credito/Financiacion"
-    elif any(x in i for x in ["luz","edenor","edesur","agua","aysa","gas","metrogas","BBVA Seguro de Hogar","personal"]): return "Servicios"
+    elif any(x in i for x in ["luz","edenor","edesur","agua","aysa","gas","metrogas","bbva seguro de hogar","bbva seguros de hogar","personal"]): return "Servicios"
     elif any(x in i for x in ["super","coto","carrefour","dia","jumbo","disco","mercado","almacen","chino"]): return "Supermercado"
     elif any(x in i for x in ["alquiler","expensas","abl","limpieza"]): return "Hogar"
     elif any(x in i for x in ["nafta","ypf","shell","axion","uber","cabify","taxi","peaje","sube","transporte"]): return "Transporte"
@@ -1517,7 +1521,7 @@ elif st.session_state.screen == "tendencias":
                 </div>
               </div>
               <div style="height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
-                <div style="width:{bar_w}%;height:100%;background:{color};border-radius:3px"></div>
+                <div class="cat-bar-fill" style="width:{bar_w}%;background:{color};border-radius:3px"></div>
               </div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
