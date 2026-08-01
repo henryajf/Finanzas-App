@@ -9,7 +9,7 @@ from datetime import date, timedelta
 
 st.set_page_config(page_title="Finanzas AR", page_icon="💳", layout="wide", initial_sidebar_state="collapsed")
 
-for k, v in [("screen", "inicio"), ("show_add", False), ("show_add_ingreso", False), ("periodo_sel", None), ("tend_mes_exp", None)]:
+for k, v in [("screen", "inicio"), ("show_add", False), ("show_add_ingreso", False), ("periodo_sel", None), ("tend_mes_exp", None), ("show_horas", False)]:
     if k not in st.session_state:
         st.session_state[k] = v
 
@@ -532,6 +532,41 @@ def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tas
     ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha)])
     st.cache_data.clear()
 
+@st.cache_data(ttl=600)
+def cargar_horas():
+    try:
+        sh = get_gspread().open("Gastos_Henry")
+        ws = next((h for h in sh.worksheets() if h.title.strip().lower() == "horas"), None)
+        if not ws:
+            ws = sh.add_worksheet(title="Horas", rows=200, cols=6)
+            ws.append_row(["Fecha","Persona","Trabajo","Horas","Monto ARS","Periodo"])
+            return pd.DataFrame()
+        data = ws.get_all_values()
+        if not data or len(data) < 2: return pd.DataFrame()
+        headers = ["Fecha","Persona","Trabajo","Horas","Monto ARS","Periodo"]
+        filas = data[1:]
+        filas = [r + [""] * (6 - len(r)) for r in filas if len(r) >= 2]
+        if not filas: return pd.DataFrame()
+        df = pd.DataFrame(filas, columns=headers)
+        df["Horas"]     = df["Horas"].apply(clean_currency)
+        df["Monto ARS"] = df["Monto ARS"].apply(clean_currency)
+        df["Fecha"]     = pd.to_datetime(df["Fecha"], errors="coerce").dt.date
+        df = df[df["Horas"] > 0]
+        periodo_calc = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%Y-%m")
+        df["Periodo"] = df["Periodo"].where(df["Periodo"].str.strip() != "", periodo_calc)
+        return df.reset_index(drop=True)
+    except Exception:
+        return pd.DataFrame()
+
+def guardar_hora(fecha, persona, trabajo, horas, monto_ars):
+    sh = get_gspread().open("Gastos_Henry")
+    ws = next((h for h in sh.worksheets() if h.title.strip().lower() == "horas"), None)
+    if not ws:
+        ws = sh.add_worksheet(title="Horas", rows=200, cols=6)
+        ws.append_row(["Fecha","Persona","Trabajo","Horas","Monto ARS","Periodo"])
+    ws.append_row([str(fecha), persona, trabajo, horas, monto_ars, fecha.strftime("%Y-%m")])
+    st.cache_data.clear()
+
 def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuevo_monto=None):
     df_act = df_full.copy()
     mask = (df_act["Item"] == item_nombre) & (df_act["Periodo"] == periodo_item)
@@ -623,8 +658,9 @@ periodo_actual = hoy.strftime("%Y-%m")
 dolar = get_dolar()
 dolar_val, dolar_ayer, dolar_diff, dolar_pct = get_dolar_tendencia()
 
-df_maestro  = cargar_datos_maestro()
-df_ing_todo = cargar_ingresos()
+df_maestro   = cargar_datos_maestro()
+df_ing_todo  = cargar_ingresos()
+df_horas_todo = cargar_horas()
 
 if not df_maestro.empty:
     periodos_disponibles = sorted(df_maestro["Periodo"].dropna().unique(), reverse=True)
@@ -672,6 +708,11 @@ if not df_ing_todo.empty:
     df_ing_periodo = df_ing_todo[df_ing_todo["Periodo"] == periodo_viendo]
 else:
     df_ing_periodo = pd.DataFrame()
+
+if not df_horas_todo.empty:
+    df_horas_periodo = df_horas_todo[df_horas_todo["Periodo"] == periodo_viendo]
+else:
+    df_horas_periodo = pd.DataFrame()
 
 total_ing_ars = df_ing_periodo["Monto ARS"].sum() if not df_ing_periodo.empty else 0
 total_ing_usd = df_ing_periodo["Monto USD"].sum() if not df_ing_periodo.empty else 0
@@ -1146,6 +1187,61 @@ elif st.session_state.screen == "ingresos":
               </div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── HORAS TRABAJADAS (discreto) ──
+    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+    with st.expander("⏱️  Horas trabajadas", expanded=False):
+        st.markdown(f'<div style="font-size:11.5px;color:{TEXT2};margin-bottom:10px;line-height:1.5">Registrá horas por trabajo para ver cuánto pagaron por hora en {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
+
+        if not df_horas_periodo.empty:
+            resumen_h = (df_horas_periodo.groupby(["Trabajo","Persona"])
+                         .agg(Horas=("Horas","sum"), Monto=("Monto ARS","sum"))
+                         .reset_index())
+            resumen_h["PorHora"] = resumen_h.apply(lambda r: r["Monto"]/r["Horas"] if r["Horas"] > 0 else 0, axis=1)
+            st.markdown('<div class="grp">', unsafe_allow_html=True)
+            for _, r in resumen_h.sort_values("Monto", ascending=False).iterrows():
+                ico_c = ACCENT if str(r["Persona"]).upper() == "HENRY" else PURPLE
+                st.markdown(f"""<div class="ing-row">
+                  <div style="width:34px;height:34px;border-radius:8px;background:{ico_c};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="white" stroke-width="1.6"/><path d="M9,5 L9,9 L12,11" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+                  </div>
+                  <div class="row-body"><div class="row-name">{r['Trabajo']}</div>
+                  <div class="row-sub">{badge_persona(r['Persona'])} &nbsp;{r['Horas']:.1f} hs trabajadas</div></div>
+                  <div class="row-right">
+                    <div class="row-amt" style="color:{TEXT}">{fmt_ars(r['Monto'])}</div>
+                    <div class="row-usd">{fmt_ars(r['PorHora'])} / hs</div>
+                  </div>
+                </div>""", unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div style="text-align:center;padding:16px;color:{TEXT3};font-size:12.5px">Sin horas cargadas en {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
+
+        st.markdown("<div style='height:2px'></div>", unsafe_allow_html=True)
+
+        h1, h2 = st.columns(2)
+        with h1: h_trabajo = st.text_input("Trabajo", placeholder="Ej: Guardia Sanatorio", key="h_trabajo")
+        with h2: h_persona = st.selectbox("Persona", ["Henry","Jaike"], key="h_persona")
+        h3, h4, h5 = st.columns([1,1,1])
+        with h3: h_horas = st.number_input("Horas", min_value=0.0, step=0.5, key="h_horas")
+        with h4: h_monto = st.number_input("Monto ARS", min_value=0.0, step=500.0, key="h_monto")
+        with h5: h_fecha = st.date_input("Fecha", value=hoy, key="h_fecha")
+
+        if h_horas > 0 and h_monto > 0:
+            ph = h_monto / h_horas
+            st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:2px 0 8px">$/hora: <strong style="color:{GREEN}">{fmt_ars(ph)}</strong></div>', unsafe_allow_html=True)
+
+        if st.button("Guardar horas", type="secondary", use_container_width=True, key="btn_guardar_horas"):
+            if not h_trabajo.strip():
+                st.markdown('<div class="toast-err">Ingresá el nombre del trabajo</div>', unsafe_allow_html=True)
+            elif h_horas <= 0:
+                st.markdown('<div class="toast-err">Las horas deben ser mayor a 0</div>', unsafe_allow_html=True)
+            else:
+                try:
+                    guardar_hora(h_fecha, h_persona, h_trabajo.strip(), h_horas, h_monto)
+                    st.markdown('<div class="toast-ok">✓ Horas guardadas</div>', unsafe_allow_html=True)
+                    st.rerun()
+                except Exception as e:
+                    st.markdown(f'<div class="toast-err">Error: {e}</div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════
