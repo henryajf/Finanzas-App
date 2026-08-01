@@ -107,14 +107,14 @@ html, body, .stApp {{
 
 /* ── HEADER ── */
 .ios-hdr {{
-  position:sticky;top:0;z-index:100;
+  position:relative;
   background:rgba(10,10,14,0.55);
   backdrop-filter:{BLUR};
   -webkit-backdrop-filter:{BLUR};
   border-bottom:0.5px solid {GLASS_BORDER};
   box-shadow:0 8px 32px rgba(0,0,0,0.35);
   padding:8px 16px 8px;
-  margin:0 -16px 8px;
+  margin:0 -16px 6px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
 .ios-title{{font-size:19px;font-weight:750;letter-spacing:-.02em;color:{TEXT};}}
@@ -130,21 +130,21 @@ html, body, .stApp {{
   position: relative;
   display: flex;
   justify-content: flex-start;
-  padding: 8px 16px 4px;
+  padding: 2px 0 8px;
   z-index: 10;
 }}
 .pill-inner {{
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  background: transparent;
-  border: none;
-  padding: 0;
-  border-radius: 0;
+  gap: 3px;
+  background: rgba(255,255,255,0.03);
+  border: 0.5px solid {GLASS_BORDER};
+  padding: 3px;
+  border-radius: 10px;
   box-shadow: none;
 }}
 .pill-inner [data-testid="stHorizontalBlock"] {{
-  gap: 2px !important;
+  gap: 3px !important;
   flex-wrap: nowrap !important;
 }}
 .pill-inner [data-testid="column"] {{
@@ -155,15 +155,14 @@ html, body, .stApp {{
 .pill-inner .stButton > button {{
   background: transparent !important;
   border: none !important;
-  border-bottom: 1.5px solid transparent !important;
-  color: rgba(235,235,245,0.38) !important;
-  border-radius: 6px 6px 0 0 !important;
-  padding: 5px 10px !important;
-  font-size: 11px !important;
+  color: rgba(235,235,245,0.42) !important;
+  border-radius: 7px !important;
+  padding: 4px 9px !important;
+  font-size: 10.5px !important;
   font-weight: 500 !important;
   font-family: -apple-system, sans-serif !important;
   letter-spacing: 0.01em !important;
-  transition: color 0.15s ease, border-color 0.15s ease !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
   white-space: nowrap !important;
   min-height: 0 !important;
   line-height: 1.3 !important;
@@ -171,18 +170,17 @@ html, body, .stApp {{
   width: auto !important;
 }}
 .pill-inner .stButton > button:hover {{
-  color: rgba(235,235,245,0.7) !important;
+  color: rgba(235,235,245,0.75) !important;
 }}
 .pill-active .stButton > button {{
-  background: transparent !important;
+  background: rgba(10,132,255,0.16) !important;
   border: none !important;
-  border-bottom: 1.5px solid {ACCENT} !important;
   color: {ACCENT} !important;
   font-weight: 600 !important;
   box-shadow: none !important;
 }}
 @media (max-width: 600px) {{
-  .pill-inner .stButton > button {{ padding: 5px 8px !important; font-size: 10.5px !important; }}
+  .pill-inner .stButton > button {{ padding: 4px 7px !important; font-size: 10px !important; }}
 }}
 
 /* ── SELECTBOX ── */
@@ -715,30 +713,12 @@ document.addEventListener('DOMContentLoaded',function(){
 """, unsafe_allow_html=True)
 
 _sc = st.session_state.screen
-
-# ══════════════════════════════════════════════════════════════════
-# PÍLDORA DE NAVEGACIÓN
-# ══════════════════════════════════════════════════════════════════
 _nav_items = [
     ("inicio",     "🏠", "Inicio"),
     ("ingresos",   "💰", "Ingresos"),
     ("gastos",     "💳", "Gastos"),
     ("tendencias", "📈", "Tendencias"),
 ]
-
-st.markdown('<div class="pill-outer"><div class="pill-inner">', unsafe_allow_html=True)
-_pcols = st.columns(4)
-for i, (key, ico, lbl) in enumerate(_nav_items):
-    with _pcols[i]:
-        _active = (_sc == key)
-        if _active:
-            st.markdown('<div class="pill-active">', unsafe_allow_html=True)
-        if st.button(f"{ico} {lbl}", key=f"pill_{key}", use_container_width=True):
-            st.session_state.screen = key
-            st.rerun()
-        if _active:
-            st.markdown('</div>', unsafe_allow_html=True)
-st.markdown('</div></div>', unsafe_allow_html=True)
 
 # ── CONTENIDO PRINCIPAL ──
 st.markdown('<div class="wrap">', unsafe_allow_html=True)
@@ -766,6 +746,21 @@ st.markdown(f"""
   </div>
 </div>
 """, unsafe_allow_html=True)
+
+# ── NAV, justo arriba del selector de período ──
+st.markdown('<div class="pill-outer"><div class="pill-inner">', unsafe_allow_html=True)
+_pcols = st.columns(4)
+for i, (key, ico, lbl) in enumerate(_nav_items):
+    with _pcols[i]:
+        _active = (_sc == key)
+        if _active:
+            st.markdown('<div class="pill-active">', unsafe_allow_html=True)
+        if st.button(f"{ico} {lbl}", key=f"pill_{key}", use_container_width=True):
+            st.session_state.screen = key
+            st.rerun()
+        if _active:
+            st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div></div>', unsafe_allow_html=True)
 
 opciones_periodos = periodos_disponibles[:8]
 idx_per = opciones_periodos.index(periodo_viendo) if periodo_viendo in opciones_periodos else 0
@@ -817,11 +812,14 @@ if st.session_state.screen == "inicio":
 </div>
 """, unsafe_allow_html=True)
 
+    bc = GREEN if balance_ars >= 0 else RED
+    bs = "+" if balance_ars >= 0 else ""
+
     st.markdown(f'<div class="sec-lbl">Gastos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
     st.markdown(f"""
 <div class="card-gastos">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div></div>
+    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div><div style="font-size:10px;color:{TEXT2};margin-top:4px;opacity:.7">Balance <span style="color:{bc}">{bs}{fmt_ars(balance_ars)}</span></div></div>
     <div style="text-align:right;padding-top:2px"><div class="c-lbl">Ítems</div><div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df)}</div><div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div></div>
   </div>
   <div class="sep"></div>
@@ -841,26 +839,6 @@ if st.session_state.screen == "inicio":
     </div>
     <div class="bar-bg"><div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div></div>
     <div class="bar-meta"><span class="bar-pct">{pct_pend}% del total</span></div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    bc      = GREEN if balance_ars >= 0 else RED
-    bs      = "+" if balance_ars >= 0 else ""
-    bal_tag = f'<span class="balance-tag-pos">Superávit</span>' if balance_ars >= 0 else f'<span class="balance-tag-neg">Déficit</span>'
-    bal_card = "card-balance-pos" if balance_ars >= 0 else "card-balance-neg"
-
-    st.markdown(f'<div class="sec-lbl">Balance</div>', unsafe_allow_html=True)
-    st.markdown(f"""
-<div class="{bal_card}">
-  {bal_tag}
-  <div style="display:flex;justify-content:space-between;align-items:flex-end">
-    <div><div class="c-val" style="color:{bc}">{bs}{fmt_ars(balance_ars)}</div><div class="c-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)}</div></div>
-  </div>
-  <div class="sep"></div>
-  <div style="display:flex;justify-content:space-between;font-size:12px;color:{TEXT2}">
-    <span>Ingresos <strong style="color:{GREEN}">{fmt_ars(total_ing_ars)}</strong></span>
-    <span>Gastos <strong style="color:{TEXT}">{fmt_ars(total_ars)}</strong></span>
   </div>
 </div>
 """, unsafe_allow_html=True)
