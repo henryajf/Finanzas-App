@@ -101,7 +101,9 @@ html, body, .stApp {{
 
 #MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
 .block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
-.wrap {{max-width:900px;margin:0 auto;padding:0 16px 140px;}}
+[data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"], [data-testid="stMain"],
+.stMainBlockContainer, section.main, section.main > div:first-child {{padding-top:0 !important;margin-top:0 !important;}}
+.wrap {{max-width:900px;margin:0 auto;padding:0 16px 32px;}}
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -111,40 +113,35 @@ html, body, .stApp {{
   -webkit-backdrop-filter:{BLUR};
   border-bottom:0.5px solid {GLASS_BORDER};
   box-shadow:0 8px 32px rgba(0,0,0,0.35);
-  padding:14px 16px 14px;
-  margin:0 -16px 14px;
+  padding:8px 16px 8px;
+  margin:0 -16px 8px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
-.ios-title{{font-size:27px;font-weight:750;letter-spacing:-.02em;color:{TEXT};}}
+.ios-title{{font-size:19px;font-weight:750;letter-spacing:-.02em;color:{TEXT};}}
 .ios-title span{{background:linear-gradient(120deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;background-clip:text;color:transparent;}}
-.ios-date{{font-size:11px;color:{TEXT2};margin-top:1px;}}
-.dolar-block{{text-align:right;background:{SURFACE};backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border:0.5px solid {GLASS_BORDER};border-radius:14px;padding:6px 12px;}}
-.dolar-lbl{{font-size:9px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:600;}}
-.dolar-val{{font-size:19px;font-weight:700;background:linear-gradient(120deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.01em;}}
-.dolar-trend{{font-size:11px;margin-top:1px;}}
+.ios-date{{font-size:10px;color:{TEXT2};margin-top:0px;}}
+.dolar-block{{text-align:right;background:{SURFACE};backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border:0.5px solid {GLASS_BORDER};border-radius:12px;padding:4px 10px;}}
+.dolar-lbl{{font-size:8px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:600;}}
+.dolar-val{{font-size:15px;font-weight:700;background:linear-gradient(120deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.01em;}}
+.dolar-trend{{font-size:10px;margin-top:0px;}}
 
-/* ── PÍLDORA FLOTANTE NATIVA ── */
+/* ── BARRA DE NAVEGACIÓN (discreta, en flujo normal) ── */
 .pill-outer {{
-  position: fixed;
-  bottom: 24px;
-  left: 0; right: 0;
+  position: relative;
   display: flex;
-  justify-content: center;
-  z-index: 999999;
-  pointer-events: none;
+  justify-content: flex-start;
+  padding: 8px 16px 4px;
+  z-index: 10;
 }}
 .pill-inner {{
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  background: rgba(22,22,26,0.65);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 0.5px solid {GLASS_BORDER_2};
-  padding: 5px 6px;
-  border-radius: 50px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 0.5px rgba(255,255,255,0.04);
-  pointer-events: all;
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
 }}
 .pill-inner [data-testid="stHorizontalBlock"] {{
   gap: 2px !important;
@@ -158,14 +155,15 @@ html, body, .stApp {{
 .pill-inner .stButton > button {{
   background: transparent !important;
   border: none !important;
-  color: rgba(235,235,245,0.4) !important;
-  border-radius: 50px !important;
-  padding: 8px 18px !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
+  border-bottom: 1.5px solid transparent !important;
+  color: rgba(235,235,245,0.38) !important;
+  border-radius: 6px 6px 0 0 !important;
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
   font-family: -apple-system, sans-serif !important;
   letter-spacing: 0.01em !important;
-  transition: color 0.15s ease, background 0.15s ease !important;
+  transition: color 0.15s ease, border-color 0.15s ease !important;
   white-space: nowrap !important;
   min-height: 0 !important;
   line-height: 1.3 !important;
@@ -173,19 +171,18 @@ html, body, .stApp {{
   width: auto !important;
 }}
 .pill-inner .stButton > button:hover {{
-  color: rgba(235,235,245,0.8) !important;
-  background: rgba(255,255,255,0.07) !important;
+  color: rgba(235,235,245,0.7) !important;
 }}
 .pill-active .stButton > button {{
-  background: linear-gradient(135deg, rgba(10,132,255,0.35), rgba(191,90,242,0.20)) !important;
-  border: 0.5px solid rgba(10,132,255,0.40) !important;
-  color: #FFFFFF !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1.5px solid {ACCENT} !important;
+  color: {ACCENT} !important;
   font-weight: 600 !important;
-  box-shadow: 0 0 16px rgba(10,132,255,0.35), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  box-shadow: none !important;
 }}
 @media (max-width: 600px) {{
-  .pill-outer {{ bottom: max(16px, env(safe-area-inset-bottom, 16px)); }}
-  .pill-inner .stButton > button {{ padding: 8px 13px !important; font-size: 11px !important; }}
+  .pill-inner .stButton > button {{ padding: 5px 8px !important; font-size: 10.5px !important; }}
 }}
 
 /* ── SELECTBOX ── */
@@ -527,13 +524,13 @@ def guardar_hoja_maestro(df_guardar, dolar_actual=None):
     hoja.append_rows(df_up.values.tolist())
     st.cache_data.clear()
 
-def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, fecha):
+def guardar_ingreso(desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, fecha, horas=0):
     sh = get_gspread().open("Gastos_Henry")
     ws = next((h for h in sh.worksheets() if h.title.strip().lower() == "ingresos"), None)
     if not ws:
         ws = sh.add_worksheet(title="Ingresos", rows=200, cols=9)
         ws.append_row(["Descripcion","Persona","Moneda","Monto Original","Monto ARS","Monto USD","Tasa USD/ARS","Fecha","Horas"])
-    ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha), ""])
+    ws.append_row([desc, persona, moneda, monto_orig, monto_ars, monto_usd, tasa, str(fecha), horas if horas and horas > 0 else ""])
     st.cache_data.clear()
 
 def actualizar_horas_ingreso(sheet_row, horas):
@@ -778,7 +775,7 @@ if nuevo_periodo != st.session_state.periodo_sel:
     st.session_state.periodo_sel = nuevo_periodo
     st.rerun()
 
-st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -983,7 +980,12 @@ if st.session_state.screen == "inicio":
                     st.markdown(f'<div style="padding:7px 0"><div style="font-size:11px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Equiv. ARS</div><div style="font-size:18px;font-weight:700;color:{GREEN}">{fmt_ars(equiv)}</div></div>', unsafe_allow_html=True)
                     monto_ars_f = equiv; monto_usd_f = ing_monto
             with i6: ing_fecha = st.date_input("Fecha", value=hoy, key="ing_fecha")
-            st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:6px 0 8px">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:6px 0 2px">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
+            ing_horas = st.number_input("Horas trabajadas (opcional)", min_value=0.0, step=0.5, key="ing_horas", help="Si este pago corresponde a horas trabajadas, cargalas acá y calculo el $/hora automáticamente.")
+            if ing_horas > 0 and ing_monto > 0:
+                ph_prev = monto_ars_f / ing_horas
+                phu_prev = monto_usd_f / ing_horas
+                st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:2px 0 8px">$/hora: <strong style="color:{GREEN}">{fmt_ars(ph_prev)}</strong> · U$S {phu_prev:,.2f}/hs</div>', unsafe_allow_html=True)
             if st.button("Guardar ingreso", type="primary", use_container_width=True):
                 if not ing_desc.strip():
                     st.markdown('<div class="toast-err">Ingresa una descripción</div>', unsafe_allow_html=True)
@@ -992,7 +994,7 @@ if st.session_state.screen == "inicio":
                 else:
                     try:
                         guardar_ingreso(ing_desc.strip(), ing_persona, moneda_sel, ing_monto,
-                                        round(monto_ars_f,2), round(monto_usd_f,4), dolar, ing_fecha)
+                                        round(monto_ars_f,2), round(monto_usd_f,4), dolar, ing_fecha, ing_horas)
                         st.session_state.show_add_ingreso = False
                         st.rerun()
                     except Exception as e:
@@ -1119,7 +1121,12 @@ elif st.session_state.screen == "ingresos":
                     st.markdown(f'<div style="padding:7px 0"><div style="font-size:11px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Equiv. ARS</div><div style="font-size:18px;font-weight:700;color:{GREEN}">{fmt_ars(equiv2)}</div></div>', unsafe_allow_html=True)
                     mars2 = equiv2; musd2 = ing_monto2
             with i6: ing_fecha2 = st.date_input("Fecha", value=hoy, key="ing_fecha2")
-            st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:6px 0 8px">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:6px 0 2px">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
+            ing_horas2 = st.number_input("Horas trabajadas (opcional)", min_value=0.0, step=0.5, key="ing_horas2", help="Si este pago corresponde a horas trabajadas, cargalas acá y calculo el $/hora automáticamente.")
+            if ing_horas2 > 0 and ing_monto2 > 0:
+                ph_prev2 = mars2 / ing_horas2
+                phu_prev2 = musd2 / ing_horas2
+                st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:2px 0 8px">$/hora: <strong style="color:{GREEN}">{fmt_ars(ph_prev2)}</strong> · U$S {phu_prev2:,.2f}/hs</div>', unsafe_allow_html=True)
             if st.button("Guardar", type="primary", use_container_width=True, key="guardar_ing2"):
                 if not ing_desc2.strip():
                     st.markdown('<div class="toast-err">Ingresa una descripción</div>', unsafe_allow_html=True)
@@ -1128,7 +1135,7 @@ elif st.session_state.screen == "ingresos":
                 else:
                     try:
                         guardar_ingreso(ing_desc2.strip(), ing_persona2, moneda_sel2, ing_monto2,
-                                        round(mars2,2), round(musd2,4), dolar, ing_fecha2)
+                                        round(mars2,2), round(musd2,4), dolar, ing_fecha2, ing_horas2)
                         st.session_state.show_add_ingreso = False
                         st.rerun()
                     except Exception as e:
