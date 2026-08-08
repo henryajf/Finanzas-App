@@ -14,38 +14,38 @@ for k, v in [("screen", "inicio"), ("show_add", False), ("show_add_ingreso", Fal
         st.session_state[k] = v
 
 # ── COLORES (glassmorphism) ──
-BG      = "#050806"
+BG      = "#0A0C10"
 SURFACE = "rgba(255,255,255,0.055)"
 SURF2   = "rgba(255,255,255,0.08)"
 SURF3   = "rgba(255,255,255,0.11)"
 GLASS_BORDER   = "rgba(255,255,255,0.14)"
 GLASS_BORDER_2 = "rgba(255,255,255,0.22)"
-TEXT    = "#FFFFFF"
-TEXT2   = "rgba(235,235,245,0.62)"
-TEXT3   = "rgba(235,235,245,0.34)"
+TEXT    = "#F3F1EC"
+TEXT2   = "rgba(243,241,236,0.62)"
+TEXT3   = "rgba(243,241,236,0.34)"
 SEP     = "rgba(255,255,255,0.09)"
-ACCENT  = "#14B8A6"
-ACCENT2 = "#5EEAD4"
-GREEN   = "#22C55E"
-RED     = "#FF453A"
-ORANGE  = "#FF9F0A"
-YELLOW  = "#FFD60A"
-GOLD  = "#F5B942"
+ACCENT  = "#3A8FA0"
+ACCENT2 = "#8FD4C4"
+GREEN   = "#5FB88A"
+RED     = "#E2685C"
+ORANGE  = "#D98F4E"
+YELLOW  = "#E4C468"
+GOLD  = "#C9A063"
 PLOTBG  = "rgba(0,0,0,0)"
 BLUR    = "blur(24px) saturate(180%)"
 
 CAT_COLORS = {
-    "Servicios": "#FF9F0A", "Hogar": "#22C55E", "Supermercado": "#30D158",
-    "Comida": "#FF453A", "Transporte": "#14B8A6", "Suscripciones": "#F5B942",
-    "Fitness": "#FF6B35", "Salud": "#22C55E", "Credito": "#FF9F0A",
-    "Personal": "#5EEAD4", "Viajes": "#14B8A6", "Otros": "#636366",
+    "Servicios": "#D98F4E", "Hogar": "#5FB88A", "Supermercado": "#6FC78F",
+    "Comida": "#E2685C", "Transporte": "#3A8FA0", "Suscripciones": "#C9A063",
+    "Fitness": "#C97452", "Salud": "#7FB8A0", "Credito": "#B98A5A",
+    "Personal": "#8FD4C4", "Viajes": "#4F9FB0", "Otros": "#6B6862",
 }
 
 def cat_color(cat):
     c = str(cat)
     for k, v in CAT_COLORS.items():
         if k.lower() in c.lower(): return v
-    return "#636366"
+    return "#6B6862"
 
 def cat_icon_svg(cat, color, size=34):
     c = str(cat).lower(); s = size; r = s * 0.22
@@ -77,22 +77,23 @@ def cat_icon_svg(cat, color, size=34):
 
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
 :root{{
   --bg:{BG};--surface:{SURFACE};--surf2:{SURF2};--surf3:{SURF3};
   --text:{TEXT};--text2:{TEXT2};--text3:{TEXT3};--sep:{SEP};
   --accent:{ACCENT};--green:{GREEN};--red:{RED};--orange:{ORANGE};
   --glass-b:{GLASS_BORDER};--glass-b2:{GLASS_BORDER_2};
   --font-ui:'Inter',-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+  --font-num:'Fraunces',Georgia,'Times New Roman',serif;
 }}
 html, body, .stApp {{
   font-family:var(--font-ui) !important;
   font-variant-numeric:tabular-nums;
   background:
-    radial-gradient(circle at 12% 8%, rgba(20,184,166,0.17), transparent 42%),
-    radial-gradient(circle at 88% 18%, rgba(245,185,66,0.10), transparent 40%),
-    radial-gradient(circle at 25% 92%, rgba(34,197,94,0.11), transparent 38%),
-    radial-gradient(circle at 95% 88%, rgba(94,234,212,0.07), transparent 40%),
+    radial-gradient(circle at 12% 8%, rgba(58,143,160,0.17), transparent 42%),
+    radial-gradient(circle at 88% 18%, rgba(201,160,99,0.10), transparent 40%),
+    radial-gradient(circle at 25% 92%, rgba(95,184,138,0.11), transparent 38%),
+    radial-gradient(circle at 95% 88%, rgba(143,212,196,0.07), transparent 40%),
     {BG} !important;
   background-attachment:fixed !important;
   color:{TEXT} !important;
@@ -125,7 +126,7 @@ html, body, .stApp {{
 .ios-date{{font-size:10px;color:{TEXT2};margin-top:0px;}}
 .dolar-block{{text-align:right;background:{SURFACE};backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border:0.5px solid {GLASS_BORDER};border-radius:12px;padding:4px 10px;}}
 .dolar-lbl{{font-size:8px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:600;}}
-.dolar-val{{font-size:15px;font-weight:700;background:linear-gradient(120deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.01em;}}
+.dolar-val{{font-family:var(--font-num);font-size:16px;font-weight:600;background:linear-gradient(120deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.01em;}}
 .dolar-trend{{font-size:10px;margin-top:0px;}}
 
 /* ── BARRA DE NAVEGACIÓN (discreta, en flujo normal) ── */
@@ -158,7 +159,7 @@ html, body, .stApp {{
 .pill-inner .stButton > button {{
   background: transparent !important;
   border: none !important;
-  color: rgba(235,235,245,0.42) !important;
+  color: rgba(243,241,236,0.42) !important;
   border-radius: 7px !important;
   padding: 4px 9px !important;
   font-size: 10.5px !important;
@@ -173,10 +174,10 @@ html, body, .stApp {{
   width: auto !important;
 }}
 .pill-inner .stButton > button:hover {{
-  color: rgba(235,235,245,0.75) !important;
+  color: rgba(243,241,236,0.75) !important;
 }}
 .pill-active .stButton > button {{
-  background: rgba(20,184,166,0.16) !important;
+  background: rgba(58,143,160,0.16) !important;
   border: none !important;
   color: {ACCENT} !important;
   font-weight: 600 !important;
@@ -197,19 +198,19 @@ div[data-baseweb="select"] {{
 
 /* ── CARDS (glass) ── */
 .card{{background:linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border:0.5px solid {GLASS_BORDER};box-shadow:0 1px 1px rgba(255,255,255,0.06) inset, 0 8px 28px rgba(0,0,0,0.30);}}
-.card-ing{{background:linear-gradient(160deg, rgba(34,197,94,0.12), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(34,197,94,0.10);}}
-.card-gastos{{background:linear-gradient(160deg, rgba(20,184,166,0.12), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {ACCENT};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(20,184,166,0.10);}}
-.card-balance-pos{{background:linear-gradient(160deg, rgba(34,197,94,0.14), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(34,197,94,0.14);}}
-.card-balance-neg{{background:linear-gradient(160deg, rgba(255,69,58,0.14), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {RED};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(255,69,58,0.14);}}
+.card-ing{{background:linear-gradient(160deg, rgba(95,184,138,0.12), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(95,184,138,0.10);}}
+.card-gastos{{background:linear-gradient(160deg, rgba(58,143,160,0.12), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {ACCENT};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(58,143,160,0.10);}}
+.card-balance-pos{{background:linear-gradient(160deg, rgba(95,184,138,0.14), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(95,184,138,0.14);}}
+.card-balance-neg{{background:linear-gradient(160deg, rgba(226,104,92,0.14), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px 17px;margin-bottom:10px;border-left:3px solid {RED};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(226,104,92,0.14);}}
 
 .c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}}
-.c-val{{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.1;}}
+.c-val{{font-family:var(--font-num);font-size:25px;font-weight:600;letter-spacing:-.01em;line-height:1.1;}}
 .c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
 
 /* ── HERO BALANCE (resumen del mes) ── */
-.hero-balance{{background:linear-gradient(160deg, rgba(20,184,166,0.16), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:26px;padding:22px 22px 18px;margin-bottom:14px;border:0.5px solid {GLASS_BORDER_2};box-shadow:0 1px 1px rgba(255,255,255,0.08) inset, 0 12px 36px rgba(0,0,0,0.35);text-align:center;}}
+.hero-balance{{background:linear-gradient(160deg, rgba(58,143,160,0.16), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:26px;padding:22px 22px 18px;margin-bottom:14px;border:0.5px solid {GLASS_BORDER_2};box-shadow:0 1px 1px rgba(255,255,255,0.08) inset, 0 12px 36px rgba(0,0,0,0.35);text-align:center;}}
 .hero-lbl{{font-size:11px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}}
-.hero-val{{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.05;}}
+.hero-val{{font-family:var(--font-num);font-size:42px;font-weight:600;letter-spacing:-.01em;line-height:1.05;}}
 .hero-sub{{font-size:12px;color:{TEXT2};margin-top:4px;}}
 .hero-split{{display:flex;justify-content:center;gap:26px;margin-top:16px;padding-top:14px;border-top:0.5px solid {SEP};flex-wrap:wrap;}}
 .hero-split-item{{display:flex;align-items:center;gap:8px;}}
@@ -220,7 +221,7 @@ div[data-baseweb="select"] {{
 
 /* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
-  background:linear-gradient(135deg, {ACCENT}, #3D9BFF) !important;
+  background:linear-gradient(135deg, {ACCENT}, {ACCENT2}) !important;
   color:#ffffff !important;
   border:0.5px solid rgba(255,255,255,0.25) !important;
   border-radius:14px !important;
@@ -229,7 +230,7 @@ div[data-baseweb="select"] {{
   font-size:13px !important;
   font-weight:600 !important;
   letter-spacing:-.01em !important;
-  box-shadow:0 4px 18px rgba(20,184,166,0.35), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  box-shadow:0 4px 18px rgba(58,143,160,0.35), inset 0 1px 0 rgba(255,255,255,0.25) !important;
   transition:filter 0.12s ease, transform 0.08s ease !important;
 }}
 .stButton>button[kind="primary"]:hover{{
@@ -243,7 +244,7 @@ div[data-baseweb="select"] {{
   background:{SURFACE} !important;
   backdrop-filter:{BLUR} !important;
   -webkit-backdrop-filter:{BLUR} !important;
-  color:rgba(235,235,245,0.8) !important;
+  color:rgba(243,241,236,0.8) !important;
   border:0.5px solid {GLASS_BORDER} !important;
   border-radius:14px !important;
   padding:10px 18px !important;
@@ -255,7 +256,7 @@ div[data-baseweb="select"] {{
 }}
 .stButton>button[kind="secondary"]:hover{{
   background:{SURF2} !important;
-  color:rgba(235,235,245,0.95) !important;
+  color:rgba(243,241,236,0.95) !important;
 }}
 
 /* ── BARRAS DE ESTADO ── */
@@ -270,16 +271,16 @@ div[data-baseweb="select"] {{
 .bar-meta{{display:flex;justify-content:space-between;}}
 .bar-pct{{font-size:11px;color:{TEXT2};}}
 .bar-n{{font-size:11px;font-weight:600;padding:1px 6px;border-radius:20px;}}
-.bar-n-pag{{background:rgba(34,197,94,.15);color:{GREEN};}}
-.bar-n-pend{{background:rgba(255,69,58,.15);color:{RED};}}
+.bar-n-pag{{background:rgba(95,184,138,.15);color:{GREEN};}}
+.bar-n-pend{{background:rgba(226,104,92,.15);color:{RED};}}
 .sep{{height:0.5px;background:{SEP};margin:12px 0;}}
 
 /* ── PERSONAS ── */
 .persona-row{{display:flex;align-items:center;gap:10px;}}
 .persona-row+.persona-row{{margin-top:10px;}}
 .av{{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;border:0.5px solid rgba(255,255,255,0.18);}}
-.av-h{{background:rgba(20,184,166,.25);color:{ACCENT2};box-shadow:0 0 10px rgba(20,184,166,0.25);}}
-.av-j{{background:rgba(245,185,66,.25);color:{GOLD};box-shadow:0 0 10px rgba(245,185,66,0.25);}}
+.av-h{{background:rgba(58,143,160,.25);color:{ACCENT2};box-shadow:0 0 10px rgba(58,143,160,0.25);}}
+.av-j{{background:rgba(201,160,99,.25);color:{GOLD};box-shadow:0 0 10px rgba(201,160,99,0.25);}}
 .persona-body{{flex:1;}}
 .persona-name{{font-size:13px;font-weight:500;color:{TEXT};}}
 .persona-sub{{font-size:11px;color:{TEXT2};}}
@@ -287,25 +288,25 @@ div[data-baseweb="select"] {{
 .persona-amt-sub{{font-size:11px;color:{TEXT2};text-align:right;}}
 
 /* ── BALANCE ── */
-.balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(34,197,94,.20);color:{GREEN};border:0.5px solid rgba(34,197,94,.30);margin-bottom:6px;}}
-.balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(255,69,58,.20);color:{RED};border:0.5px solid rgba(255,69,58,.30);margin-bottom:6px;}}
+.balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(95,184,138,.20);color:{GREEN};border:0.5px solid rgba(95,184,138,.30);margin-bottom:6px;}}
+.balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(226,104,92,.20);color:{RED};border:0.5px solid rgba(226,104,92,.30);margin-bottom:6px;}}
 
 /* ── SECCION LABEL ── */
 .sec-lbl{{font-size:11px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.06em;padding:0 2px;margin:16px 0 7px;}}
 
 /* ── ALERTAS ── */
 .alert{{padding:11px 14px;border-radius:14px;font-size:13px;margin-bottom:8px;line-height:1.5;backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border:0.5px solid transparent;}}
-.alert-r{{background:rgba(255,69,58,.14);color:#FF8079;border-color:rgba(255,69,58,.20);}}
-.alert-o{{background:rgba(255,159,10,.14);color:#FFC060;border-color:rgba(255,159,10,.20);}}
-.alert-g{{background:rgba(34,197,94,.12);color:#4ADE80;border-color:rgba(34,197,94,.20);}}
-.alert-b{{background:rgba(20,184,166,.12);color:#7DEBD0;border-color:rgba(20,184,166,.20);}}
+.alert-r{{background:rgba(226,104,92,.14);color:#FF8079;border-color:rgba(226,104,92,.20);}}
+.alert-o{{background:rgba(217,143,78,.14);color:#FFC060;border-color:rgba(217,143,78,.20);}}
+.alert-g{{background:rgba(95,184,138,.12);color:#4ADE80;border-color:rgba(95,184,138,.20);}}
+.alert-b{{background:rgba(58,143,160,.12);color:#7DEBD0;border-color:rgba(58,143,160,.20);}}
 
 /* ── GRUPOS / FILAS ── */
 .grp{{background:{SURFACE};backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;overflow:hidden;margin-bottom:10px;border:0.5px solid {GLASS_BORDER};box-shadow:0 8px 28px rgba(0,0,0,0.28);}}
 .grp-hdr{{display:flex;align-items:center;gap:9px;padding:11px 15px;border-bottom:0.5px solid {SEP};}}
 .grp-hdr-lbl{{flex:1;font-size:12px;font-weight:600;color:{TEXT2};letter-spacing:.04em;text-transform:uppercase;}}
 .grp-hdr-amt{{font-size:13px;font-weight:600;}}
-.pend-badge{{font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(255,69,58,.20);color:{RED};border:0.5px solid rgba(255,69,58,.28);margin-left:3px;}}
+.pend-badge{{font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(226,104,92,.20);color:{RED};border:0.5px solid rgba(226,104,92,.28);margin-left:3px;}}
 .row{{display:flex;align-items:center;gap:11px;padding:11px 15px;position:relative;transition:background 0.15s ease;}}
 .row:hover{{background:rgba(255,255,255,0.03);}}
 .row::after{{content:'';position:absolute;bottom:0;left:57px;right:0;height:0.5px;background:{SEP};}}
@@ -321,26 +322,26 @@ div[data-baseweb="select"] {{
 
 /* ── BADGES (glass) ── */
 .badge{{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}}
-.badge-paid{{background:rgba(34,197,94,.20);color:{GREEN};border:0.5px solid rgba(34,197,94,.28);}}
-.badge-venc{{background:rgba(255,69,58,.20);color:{RED};border:0.5px solid rgba(255,69,58,.28);}}
-.badge-hoy{{background:rgba(255,69,58,.20);color:{RED};border:0.5px solid rgba(255,69,58,.28);}}
-.badge-prox{{background:rgba(255,159,10,.20);color:{ORANGE};border:0.5px solid rgba(255,159,10,.28);}}
-.badge-soon{{background:rgba(255,214,10,.14);color:{YELLOW};border:0.5px solid rgba(255,214,10,.22);}}
-.badge-ok{{background:rgba(34,197,94,.14);color:{GREEN};border:0.5px solid rgba(34,197,94,.22);}}
+.badge-paid{{background:rgba(95,184,138,.20);color:{GREEN};border:0.5px solid rgba(95,184,138,.28);}}
+.badge-venc{{background:rgba(226,104,92,.20);color:{RED};border:0.5px solid rgba(226,104,92,.28);}}
+.badge-hoy{{background:rgba(226,104,92,.20);color:{RED};border:0.5px solid rgba(226,104,92,.28);}}
+.badge-prox{{background:rgba(217,143,78,.20);color:{ORANGE};border:0.5px solid rgba(217,143,78,.28);}}
+.badge-soon{{background:rgba(228,196,104,.14);color:{YELLOW};border:0.5px solid rgba(228,196,104,.22);}}
+.badge-ok{{background:rgba(95,184,138,.14);color:{GREEN};border:0.5px solid rgba(95,184,138,.22);}}
 .badge-none{{background:rgba(255,255,255,.10);color:{TEXT2};border:0.5px solid rgba(255,255,255,.16);}}
-.badge-henry{{background:rgba(20,184,166,.20);color:{ACCENT2};border:0.5px solid rgba(20,184,166,.28);}}
-.badge-jaike{{background:rgba(245,185,66,.20);color:{GOLD};border:0.5px solid rgba(245,185,66,.28);}}
+.badge-henry{{background:rgba(58,143,160,.20);color:{ACCENT2};border:0.5px solid rgba(58,143,160,.28);}}
+.badge-jaike{{background:rgba(201,160,99,.20);color:{GOLD};border:0.5px solid rgba(201,160,99,.28);}}
 
 /* ── ADD PANELS ── */
 .add-panel{{background:{SURFACE};backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px;margin-bottom:12px;border:0.5px solid {GLASS_BORDER};box-shadow:0 10px 32px rgba(0,0,0,0.32);}}
-.add-panel-green{{background:linear-gradient(160deg, rgba(34,197,94,0.10), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px;margin-bottom:12px;border-left:3px solid {GREEN};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 10px 32px rgba(34,197,94,0.10);}}
+.add-panel-green{{background:linear-gradient(160deg, rgba(95,184,138,0.10), rgba(255,255,255,0.02));backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:22px;padding:16px;margin-bottom:12px;border-left:3px solid {GREEN};border-top:0.5px solid {GLASS_BORDER};border-right:0.5px solid {GLASS_BORDER};border-bottom:0.5px solid {GLASS_BORDER};box-shadow:0 10px 32px rgba(95,184,138,0.10);}}
 .stTextInput>div>div>input,.stNumberInput>div>div>input{{
   background:{SURF2} !important;border:0.5px solid {GLASS_BORDER} !important;border-radius:12px !important;
   color:{TEXT} !important;font-size:15px !important;
   font-family:var(--font-ui) !important;
 }}
-.toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(34,197,94,.14);color:{GREEN};border:0.5px solid rgba(34,197,94,.22);backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};}}
-.toast-err{{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(255,69,58,.14);color:{RED};border:0.5px solid rgba(255,69,58,.22);backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};}}
+.toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(95,184,138,.14);color:{GREEN};border:0.5px solid rgba(95,184,138,.22);backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};}}
+.toast-err{{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(226,104,92,.14);color:{RED};border:0.5px solid rgba(226,104,92,.22);backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};}}
 
 /* ── KPI GRID ── */
 .kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}}
@@ -370,13 +371,13 @@ div[data-baseweb="select"] {{
 .mes-title {{flex:1;}}
 .mes-nombre {{font-size:16px;font-weight:600;color:{TEXT};}}
 .mes-subtitle {{font-size:12px;color:{TEXT2};margin-top:2px;}}
-.mes-balance-pos {{font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px;background:rgba(34,197,94,.20);color:{GREEN};border:0.5px solid rgba(34,197,94,.28);}}
-.mes-balance-neg {{font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px;background:rgba(255,69,58,.20);color:{RED};border:0.5px solid rgba(255,69,58,.28);}}
+.mes-balance-pos {{font-family:var(--font-num);font-size:13px;font-weight:600;padding:4px 11px;border-radius:20px;background:rgba(95,184,138,.20);color:{GREEN};border:0.5px solid rgba(95,184,138,.28);}}
+.mes-balance-neg {{font-family:var(--font-num);font-size:13px;font-weight:600;padding:4px 11px;border-radius:20px;background:rgba(226,104,92,.20);color:{RED};border:0.5px solid rgba(226,104,92,.28);}}
 .mes-body-grid {{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:12px 0;}}
 @media(max-width:600px){{.mes-body-grid{{grid-template-columns:1fr 1fr;}}}}
 .mes-mini-kpi {{background:{SURF2};border-radius:14px;padding:11px 13px;border:0.5px solid {GLASS_BORDER};}}
 .mes-mini-lbl {{font-size:10px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}}
-.mes-mini-val {{font-size:16px;font-weight:700;line-height:1.1;}}
+.mes-mini-val {{font-family:var(--font-num);font-size:17px;font-weight:600;line-height:1.1;}}
 .mes-mini-sub {{font-size:10px;color:{TEXT2};margin-top:2px;}}
 .cat-bar-row {{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);}}
 .cat-bar-row:last-child {{border-bottom:none;}}
@@ -390,8 +391,8 @@ div[data-baseweb="select"] {{
 .aporte-name {{font-size:13px;font-weight:500;color:{TEXT};}}
 .aporte-pct {{font-size:11px;color:{TEXT2};}}
 .aporte-amt {{font-size:14px;font-weight:700;text-align:right;}}
-.var-badge-pos {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(34,197,94,.14);color:{GREEN};border:0.5px solid rgba(34,197,94,.22);}}
-.var-badge-neg {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(255,69,58,.14);color:{RED};border:0.5px solid rgba(255,69,58,.22);}}
+.var-badge-pos {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(95,184,138,.14);color:{GREEN};border:0.5px solid rgba(95,184,138,.22);}}
+.var-badge-neg {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(226,104,92,.14);color:{RED};border:0.5px solid rgba(226,104,92,.22);}}
 .var-badge-neu {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.10);color:{TEXT2};}}
 .hist-row{{display:flex;align-items:center;padding:11px 15px;border-bottom:0.5px solid {SEP};gap:10px;transition:background 0.15s ease;}}
 .hist-row:hover{{background:rgba(255,255,255,0.03);}}
@@ -878,7 +879,7 @@ if st.session_state.screen == "inicio":
   <div class="sep"></div>
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(34,197,94,.18);color:{GREEN};border:0.5px solid rgba(34,197,94,.25);margin-left:6px">{n_pagados}</span></div>
+      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(95,184,138,.18);color:{GREEN};border:0.5px solid rgba(95,184,138,.25);margin-left:6px">{n_pagados}</span></div>
       <div style="text-align:right"><div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div></div>
@@ -887,7 +888,7 @@ if st.session_state.screen == "inicio":
   <div style="height:12px;"></div>
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,69,58,.18);color:{RED};border:0.5px solid rgba(255,69,58,.25);margin-left:6px">{n_pendientes}</span></div>
+      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(226,104,92,.18);color:{RED};border:0.5px solid rgba(226,104,92,.25);margin-left:6px">{n_pendientes}</span></div>
       <div style="text-align:right"><div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div></div>
@@ -1532,7 +1533,7 @@ elif st.session_state.screen == "tendencias":
             else:
                 var_badge = f'<span class="var-badge-neu">primer mes</span>'
 
-            actual_badge = f'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(20,184,166,.2);color:{ACCENT};border:0.5px solid rgba(20,184,166,.30);margin-left:6px">actual</span>' if es_actual else ""
+            actual_badge = f'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(58,143,160,.2);color:{ACCENT};border:0.5px solid rgba(58,143,160,.30);margin-left:6px">actual</span>' if es_actual else ""
 
             exp_key    = f"exp_{periodo_r}"
             is_expanded = st.session_state.get(exp_key, es_actual)
@@ -1584,7 +1585,7 @@ elif st.session_state.screen == "tendencias":
                     if henry_r > 0:
                         st.markdown(f"""
 <div class="aporte-row">
-  <div class="aporte-av" style="background:rgba(20,184,166,.18);color:{ACCENT};">H</div>
+  <div class="aporte-av" style="background:rgba(58,143,160,.18);color:{ACCENT};">H</div>
   <div class="aporte-body"><div class="aporte-name">Henry</div><div class="aporte-pct">{pct_h_r}%</div></div>
   <div><div class="aporte-amt" style="color:{ACCENT};">{fmt_ars(henry_r)}</div></div>
 </div>
@@ -1592,7 +1593,7 @@ elif st.session_state.screen == "tendencias":
                     if jaike_r > 0:
                         st.markdown(f"""
 <div class="aporte-row">
-  <div class="aporte-av" style="background:rgba(245,185,66,.18);color:{GOLD};">J</div>
+  <div class="aporte-av" style="background:rgba(201,160,99,.18);color:{GOLD};">J</div>
   <div class="aporte-body"><div class="aporte-name">Jaike</div><div class="aporte-pct">{pct_j_r}%</div></div>
   <div><div class="aporte-amt" style="color:{GOLD};">{fmt_ars(jaike_r)}</div></div>
 </div>
