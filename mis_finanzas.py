@@ -13,7 +13,7 @@ for k, v in [("screen", "inicio"), ("show_add", False), ("show_add_ingreso", Fal
     if k not in st.session_state:
         st.session_state[k] = v
 
-# ── COLORES (Nordic Pastel Fintech) ──
+# ── COLORES (Nordic Pastel Fintech - Light Theme) ──
 BG      = "#F4F6F8"
 SURFACE = "#FFFFFF"
 SURF2   = "#F9FAFB"
@@ -30,22 +30,22 @@ GREEN   = "#34D399"
 RED     = "#FB7185"
 ORANGE  = "#FBBF24"
 YELLOW  = "#FDE047"
-GOLD  = "#D97706"
+GOLD    = "#D97706"
 PLOTBG  = "rgba(0,0,0,0)"
 BLUR    = "none"
 
 CAT_COLORS = {
-    "Servicios": "#D98F4E", "Hogar": "#5FB88A", "Supermercado": "#6FC78F",
-    "Comida": "#E2685C", "Transporte": "#3A8FA0", "Suscripciones": "#C9A063",
-    "Fitness": "#C97452", "Salud": "#7FB8A0", "Credito": "#B98A5A",
-    "Personal": "#8FD4C4", "Viajes": "#4F9FB0", "Otros": "#6B6862",
+    "Servicios": "#FBBF24", "Hogar": "#34D399", "Supermercado": "#6EE7B7",
+    "Comida": "#FB7185", "Transporte": "#818CF8", "Suscripciones": "#D97706",
+    "Fitness": "#F87171", "Salud": "#A7F3D0", "Credito": "#D97706",
+    "Personal": "#A5B4FC", "Viajes": "#60A5FA", "Otros": "#94A3B8",
 }
 
 def cat_color(cat):
     c = str(cat)
     for k, v in CAT_COLORS.items():
         if k.lower() in c.lower(): return v
-    return "#6B6862"
+    return "#94A3B8"
 
 def cat_icon_svg(cat, color, size=34):
     c = str(cat).lower(); s = size; r = s * 0.22
@@ -77,23 +77,19 @@ def cat_icon_svg(cat, color, size=34):
 
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 :root{{
   --bg:{BG};--surface:{SURFACE};--surf2:{SURF2};--surf3:{SURF3};
   --text:{TEXT};--text2:{TEXT2};--text3:{TEXT3};--sep:{SEP};
   --accent:{ACCENT};--green:{GREEN};--red:{RED};--orange:{ORANGE};
   --glass-b:{GLASS_BORDER};--glass-b2:{GLASS_BORDER_2};
-  --font-ui: 'Plus Jakarta Sans', sans-serif;
-  --font-num: 'Outfit', sans-serif;
-  --r-card:16px;--r-input:10px;--r-pill:99px;
-  --sh-card:0 4px 20px rgba(0,0,0,0.03);
-  --sh-hero:0 10px 30px rgba(129,140,248,0.08);
+  --font-ui:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-num:'Outfit',Georgia,serif;
 }}
 html, body, .stApp {{
   font-family:var(--font-ui) !important;
   font-variant-numeric:tabular-nums;
-  background:{BG} !important;
-  background-attachment:fixed !important;
+  background: {BG} !important;
   color:{TEXT} !important;
   overflow-x: clip !important;
   width: 100vw !important;
@@ -112,39 +108,39 @@ html, body, .stApp {{
   position:relative;
   background:{SURFACE};
   border-bottom:1px solid {GLASS_BORDER};
-  box-shadow:var(--sh-card);
-  padding:8px 16px 8px;
-  margin:0 -16px 6px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.03);
+  padding:12px 16px;
+  margin:0 -16px 12px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:center;}}
-.ios-title{{font-size:20px;font-weight:800;letter-spacing:-.03em;color:{TEXT};}}
-.ios-title span{{background:linear-gradient(120deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;background-clip:text;color:transparent;}}
-.ios-date{{font-size:10px;color:{TEXT2};margin-top:0px;}}
-.dolar-block{{text-align:right;background:{SURFACE};border:1px solid {GLASS_BORDER};border-radius:var(--r-input);padding:4px 10px;}}
-.dolar-lbl{{font-size:8px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:600;}}
-.dolar-val{{font-family:var(--font-num);font-size:16px;font-weight:600;background:linear-gradient(120deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.01em;}}
-.dolar-trend{{font-size:10px;margin-top:0px;}}
+.ios-title{{font-size:22px;font-weight:800;letter-spacing:-.03em;color:{TEXT};}}
+.ios-title span{{color:{ACCENT};}}
+.ios-date{{font-size:11px;color:{TEXT2};margin-top:0px;font-weight:500;}}
+.dolar-block{{text-align:right;background:{SURF2};border:1px solid {GLASS_BORDER};border-radius:12px;padding:6px 12px;}}
+.dolar-lbl{{font-size:9px;color:{TEXT2};letter-spacing:.06em;text-transform:uppercase;font-weight:700;}}
+.dolar-val{{font-family:var(--font-num);font-size:17px;font-weight:700;color:{TEXT};letter-spacing:-.01em;}}
+.dolar-trend{{font-size:10px;margin-top:0px;font-weight:600;}}
 
 /* ── BARRA DE NAVEGACIÓN ── */
 .pill-outer {{
   position: relative;
   display: flex;
   justify-content: flex-start;
-  padding: 2px 0 8px;
+  padding: 2px 0 12px;
   z-index: 10;
 }}
 .pill-inner {{
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  background: {SURF2};
+  gap: 4px;
+  background: {SURFACE};
   border: 1px solid {GLASS_BORDER};
-  padding: 3px;
-  border-radius: var(--r-input);
-  box-shadow: none;
+  padding: 4px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }}
 .pill-inner [data-testid="stHorizontalBlock"] {{
-  gap: 3px !important;
+  gap: 4px !important;
   flex-wrap: nowrap !important;
 }}
 .pill-inner [data-testid="column"] {{
@@ -156,13 +152,13 @@ html, body, .stApp {{
   background: transparent !important;
   border: none !important;
   color: {TEXT2} !important;
-  border-radius: 7px !important;
-  padding: 4px 9px !important;
-  font-size: 10.5px !important;
-  font-weight: 500 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
   font-family: var(--font-ui) !important;
   letter-spacing: 0.01em !important;
-  transition: color 0.15s ease, background 0.15s ease !important;
+  transition: all 0.2s ease !important;
   white-space: nowrap !important;
   min-height: 0 !important;
   line-height: 1.3 !important;
@@ -171,65 +167,67 @@ html, body, .stApp {{
 }}
 .pill-inner .stButton > button:hover {{
   color: {TEXT} !important;
+  background: {SURF3} !important;
 }}
 .pill-active .stButton > button {{
-  background: rgba(129,140,248,0.14) !important;
+  background: rgba(129, 140, 248, 0.15) !important;
   border: none !important;
   color: {ACCENT} !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   box-shadow: none !important;
 }}
 @media (max-width: 600px) {{
-  .pill-inner .stButton > button {{ padding: 4px 7px !important; font-size: 10px !important; }}
+  .pill-inner .stButton > button {{ padding: 6px 9px !important; font-size: 10px !important; }}
 }}
 
 /* ── SELECTBOX ── */
 div[data-baseweb="select"] {{
     background: {SURFACE} !important;
-    border-radius: var(--r-input) !important;
+    border-radius: 10px !important;
     border: 1px solid {GLASS_BORDER} !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
 }}
 
-/* ── CARDS ── */
-.card{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:10px;border:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
-.card-ing{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
-.card-gastos{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:10px;border-left:3px solid {ACCENT};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
-.card-balance-pos{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:10px;border-left:3px solid {GREEN};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
-.card-balance-neg{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:10px;border-left:3px solid {RED};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
+/* ── CARDS (Pastel Solid) ── */
+.card{{background:{SURFACE};border-radius:16px;padding:24px;margin-bottom:12px;border:1px solid {GLASS_BORDER};box-shadow:0 4px 20px rgba(0,0,0,0.03);}}
+.card-ing{{background:{SURFACE};border-radius:16px;padding:24px;margin-bottom:12px;border-left:4px solid {GREEN};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:0 4px 20px rgba(0,0,0,0.03);}}
+.card-gastos{{background:{SURFACE};border-radius:16px;padding:24px;margin-bottom:12px;border-left:4px solid {ACCENT};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:0 4px 20px rgba(0,0,0,0.03);}}
+.card-balance-pos{{background:{SURFACE};border-radius:16px;padding:24px;margin-bottom:12px;border-left:4px solid {GREEN};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:0 4px 20px rgba(0,0,0,0.03);}}
+.card-balance-neg{{background:{SURFACE};border-radius:16px;padding:24px;margin-bottom:12px;border-left:4px solid {RED};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:0 4px 20px rgba(0,0,0,0.03);}}
 
-.c-lbl{{font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}}
-.c-val{{font-family:var(--font-num);font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.1;}}
-.c-sub{{font-size:12px;color:{TEXT2};margin-top:3px;}}
+.c-lbl{{font-size:11px;font-weight:700;color:{TEXT2};text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}}
+.c-val{{font-family:var(--font-num);font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:{TEXT};}}
+.c-sub{{font-size:13px;color:{TEXT3};margin-top:4px;font-weight:500;}}
 
 /* ── HERO BALANCE ── */
-.hero-balance{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:14px;border:1px solid {GLASS_BORDER_2};box-shadow:var(--sh-hero);text-align:center;}}
-.hero-lbl{{font-size:11px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}}
-.hero-val{{font-family:var(--font-num);font-size:40px;font-weight:700;letter-spacing:-.01em;line-height:1.05;}}
-.hero-sub{{font-size:12px;color:{TEXT2};margin-top:4px;}}
-.hero-split{{display:flex;justify-content:center;gap:26px;margin-top:16px;padding-top:14px;border-top:1px solid {SEP};flex-wrap:wrap;}}
-.hero-split-item{{display:flex;align-items:center;gap:8px;}}
-.hero-split-dot{{width:8px;height:8px;border-radius:50%;flex-shrink:0;}}
-.hero-split-lbl{{font-size:10px;color:{TEXT2};text-align:left;}}
-.hero-split-val{{font-size:15px;font-weight:700;text-align:left;}}
-@media(max-width:700px){{.hero-val{{font-size:30px;}}}}
+.hero-balance{{background:{SURFACE};border-radius:16px;padding:28px 24px;margin-bottom:16px;border:1px solid {GLASS_BORDER};box-shadow:0 10px 30px rgba(129,140,248,0.08);text-align:center;}}
+.hero-lbl{{font-size:12px;font-weight:700;color:{TEXT2};text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}}
+.hero-val{{font-family:var(--font-num);font-size:48px;font-weight:700;letter-spacing:-.02em;line-height:1.05;}}
+.hero-sub{{font-size:13px;color:{TEXT3};margin-top:6px;font-weight:500;}}
+.hero-split{{display:flex;justify-content:center;gap:32px;margin-top:20px;padding-top:20px;border-top:1px solid {SEP};flex-wrap:wrap;}}
+.hero-split-item{{display:flex;align-items:center;gap:10px;}}
+.hero-split-dot{{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
+.hero-split-lbl{{font-size:11px;color:{TEXT2};text-align:left;font-weight:600;text-transform:uppercase;letter-spacing:.03em;}}
+.hero-split-val{{font-family:var(--font-num);font-size:18px;font-weight:700;text-align:left;}}
+@media(max-width:700px){{.hero-val{{font-size:36px;}}}}
 
-/* ── BOTONES ── */
+/* ── BOTONES STREAMLIT ── */
 .stButton>button[kind="primary"]{{
   background:{ACCENT} !important;
-  color:#FFFFFF !important;
+  color:#ffffff !important;
   border:none !important;
-  border-radius:var(--r-input) !important;
-  padding:10px 18px !important;
+  border-radius:10px !important;
+  padding:12px 20px !important;
   font-family:var(--font-ui) !important;
-  font-size:13px !important;
+  font-size:14px !important;
   font-weight:600 !important;
-  letter-spacing:-.01em !important;
   box-shadow:0 4px 12px rgba(129,140,248,0.3) !important;
-  transition:filter 0.12s ease, transform 0.08s ease !important;
+  transition:all 0.2s ease !important;
 }}
 .stButton>button[kind="primary"]:hover{{
-  transform:translateY(-1px) !important;
   filter:brightness(1.05) !important;
+  transform:translateY(-1px) !important;
+  box-shadow:0 6px 16px rgba(129,140,248,0.4) !important;
 }}
 .stButton>button[kind="primary"]:active{{
   transform:scale(0.98) !important;
@@ -238,13 +236,13 @@ div[data-baseweb="select"] {{
   background:{SURFACE} !important;
   color:{TEXT} !important;
   border:1px solid {GLASS_BORDER} !important;
-  border-radius:var(--r-input) !important;
-  padding:10px 18px !important;
+  border-radius:10px !important;
+  padding:12px 20px !important;
   font-family:var(--font-ui) !important;
-  font-size:13px !important;
-  font-weight:500 !important;
+  font-size:14px !important;
+  font-weight:600 !important;
   box-shadow:0 2px 4px rgba(0,0,0,0.02) !important;
-  transition:background 0.12s ease, border-color 0.12s ease !important;
+  transition:all 0.2s ease !important;
 }}
 .stButton>button[kind="secondary"]:hover{{
   background:{SURF2} !important;
@@ -252,154 +250,148 @@ div[data-baseweb="select"] {{
 }}
 
 /* ── BARRAS DE ESTADO ── */
-.bar-section{{margin-top:12px;}}
-.bar-row-hdr{{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}}
-.bar-lbl{{font-size:13px;font-weight:500;color:{TEXT};}}
-.bar-amt{{font-size:14px;font-weight:700;}}
-.bar-usd{{font-size:11px;color:{TEXT2};margin-top:1px;text-align:right;}}
-.bar-bg{{height:6px;background:{SURF2};border-radius:6px;overflow:hidden;margin-bottom:2px;}}
-.bar-fill{{height:100%;border-radius:6px;transition:width 0.7s cubic-bezier(.22,1,.36,1);animation:barGrow 0.7s cubic-bezier(.22,1,.36,1);}}
+.bar-section{{margin-top:16px;}}
+.bar-row-hdr{{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}}
+.bar-lbl{{font-size:13px;font-weight:600;color:{TEXT};}}
+.bar-amt{{font-family:var(--font-num);font-size:15px;font-weight:700;}}
+.bar-usd{{font-size:11px;color:{TEXT3};margin-top:1px;text-align:right;font-weight:500;}}
+.bar-bg{{height:8px;background:{SURF2};border-radius:99px;overflow:hidden;margin-bottom:4px;box-shadow:inset 0 1px 2px rgba(0,0,0,0.05);}}
+.bar-fill{{height:100%;border-radius:99px;transition:width 0.7s cubic-bezier(.22,1,.36,1);animation:barGrow 0.7s cubic-bezier(.22,1,.36,1);}}
 @keyframes barGrow{{from{{width:0 !important;}}}}
 .bar-meta{{display:flex;justify-content:space-between;}}
-.bar-pct{{font-size:11px;color:{TEXT2};}}
-.bar-n{{font-size:11px;font-weight:600;padding:1px 8px;border-radius:var(--r-pill);}}
-.bar-n-pag{{background:rgba(52,211,153,.14);color:{GREEN};}}
-.bar-n-pend{{background:rgba(251,113,133,.14);color:{RED};}}
-.sep{{height:1px;background:{SEP};margin:12px 0;}}
+.bar-pct{{font-size:11px;color:{TEXT3};font-weight:500;}}
+.sep{{height:1px;background:{SEP};margin:16px 0;}}
 
 /* ── PERSONAS ── */
-.persona-row{{display:flex;align-items:center;gap:10px;}}
-.persona-row+.persona-row{{margin-top:10px;}}
-.av{{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;border:1px solid {GLASS_BORDER};}}
-.av-h{{background:rgba(129,140,248,.14);color:{ACCENT};}}
-.av-j{{background:rgba(217,119,6,.14);color:{GOLD};}}
+.persona-row{{display:flex;align-items:center;gap:12px;}}
+.persona-row+.persona-row{{margin-top:12px;}}
+.av{{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}}
+.av-h{{background:rgba(129,140,248,0.15);color:{ACCENT};}}
+.av-j{{background:rgba(217,119,6,0.15);color:{GOLD};}}
 .persona-body{{flex:1;}}
-.persona-name{{font-size:13px;font-weight:500;color:{TEXT};}}
-.persona-sub{{font-size:11px;color:{TEXT2};}}
-.persona-amt{{font-size:15px;font-weight:700;text-align:right;}}
-.persona-amt-sub{{font-size:11px;color:{TEXT2};text-align:right;}}
+.persona-name{{font-size:14px;font-weight:600;color:{TEXT};}}
+.persona-sub{{font-size:12px;color:{TEXT2};}}
+.persona-amt{{font-family:var(--font-num);font-size:16px;font-weight:700;text-align:right;}}
+.persona-amt-sub{{font-size:11px;color:{TEXT3};text-align:right;font-weight:500;}}
 
-/* ── BALANCE ── */
-.balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);background:rgba(52,211,153,.14);color:{GREEN};border:1px solid rgba(52,211,153,.24);margin-bottom:6px;}}
-.balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);background:rgba(251,113,133,.14);color:{RED};border:1px solid rgba(251,113,133,.24);margin-bottom:6px;}}
+/* ── BALANCE TAGS ── */
+.balance-tag-pos{{display:inline-block;font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(52,211,153,.15);color:{GREEN};border:1px solid rgba(52,211,153,.3);margin-bottom:8px;}}
+.balance-tag-neg{{display:inline-block;font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(251,113,133,.15);color:{RED};border:1px solid rgba(251,113,133,.3);margin-bottom:8px;}}
 
 /* ── SECCION LABEL ── */
-.sec-lbl{{font-size:11px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.06em;padding:0 2px;margin:16px 0 7px;}}
+.sec-lbl{{font-size:12px;font-weight:700;color:{TEXT2};text-transform:uppercase;letter-spacing:.08em;padding:0 2px;margin:24px 0 12px;}}
 
 /* ── ALERTAS ── */
-.alert{{padding:12px 16px;border-radius:var(--r-input);font-size:13px;margin-bottom:8px;line-height:1.5;border:1px solid transparent;}}
-.alert-r{{background:rgba(251,113,133,.10);color:#BE123C;border-color:rgba(251,113,133,.20);}}
-.alert-o{{background:rgba(251,191,36,.14);color:#92400E;border-color:rgba(251,191,36,.24);}}
-.alert-g{{background:rgba(52,211,153,.12);color:#047857;border-color:rgba(52,211,153,.22);}}
-.alert-b{{background:rgba(129,140,248,.12);color:#4338CA;border-color:rgba(129,140,248,.22);}}
+.alert{{padding:14px 18px;border-radius:12px;font-size:14px;font-weight:500;margin-bottom:12px;line-height:1.5;border:1px solid transparent;}}
+.alert-r{{background:rgba(251,113,133,.1);color:{RED};border-color:rgba(251,113,133,.2);}}
+.alert-o{{background:rgba(251,191,36,.1);color:{ORANGE};border-color:rgba(251,191,36,.2);}}
+.alert-g{{background:rgba(52,211,153,.1);color:{GREEN};border-color:rgba(52,211,153,.2);}}
+.alert-b{{background:rgba(129,140,248,.1);color:{ACCENT};border-color:rgba(129,140,248,.2);}}
 
 /* ── GRUPOS / FILAS ── */
-.grp{{background:{SURFACE};border-radius:var(--r-card);overflow:hidden;margin-bottom:10px;border:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
-.grp-hdr{{display:flex;align-items:center;gap:9px;padding:14px 20px;border-bottom:1px solid {SEP};}}
-.grp-hdr-lbl{{flex:1;font-size:12px;font-weight:600;color:{TEXT2};letter-spacing:.04em;text-transform:uppercase;}}
-.grp-hdr-amt{{font-size:13px;font-weight:600;}}
-.pend-badge{{font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);background:rgba(251,113,133,.12);color:{RED};border:1px solid rgba(251,113,133,.22);margin-left:3px;}}
-.row{{display:flex;align-items:center;gap:11px;padding:14px 20px;position:relative;transition:background 0.15s ease;}}
+.grp{{background:{SURFACE};border-radius:16px;overflow:hidden;margin-bottom:12px;border:1px solid {GLASS_BORDER};box-shadow:0 4px 20px rgba(0,0,0,0.03);}}
+.grp-hdr{{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid {SEP};background:{SURF2};}}
+.grp-hdr-lbl{{flex:1;font-size:13px;font-weight:700;color:{TEXT};letter-spacing:.02em;text-transform:uppercase;}}
+.grp-hdr-amt{{font-family:var(--font-num);font-size:15px;font-weight:700;}}
+.pend-badge{{font-size:10px;font-weight:800;padding:3px 8px;border-radius:99px;background:rgba(251,113,133,.15);color:{RED};margin-left:6px;}}
+.row{{display:flex;align-items:center;gap:12px;padding:14px 20px;position:relative;transition:background 0.2s ease;}}
 .row:hover{{background:{SURF3};}}
-.row::after{{content:'';position:absolute;bottom:0;left:61px;right:0;height:1px;background:{SEP};}}
+.row::after{{content:'';position:absolute;bottom:0;left:66px;right:0;height:1px;background:{SEP};}}
 .row:last-child::after{{display:none;}}
 .row-body{{flex:1;min-width:0;}}
-.row-name{{font-size:15px;font-weight:400;color:{TEXT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
-.row-name-paid{{font-size:15px;font-weight:400;color:{TEXT2};text-decoration:line-through;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
-.row-sub{{font-size:12px;color:{TEXT2};margin-top:2px;}}
+.row-name{{font-size:15px;font-weight:600;color:{TEXT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
+.row-name-paid{{font-size:15px;font-weight:500;color:{TEXT3};text-decoration:line-through;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
+.row-sub{{font-size:12px;color:{TEXT2};margin-top:3px;font-weight:500;}}
 .row-right{{text-align:right;flex-shrink:0;}}
-.row-amt{{font-size:15px;font-weight:600;color:{TEXT};}}
-.row-amt-paid{{font-size:15px;font-weight:400;color:{TEXT2};text-decoration:line-through;}}
-.row-usd{{font-size:11px;color:{TEXT2};margin-top:2px;}}
+.row-amt{{font-family:var(--font-num);font-size:16px;font-weight:700;color:{TEXT};}}
+.row-amt-paid{{font-family:var(--font-num);font-size:16px;font-weight:500;color:{TEXT3};text-decoration:line-through;}}
+.row-usd{{font-size:11px;color:{TEXT3};margin-top:2px;font-weight:500;}}
 
 /* ── BADGES ── */
-.badge{{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--r-pill);white-space:nowrap;}}
-.badge-paid{{background:rgba(52,211,153,.14);color:{GREEN};border:1px solid rgba(52,211,153,.24);}}
-.badge-venc{{background:rgba(251,113,133,.14);color:{RED};border:1px solid rgba(251,113,133,.24);}}
-.badge-hoy{{background:rgba(251,113,133,.14);color:{RED};border:1px solid rgba(251,113,133,.24);}}
-.badge-prox{{background:rgba(251,191,36,.16);color:#92400E;border:1px solid rgba(251,191,36,.26);}}
-.badge-soon{{background:rgba(253,224,71,.20);color:#854D0E;border:1px solid rgba(253,224,71,.30);}}
-.badge-ok{{background:rgba(52,211,153,.12);color:{GREEN};border:1px solid rgba(52,211,153,.22);}}
+.badge{{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;}}
+.badge-paid{{background:rgba(52,211,153,.15);color:{GREEN};}}
+.badge-venc{{background:rgba(251,113,133,.15);color:{RED};}}
+.badge-hoy{{background:rgba(251,113,133,.15);color:{RED};}}
+.badge-prox{{background:rgba(251,191,36,.15);color:{ORANGE};}}
+.badge-soon{{background:rgba(253,224,71,.2);color:{GOLD};}}
+.badge-ok{{background:rgba(52,211,153,.1);color:{GREEN};}}
 .badge-none{{background:{SURF2};color:{TEXT2};border:1px solid {GLASS_BORDER};}}
-.badge-henry{{background:rgba(129,140,248,.14);color:{ACCENT};border:1px solid rgba(129,140,248,.24);}}
-.badge-jaike{{background:rgba(217,119,6,.14);color:{GOLD};border:1px solid rgba(217,119,6,.24);}}
+.badge-henry{{background:rgba(129,140,248,.15);color:{ACCENT};}}
+.badge-jaike{{background:rgba(217,119,6,.15);color:{GOLD};}}
 
 /* ── ADD PANELS ── */
-.add-panel{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:12px;border:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
-.add-panel-green{{background:{SURFACE};border-radius:var(--r-card);padding:24px;margin-bottom:12px;border-left:3px solid {GREEN};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);}}
+.add-panel{{background:{SURFACE};border-radius:16px;padding:24px;margin-bottom:16px;border:1px solid {GLASS_BORDER};box-shadow:0 10px 30px rgba(0,0,0,0.05);}}
+.add-panel-green{{background:{SURFACE};border-radius:16px;padding:24px;margin-bottom:16px;border-left:4px solid {GREEN};border-top:1px solid {GLASS_BORDER};border-right:1px solid {GLASS_BORDER};border-bottom:1px solid {GLASS_BORDER};box-shadow:0 10px 30px rgba(52,211,153,0.08);}}
 .stTextInput>div>div>input,.stNumberInput>div>div>input{{
-  background:{SURFACE} !important;border:1.5px solid {GLASS_BORDER} !important;border-radius:var(--r-input) !important;
-  color:{TEXT} !important;font-size:15px !important;
+  background:{SURF2} !important;border:1px solid {GLASS_BORDER} !important;border-radius:10px !important;
+  color:{TEXT} !important;font-size:15px !important;font-weight:500 !important;
   font-family:var(--font-ui) !important;
-  transition:border-color 0.12s ease, box-shadow 0.12s ease !important;
 }}
-.stTextInput>div>div:focus-within input,.stNumberInput>div>div:focus-within input{{
-  border-color:{ACCENT} !important;
-  box-shadow:0 0 0 3px rgba(129,140,248,0.16) !important;
+.stTextInput>div>div>input:focus,.stNumberInput>div>div>input:focus{{
+  border-color:{ACCENT} !important; box-shadow:0 0 0 2px rgba(129,140,248,0.2) !important;
 }}
-.toast-ok{{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:var(--r-input);font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(52,211,153,.12);color:{GREEN};border:1px solid rgba(52,211,153,.22);}}
-.toast-err{{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:var(--r-input);font-size:13px;font-weight:500;margin-bottom:8px;background:rgba(251,113,133,.12);color:{RED};border:1px solid rgba(251,113,133,.22);}}
+.toast-ok{{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;margin-bottom:12px;background:rgba(52,211,153,.15);color:{GREEN};}}
+.toast-err{{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;margin-bottom:12px;background:rgba(251,113,133,.15);color:{RED};}}
 
 /* ── KPI GRID ── */
 .kpi-grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}}
 .kpi-grid-3{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}}
-@media(max-width:700px){{
-  .kpi-grid-3{{grid-template-columns:1fr 1fr;}}
-}}
-.kpi-card{{background:{SURFACE};border-radius:var(--r-card);padding:16px;border:1px solid {GLASS_BORDER};box-shadow:var(--sh-card);transition:box-shadow 0.15s ease;}}
-.kpi-lbl{{font-size:11px;font-weight:500;color:{TEXT2};margin-bottom:5px;letter-spacing:.02em;}}
-.kpi-val{{font-family:var(--font-num);font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}}
-.kpi-sub{{font-size:11px;color:{TEXT2};margin-top:4px;}}
+@media(max-width:700px){{.kpi-grid-3{{grid-template-columns:1fr 1fr;}}}}
+.kpi-card{{background:{SURFACE};border-radius:16px;padding:20px;border:1px solid {GLASS_BORDER};box-shadow:0 4px 20px rgba(0,0,0,0.03);transition:transform 0.2s ease;}}
+.kpi-card:hover{{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.05);}}
+.kpi-lbl{{font-size:12px;font-weight:600;color:{TEXT2};margin-bottom:6px;letter-spacing:.02em;}}
+.kpi-val{{font-family:var(--font-num);font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;color:{TEXT};}}
+.kpi-sub{{font-size:12px;color:{TEXT3};margin-top:6px;font-weight:500;}}
 
 /* ── TENDENCIAS - CARD MES ── */
 .mes-card-header {{
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  gap: 12px;
+  gap: 14px;
   background: {SURFACE};
-  border-radius: var(--r-card);
+  border-radius: 16px;
   border: 1px solid {GLASS_BORDER};
-  box-shadow: var(--sh-card);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }}
 .mes-dot {{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
 .mes-title {{flex:1;}}
-.mes-nombre {{font-size:16px;font-weight:600;color:{TEXT};}}
-.mes-subtitle {{font-size:12px;color:{TEXT2};margin-top:2px;}}
-.mes-balance-pos {{font-family:var(--font-num);font-size:13px;font-weight:600;padding:4px 12px;border-radius:var(--r-pill);background:rgba(52,211,153,.14);color:{GREEN};border:1px solid rgba(52,211,153,.24);}}
-.mes-balance-neg {{font-family:var(--font-num);font-size:13px;font-weight:600;padding:4px 12px;border-radius:var(--r-pill);background:rgba(251,113,133,.14);color:{RED};border:1px solid rgba(251,113,133,.24);}}
-.mes-body-grid {{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:12px 0;}}
+.mes-nombre {{font-size:16px;font-weight:700;color:{TEXT};}}
+.mes-subtitle {{font-size:12px;color:{TEXT2};margin-top:4px;font-weight:500;}}
+.mes-balance-pos {{font-family:var(--font-num);font-size:14px;font-weight:700;padding:6px 14px;border-radius:99px;background:rgba(52,211,153,.15);color:{GREEN};}}
+.mes-balance-neg {{font-family:var(--font-num);font-size:14px;font-weight:700;padding:6px 14px;border-radius:99px;background:rgba(251,113,133,.15);color:{RED};}}
+.mes-body-grid {{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0;}}
 @media(max-width:600px){{.mes-body-grid{{grid-template-columns:1fr 1fr;}}}}
-.mes-mini-kpi {{background:{SURF2};border-radius:var(--r-card);padding:11px 13px;border:1px solid {GLASS_BORDER};}}
-.mes-mini-lbl {{font-size:10px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}}
-.mes-mini-val {{font-family:var(--font-num);font-size:17px;font-weight:600;line-height:1.1;}}
-.mes-mini-sub {{font-size:10px;color:{TEXT2};margin-top:2px;}}
-.cat-bar-row {{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid {SEP};}}
+.mes-mini-kpi {{background:{SURF2};border-radius:12px;padding:14px 16px;border:1px solid {GLASS_BORDER};}}
+.mes-mini-lbl {{font-size:11px;color:{TEXT2};font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}}
+.mes-mini-val {{font-family:var(--font-num);font-size:18px;font-weight:700;line-height:1.1;color:{TEXT};}}
+.mes-mini-sub {{font-size:11px;color:{TEXT3};margin-top:4px;font-weight:500;}}
+.cat-bar-row {{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid {SEP};}}
 .cat-bar-row:last-child {{border-bottom:none;}}
-.cat-bar-name {{font-size:13px;color:{TEXT};width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
-.cat-bar-track {{flex:1;height:5px;background:{SURF2};border-radius:5px;overflow:hidden;}}
-.cat-bar-fill {{height:100%;border-radius:5px;transition:width 0.7s cubic-bezier(.22,1,.36,1);animation:barGrow 0.7s cubic-bezier(.22,1,.36,1);}}
-.cat-bar-amt {{font-size:12px;font-weight:600;min-width:80px;text-align:right;}}
-.aporte-row {{display:flex;align-items:center;gap:10px;padding:8px 0;}}
-.aporte-av {{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1px solid {GLASS_BORDER};}}
+.cat-bar-name {{font-size:14px;font-weight:600;color:{TEXT};width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
+.cat-bar-track {{flex:1;height:6px;background:{SURF2};border-radius:99px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,0.05);}}
+.cat-bar-fill {{height:100%;border-radius:99px;transition:width 0.7s cubic-bezier(.22,1,.36,1);animation:barGrow 0.7s cubic-bezier(.22,1,.36,1);}}
+.cat-bar-amt {{font-family:var(--font-num);font-size:13px;font-weight:700;min-width:80px;text-align:right;}}
+.aporte-row {{display:flex;align-items:center;gap:12px;padding:10px 0;}}
+.aporte-av {{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}}
 .aporte-body {{flex:1;}}
-.aporte-name {{font-size:13px;font-weight:500;color:{TEXT};}}
-.aporte-pct {{font-size:11px;color:{TEXT2};}}
-.aporte-amt {{font-size:14px;font-weight:700;text-align:right;}}
-.var-badge-pos {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);background:rgba(52,211,153,.12);color:{GREEN};border:1px solid rgba(52,211,153,.22);}}
-.var-badge-neg {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);background:rgba(251,113,133,.12);color:{RED};border:1px solid rgba(251,113,133,.22);}}
-.var-badge-neu {{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);background:{SURF2};color:{TEXT2};}}
-.hist-row{{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid {SEP};gap:10px;transition:background 0.15s ease;}}
+.aporte-name {{font-size:14px;font-weight:600;color:{TEXT};}}
+.aporte-pct {{font-size:12px;color:{TEXT2};font-weight:500;}}
+.aporte-amt {{font-family:var(--font-num);font-size:15px;font-weight:700;text-align:right;}}
+.var-badge-pos {{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(52,211,153,.15);color:{GREEN};}}
+.var-badge-neg {{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(251,113,133,.15);color:{RED};}}
+.var-badge-neu {{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:{SURF2};color:{TEXT2};border:1px solid {GLASS_BORDER};}}
+.hist-row{{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid {SEP};gap:12px;transition:background 0.2s ease;}}
 .hist-row:hover{{background:{SURF3};}}
 .hist-row:last-child{{border-bottom:none;}}
-.ing-row{{display:flex;align-items:center;gap:11px;padding:14px 20px;position:relative;transition:background 0.15s ease;}}
+.ing-row{{display:flex;align-items:center;gap:12px;padding:14px 20px;position:relative;transition:background 0.2s ease;}}
 .ing-row:hover{{background:{SURF3};}}
-.ing-row::after{{content:'';position:absolute;bottom:0;left:61px;right:0;height:1px;background:{SEP};}}
+.ing-row::after{{content:'';position:absolute;bottom:0;left:66px;right:0;height:1px;background:{SEP};}}
 .ing-row:last-child::after{{display:none;}}
-[data-testid="stDataEditorContainer"]{{background:{SURFACE} !important;border:1px solid {GLASS_BORDER} !important;border-radius:var(--r-card) !important;overflow:hidden !important;}}
+[data-testid="stDataEditorContainer"]{{background:{SURFACE} !important; border:1px solid {GLASS_BORDER} !important; border-radius:12px !important; overflow:hidden !important; box-shadow:0 4px 12px rgba(0,0,0,0.02) !important;}}
 @media(max-width:700px){{
-  .ios-title{{font-size:22px;}}
-  .c-val{{font-size:20px;}}
+  .ios-title{{font-size:24px;}}
+  .c-val{{font-size:24px;}}
 }}
 hr{{display:none !important;}}
 [data-testid="stVerticalBlock"]>div{{gap:0 !important;}}
@@ -705,7 +697,7 @@ pct_jaike = int(ing_jaike / total_ing_ars * 100) if total_ing_ars > 0 else 0
 st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#F4F6F8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-title" content="Finanzas AR">
 <link rel="apple-touch-icon" href="https://fav.farm/💳">
@@ -740,7 +732,7 @@ if dolar_diff > 0:
 elif dolar_diff < 0:
     trend_html = f'<span style="color:{GREEN};font-size:11px;font-weight:700">▼ {dolar_pct:.1f}%</span>'
 else:
-    trend_html = f'<span style="color:{TEXT2};font-size:11px">—</span>'
+    trend_html = f'<span style="color:{TEXT3};font-size:11px">—</span>'
 
 st.markdown(f"""
 <div class="ios-hdr">
@@ -758,7 +750,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAV, justo arriba del selector de período ──
+# ── NAV ──
 st.markdown('<div class="pill-outer"><div class="pill-inner">', unsafe_allow_html=True)
 _pcols = st.columns(4)
 for i, (key, ico, lbl) in enumerate(_nav_items):
@@ -781,7 +773,7 @@ if nuevo_periodo != st.session_state.periodo_sel:
     st.session_state.periodo_sel = nuevo_periodo
     st.rerun()
 
-st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -798,11 +790,11 @@ if st.session_state.screen == "inicio":
   <div class="hero-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)} · tasa $ {dolar:,.0f}</div>
   <div class="hero-split">
     <div class="hero-split-item">
-      <div class="hero-split-dot" style="background:{GREEN};color:{GREEN}"></div>
+      <div class="hero-split-dot" style="background:{GREEN};"></div>
       <div><div class="hero-split-lbl">Ingresos</div><div class="hero-split-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "—"}</div></div>
     </div>
     <div class="hero-split-item">
-      <div class="hero-split-dot" style="background:{ACCENT};color:{ACCENT}"></div>
+      <div class="hero-split-dot" style="background:{ACCENT};"></div>
       <div><div class="hero-split-lbl">Gastos</div><div class="hero-split-val" style="color:{ACCENT}">{fmt_ars(total_ars) if total_ars > 0 else "—"}</div></div>
     </div>
   </div>
@@ -835,7 +827,7 @@ if st.session_state.screen == "inicio":
                 st.session_state.show_add_ingreso = not st.session_state.show_add_ingreso
                 st.session_state.show_add = False
                 st.rerun()
-        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
     ing_usd_str = fmt_usd(total_ing_usd) if total_ing_usd > 0 else fmt_usd_from_ars(total_ing_ars, dolar)
 
@@ -849,15 +841,15 @@ if st.session_state.screen == "inicio":
   <div class="persona-row">
     <div class="av av-h">H</div>
     <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry}% del total</div></div>
-    <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
+    <div><div class="persona-amt" style="color:{TEXT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
   </div>
-  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT};"></div></div></div>
-  <div class="persona-row" style="margin-top:10px">
+  <div style="margin:6px 0 0 48px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry}%;background:{ACCENT};"></div></div></div>
+  <div class="persona-row" style="margin-top:16px">
     <div class="av av-j">J</div>
     <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike}% del total</div></div>
-    <div><div class="persona-amt" style="color:{GOLD}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
+    <div><div class="persona-amt" style="color:{TEXT}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
   </div>
-  <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{GOLD};"></div></div></div>
+  <div style="margin:6px 0 0 48px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike}%;background:{GOLD};"></div></div></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -868,22 +860,22 @@ if st.session_state.screen == "inicio":
     st.markdown(f"""
 <div class="card-gastos">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div><div style="font-size:10px;color:{TEXT2};margin-top:4px;opacity:.7">Balance <span style="color:{bc}">{bs}{fmt_ars(balance_ars)}</span></div></div>
-    <div style="text-align:right;padding-top:2px"><div class="c-lbl">Ítems</div><div style="font-size:18px;font-weight:700;color:{TEXT}">{len(df)}</div><div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div></div>
+    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div><div style="font-size:12px;color:{TEXT2};margin-top:6px;font-weight:500;">Balance <span style="color:{bc};font-weight:700;">{bs}{fmt_ars(balance_ars)}</span></div></div>
+    <div style="text-align:right;padding-top:2px"><div class="c-lbl">Ítems</div><div style="font-size:22px;font-weight:700;color:{TEXT}">{len(df)}</div><div class="c-sub">{n_pagados} pag · {n_pendientes} pend</div></div>
   </div>
   <div class="sep"></div>
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(95,184,138,.18);color:{GREEN};border:0.5px solid rgba(95,184,138,.25);margin-left:6px">{n_pagados}</span></div>
+      <div><span class="bar-lbl">Pagados</span><span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(52,211,153,.15);color:{GREEN};margin-left:8px">{n_pagados}</span></div>
       <div style="text-align:right"><div class="bar-amt" style="color:{GREEN}">{fmt_ars(pagado_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pagado_ars, dolar)}</div></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" style="width:{pct_pag}%;background:{GREEN};"></div></div>
     <div class="bar-meta"><span class="bar-pct">{pct_pag}% del total</span></div>
   </div>
-  <div style="height:12px;"></div>
+  <div style="height:20px;"></div>
   <div class="bar-section">
     <div class="bar-row-hdr">
-      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(226,104,92,.18);color:{RED};border:0.5px solid rgba(226,104,92,.25);margin-left:6px">{n_pendientes}</span></div>
+      <div><span class="bar-lbl">Pendientes</span><span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(251,113,133,.15);color:{RED};margin-left:8px">{n_pendientes}</span></div>
       <div style="text-align:right"><div class="bar-amt" style="color:{RED}">{fmt_ars(pend_ars)}</div><div class="bar-usd">{fmt_usd_from_ars(pend_ars, dolar)}</div></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" style="width:{pct_pend}%;background:{RED};"></div></div>
@@ -893,7 +885,6 @@ if st.session_state.screen == "inicio":
 """, unsafe_allow_html=True)
 
     if es_mes_actual:
-        # ── DUPLICAR: toma el último mes con datos reales ──
         if not df_maestro.empty:
             periodos_con_datos = sorted(
                 df_maestro[df_maestro["Periodo"] != periodo_actual]["Periodo"].dropna().unique(),
@@ -905,7 +896,7 @@ if st.session_state.screen == "inicio":
                 df_clonables = df_ant.copy()
                 with st.expander(f"🔄 Duplicar todos los ítems de {label_periodo(periodo_ant)} ({len(df_clonables)} ítems)"):
                     st.markdown(
-                        f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px">'
+                        f'<div style="font-size:14px;color:{TEXT2};margin-bottom:12px">'
                         f'Se copiarán <strong style="color:{TEXT}">todos los {len(df_clonables)} ítems</strong> '
                         f'del mes anterior al período actual, marcados como pendientes.</div>',
                         unsafe_allow_html=True
@@ -913,13 +904,13 @@ if st.session_state.screen == "inicio":
                     for _, r in df_clonables.iterrows():
                         color_c = cat_color(categorizar(r["Item"]))
                         st.markdown(
-                            f'<div style="font-size:14px;padding:7px 0;border-bottom:1px solid {SEP};'
+                            f'<div style="font-size:14px;font-weight:500;padding:8px 0;border-bottom:1px solid {SEP};'
                             f'display:flex;justify-content:space-between;align-items:center">'
                             f'<span style="color:{TEXT}">{r["Item"]}</span>'
-                            f'<span style="color:{color_c};font-weight:600">{fmt_ars(r["Monto (ARS)"])}</span></div>',
+                            f'<span style="color:{color_c};font-weight:700">{fmt_ars(r["Monto (ARS)"])}</span></div>',
                             unsafe_allow_html=True
                         )
-                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
                     if st.button(f"✅ Duplicar {len(df_clonables)} ítems ahora", type="primary", use_container_width=True):
                         nuevos_registros = []
                         y_act, m_act = map(int, periodo_actual.split('-'))
@@ -953,7 +944,7 @@ if st.session_state.screen == "inicio":
             with a2: new_monto = st.number_input("Monto ARS", min_value=0, step=100, key="new_monto")
             with a3: new_fecha = st.date_input("Vencimiento", value=None, key="new_fecha")
             with a4:
-                st.markdown("<div style='height:26px'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
                 if st.button("Agregar", type="primary", use_container_width=True):
                     if not new_item.strip():
                         st.markdown('<div class="toast-err">Ingresa una descripción</div>', unsafe_allow_html=True)
@@ -983,19 +974,19 @@ if st.session_state.screen == "inicio":
             with i5:
                 if moneda_sel == "ARS":
                     equiv = ing_monto / dolar if dolar > 0 else 0
-                    st.markdown(f'<div style="padding:7px 0"><div style="font-size:11px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Equiv. USD</div><div style="font-size:18px;font-weight:700;color:{GREEN}">U$S {equiv:,.2f}</div></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="padding:10px 0"><div style="font-size:12px;color:{TEXT2};font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Equiv. USD</div><div style="font-family:var(--font-num);font-size:20px;font-weight:700;color:{GREEN}">U$S {equiv:,.2f}</div></div>', unsafe_allow_html=True)
                     monto_ars_f = ing_monto; monto_usd_f = equiv
                 else:
                     equiv = ing_monto * dolar
-                    st.markdown(f'<div style="padding:7px 0"><div style="font-size:11px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Equiv. ARS</div><div style="font-size:18px;font-weight:700;color:{GREEN}">{fmt_ars(equiv)}</div></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="padding:10px 0"><div style="font-size:12px;color:{TEXT2};font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Equiv. ARS</div><div style="font-family:var(--font-num);font-size:20px;font-weight:700;color:{GREEN}">{fmt_ars(equiv)}</div></div>', unsafe_allow_html=True)
                     monto_ars_f = equiv; monto_usd_f = ing_monto
             with i6: ing_fecha = st.date_input("Fecha", value=hoy, key="ing_fecha")
-            st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:6px 0 2px">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin:8px 0 4px;font-weight:500;">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
             ing_horas = st.number_input("Horas trabajadas (opcional)", min_value=0.0, step=0.5, key="ing_horas", help="Si este pago corresponde a horas trabajadas, cargalas acá y calculo el $/hora automáticamente.")
             if ing_horas > 0 and ing_monto > 0:
                 ph_prev = monto_ars_f / ing_horas
                 phu_prev = monto_usd_f / ing_horas
-                st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:2px 0 8px">$/hora: <strong style="color:{GREEN}">{fmt_ars(ph_prev)}</strong> · U$S {phu_prev:,.2f}/hs</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin:4px 0 12px;font-weight:500;">$/hora: <strong style="color:{GREEN}">{fmt_ars(ph_prev)}</strong> · U$S {phu_prev:,.2f}/hs</div>', unsafe_allow_html=True)
             if st.button("Guardar ingreso", type="primary", use_container_width=True):
                 if not ing_desc.strip():
                     st.markdown('<div class="toast-err">Ingresa una descripción</div>', unsafe_allow_html=True)
@@ -1012,10 +1003,10 @@ if st.session_state.screen == "inicio":
             st.markdown("</div>", unsafe_allow_html=True)
 
     if df.empty:
-        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="grp" style="padding:40px;text-align:center;color:{TEXT3};font-weight:500;">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
         busq = st.text_input("", placeholder="Buscar gasto...", label_visibility="collapsed", key="busqueda_input")
-        st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
         df_vista = df.copy()
         if busq.strip():
             df_vista = df_vista[df_vista["Item"].str.contains(busq.strip(), case=False, na=False)]
@@ -1027,17 +1018,17 @@ if st.session_state.screen == "inicio":
             color  = cat_color(cat)
             n_pend = int(df_cat["Pagado"].eq(False).sum())
             badge  = f'<span class="pend-badge">{n_pend}</span>' if n_pend > 0 else ""
-            ico_hdr = cat_icon_svg(cat, color, size=22)
-            st.markdown(f'<div class="grp"><div class="grp-hdr"><div style="width:22px;height:22px;border-radius:5px;overflow:hidden;flex-shrink:0">{ico_hdr}</div><span class="grp-hdr-lbl">{cat}{badge}</span><span class="grp-hdr-amt" style="color:{color}">{fmt_ars(t_cat)}</span></div>', unsafe_allow_html=True)
+            ico_hdr = cat_icon_svg(cat, color, size=24)
+            st.markdown(f'<div class="grp"><div class="grp-hdr"><div style="width:24px;height:24px;border-radius:6px;overflow:hidden;flex-shrink:0">{ico_hdr}</div><span class="grp-hdr-lbl">{cat}{badge}</span><span class="grp-hdr-amt" style="color:{color}">{fmt_ars(t_cat)}</span></div>', unsafe_allow_html=True)
             for idx, row in df_cat.iterrows():
                 paid = row["Pagado"]
                 nc   = "row-name-paid" if paid else "row-name"
                 ac   = "row-amt-paid"  if paid else "row-amt"
                 op   = "0.5" if paid else "1"
-                ico  = cat_icon_svg(cat, color, size=34)
+                ico  = cat_icon_svg(cat, color, size=36)
                 tasa_r = row.get("Tasa USD", 0)
                 usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
-                st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:36px;height:36px;flex-shrink:0;border-radius:10px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
         if es_mes_actual:
@@ -1049,7 +1040,7 @@ if st.session_state.screen == "inicio":
                         _key_btn   = f"pay_{_i}_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="font-size:15px;font-weight:600;color:{TEXT};padding:12px 0;">{row["Item"]}</div>', unsafe_allow_html=True)
                         with cm:
                             st.number_input(
                                 "Monto ARS", min_value=0, step=100,
@@ -1069,10 +1060,10 @@ if st.session_state.screen == "inicio":
         for _, row in df.nlargest(5,"Monto (ARS)").iterrows():
             color  = cat_color(row["Cat"])
             pct_t  = int(row["Monto (ARS)"] / total_ars * 100) if total_ars > 0 else 0
-            ico    = cat_icon_svg(row["Cat"], color, size=34)
+            ico    = cat_icon_svg(row["Cat"], color, size=36)
             tasa_r = row.get("Tasa USD", 0)
             usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
-            st.markdown(f'<div class="row"><div style="width:34px;height:34px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="row"><div style="width:36px;height:36px;flex-shrink:0;border-radius:10px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} · {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -1093,15 +1084,15 @@ elif st.session_state.screen == "ingresos":
       <div class="persona-row">
         <div class="av av-h">H</div>
         <div class="persona-body"><div class="persona-name">Henry</div><div class="persona-sub">{pct_henry if total_ing_ars > 0 else 0}%</div></div>
-        <div><div class="persona-amt" style="color:{ACCENT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
+        <div><div class="persona-amt" style="color:{TEXT}">{fmt_ars(ing_henry)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_henry, dolar)}</div></div>
       </div>
-      <div style="margin:5px 0 10px 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry if total_ing_ars > 0 else 0}%;background:{ACCENT}"></div></div></div>
+      <div style="margin:6px 0 16px 48px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_henry if total_ing_ars > 0 else 0}%;background:{ACCENT}"></div></div></div>
       <div class="persona-row">
         <div class="av av-j">J</div>
         <div class="persona-body"><div class="persona-name">Jaike</div><div class="persona-sub">{pct_jaike if total_ing_ars > 0 else 0}%</div></div>
-        <div><div class="persona-amt" style="color:{GOLD}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
+        <div><div class="persona-amt" style="color:{TEXT}">{fmt_ars(ing_jaike)}</div><div class="persona-amt-sub">{fmt_usd_from_ars(ing_jaike, dolar)}</div></div>
       </div>
-      <div style="margin:5px 0 0 42px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike if total_ing_ars > 0 else 0}%;background:{GOLD}"></div></div></div>
+      <div style="margin:6px 0 0 48px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_jaike if total_ing_ars > 0 else 0}%;background:{GOLD}"></div></div></div>
     </div>""", unsafe_allow_html=True)
 
     if es_mes_actual:
@@ -1110,7 +1101,7 @@ elif st.session_state.screen == "ingresos":
                      use_container_width=True, key="btn_ing2"):
             st.session_state.show_add_ingreso = not st.session_state.show_add_ingreso
             st.rerun()
-        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
         if st.session_state.show_add_ingreso:
             st.markdown('<div class="add-panel-green">', unsafe_allow_html=True)
@@ -1124,19 +1115,19 @@ elif st.session_state.screen == "ingresos":
             with i5:
                 if moneda_sel2 == "ARS":
                     equiv2 = ing_monto2 / dolar if dolar > 0 else 0
-                    st.markdown(f'<div style="padding:7px 0"><div style="font-size:11px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Equiv. USD</div><div style="font-size:18px;font-weight:700;color:{GREEN}">U$S {equiv2:,.2f}</div></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="padding:10px 0"><div style="font-size:12px;color:{TEXT2};font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Equiv. USD</div><div style="font-family:var(--font-num);font-size:20px;font-weight:700;color:{GREEN}">U$S {equiv2:,.2f}</div></div>', unsafe_allow_html=True)
                     mars2 = ing_monto2; musd2 = equiv2
                 else:
                     equiv2 = ing_monto2 * dolar
-                    st.markdown(f'<div style="padding:7px 0"><div style="font-size:11px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Equiv. ARS</div><div style="font-size:18px;font-weight:700;color:{GREEN}">{fmt_ars(equiv2)}</div></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="padding:10px 0"><div style="font-size:12px;color:{TEXT2};font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Equiv. ARS</div><div style="font-family:var(--font-num);font-size:20px;font-weight:700;color:{GREEN}">{fmt_ars(equiv2)}</div></div>', unsafe_allow_html=True)
                     mars2 = equiv2; musd2 = ing_monto2
             with i6: ing_fecha2 = st.date_input("Fecha", value=hoy, key="ing_fecha2")
-            st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:6px 0 2px">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin:8px 0 4px;font-weight:500;">Tasa: <strong style="color:{TEXT}">$ {dolar:,.0f} ARS/USD</strong></div>', unsafe_allow_html=True)
             ing_horas2 = st.number_input("Horas trabajadas (opcional)", min_value=0.0, step=0.5, key="ing_horas2", help="Si este pago corresponde a horas trabajadas, cargalas acá y calculo el $/hora automáticamente.")
             if ing_horas2 > 0 and ing_monto2 > 0:
                 ph_prev2 = mars2 / ing_horas2
                 phu_prev2 = musd2 / ing_horas2
-                st.markdown(f'<div style="font-size:12px;color:{TEXT2};margin:2px 0 8px">$/hora: <strong style="color:{GREEN}">{fmt_ars(ph_prev2)}</strong> · U$S {phu_prev2:,.2f}/hs</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin:4px 0 12px;font-weight:500;">$/hora: <strong style="color:{GREEN}">{fmt_ars(ph_prev2)}</strong> · U$S {phu_prev2:,.2f}/hs</div>', unsafe_allow_html=True)
             if st.button("Guardar", type="primary", use_container_width=True, key="guardar_ing2"):
                 if not ing_desc2.strip():
                     st.markdown('<div class="toast-err">Ingresa una descripción</div>', unsafe_allow_html=True)
@@ -1153,7 +1144,7 @@ elif st.session_state.screen == "ingresos":
             st.markdown("</div>", unsafe_allow_html=True)
 
     if df_ing_periodo.empty:
-        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin ingresos en {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="grp" style="padding:40px;text-align:center;color:{TEXT3};font-weight:500;">Sin ingresos en {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
         st.markdown(f'<div class="sec-lbl">Detalle — {label_periodo(periodo_viendo)}</div><div class="grp">', unsafe_allow_html=True)
         for _, row in df_ing_periodo.sort_values("Fecha", ascending=False).iterrows():
@@ -1166,8 +1157,8 @@ elif st.session_state.screen == "ingresos":
             fecha_s  = fecha_r.strftime("%-d %b %Y") if hasattr(fecha_r,"strftime") else str(fecha_r)
             ico_c    = ACCENT if persona.upper() == "HENRY" else GOLD
             st.markdown(f"""<div class="ing-row">
-              <div style="width:34px;height:34px;border-radius:8px;background:{ico_c};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg width="18" height="18" viewBox="0 0 18 18"><rect x="2" y="5" width="14" height="9" rx="2" fill="white" opacity="0.9"/><rect x="2" y="7" width="14" height="2" fill="{ico_c}"/><circle cx="5" cy="11" r="1.2" fill="{ico_c}" opacity="0.7"/></svg>
+              <div style="width:36px;height:36px;border-radius:10px;background:{ico_c};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="20" height="20" viewBox="0 0 18 18"><rect x="2" y="5" width="14" height="9" rx="2" fill="white" opacity="0.9"/><rect x="2" y="7" width="14" height="2" fill="{ico_c}"/><circle cx="5" cy="11" r="1.2" fill="{ico_c}" opacity="0.7"/></svg>
               </div>
               <div class="row-body"><div class="row-name">{desc}</div>
               <div class="row-sub">{badge_persona(persona)} &nbsp;{fecha_s} · Tasa $ {tasa_r:,.0f}</div></div>
@@ -1178,23 +1169,23 @@ elif st.session_state.screen == "ingresos":
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── HORAS TRABAJADAS (discreto) ──
-    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+    # ── HORAS TRABAJADAS ──
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
     with st.expander("⏱️  Horas trabajadas", expanded=False):
-        st.markdown(f'<div style="font-size:11.5px;color:{TEXT2};margin-bottom:10px;line-height:1.5">Sumale las horas a cada ingreso ya cargado y calculo solo cuánto te pagaron por hora, en ARS y USD.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:12px;line-height:1.6;font-weight:500;">Sumale las horas a cada ingreso ya cargado y calculo solo cuánto te pagaron por hora, en ARS y USD.</div>', unsafe_allow_html=True)
 
         ver_todo = st.checkbox("Ver historial completo (todos los períodos)", key="horas_ver_todo")
         df_horas_base = df_ing_todo if ver_todo else df_ing_periodo
         etiqueta_scope = "en todo el historial" if ver_todo else f"en {label_periodo(periodo_viendo)}"
 
         if df_horas_base.empty:
-            st.markdown(f'<div style="text-align:center;padding:16px;color:{TEXT3};font-size:12.5px">Sin ingresos cargados {etiqueta_scope}.</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align:center;padding:24px;color:{TEXT3};font-size:14px;font-weight:500;">Sin ingresos cargados {etiqueta_scope}.</div>', unsafe_allow_html=True)
         else:
             con_horas = df_horas_base[df_horas_base["Horas"] > 0]
             if not con_horas.empty:
                 prom_ars = (con_horas["Monto ARS"] / con_horas["Horas"]).mean()
                 prom_usd = (con_horas["Monto USD"] / con_horas["Horas"]).mean()
-                st.markdown(f"""<div class="kpi-card" style="margin-bottom:10px">
+                st.markdown(f"""<div class="kpi-card" style="margin-bottom:16px">
                   <div class="kpi-lbl">Promedio $/hora {etiqueta_scope}</div>
                   <div class="kpi-val" style="color:{GREEN}">{fmt_ars(prom_ars)}</div>
                   <div class="kpi-sub">U$S {prom_usd:,.2f} / hs · {con_horas['Horas'].sum():.1f} hs cargadas</div>
@@ -1216,8 +1207,8 @@ elif st.session_state.screen == "ingresos":
                     ph_ars = monto_ar / horas_val
                     ph_usd = monto_ud / horas_val
                     st.markdown(f"""<div class="ing-row">
-                      <div style="width:34px;height:34px;border-radius:8px;background:{ico_c};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                        <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="white" stroke-width="1.6"/><path d="M9,5 L9,9 L12,11" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+                      <div style="width:36px;height:36px;border-radius:10px;background:{ico_c};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <svg width="20" height="20" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="white" stroke-width="1.6"/><path d="M9,5 L9,9 L12,11" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
                       </div>
                       <div class="row-body"><div class="row-name">{desc}</div>
                       <div class="row-sub">{badge_persona(persona)} &nbsp;{fecha_s} · {horas_val:.1f} hs</div></div>
@@ -1229,9 +1220,9 @@ elif st.session_state.screen == "ingresos":
                 else:
                     rc1, rc2, rc3 = st.columns([2.6, 1, 0.8])
                     with rc1:
-                        st.markdown(f"""<div style="padding:9px 0 0">
-                          <div style="font-size:13.5px;font-weight:500">{desc}</div>
-                          <div style="font-size:11px;color:{TEXT2};margin-top:2px">{badge_persona(persona)} &nbsp;{fecha_s} · {fmt_ars(monto_ar)} · U$S {monto_ud:,.2f}</div>
+                        st.markdown(f"""<div style="padding:10px 0 0">
+                          <div style="font-size:14px;font-weight:600;color:{TEXT}">{desc}</div>
+                          <div style="font-size:12px;color:{TEXT2};margin-top:4px;font-weight:500;">{badge_persona(persona)} &nbsp;{fecha_s} · {fmt_ars(monto_ar)} · U$S {monto_ud:,.2f}</div>
                         </div>""", unsafe_allow_html=True)
                     with rc2:
                         st.number_input("Horas", min_value=0.0, step=0.5, key=f"h_add_{sheet_row}", label_visibility="collapsed")
@@ -1255,13 +1246,13 @@ elif st.session_state.screen == "gastos":
     st.markdown(f'<div class="sec-lbl">Editor de egresos — {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
 
     if df.empty:
-        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="grp" style="padding:40px;text-align:center;color:{TEXT3};font-weight:500;">Sin datos para {label_periodo(periodo_viendo)}.</div>', unsafe_allow_html=True)
     else:
         if not es_mes_actual:
             st.markdown(f'<div class="alert alert-o">📅 Editando <strong>{label_periodo(periodo_viendo)}</strong>. Guardar reescribirá la hoja maestra.</div>', unsafe_allow_html=True)
         else:
             st.markdown(f"""
-<div style="background:{SURF2};backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:14px;padding:13px 15px;margin-bottom:12px;font-size:13px;color:{TEXT2};line-height:1.6;border:0.5px solid {GLASS_BORDER};">
+<div style="background:{SURF2};border-radius:12px;padding:16px 20px;margin-bottom:16px;font-size:14px;color:{TEXT2};line-height:1.6;border:1px solid {GLASS_BORDER};font-weight:500;">
   ✏️ Editá montos, fechas de vencimiento o marcá ítems como pagados directamente en la tabla.<br>
   <strong style="color:{TEXT}">Presioná "Guardar y sincronizar"</strong> para escribir los cambios en Google Sheets.
 </div>""", unsafe_allow_html=True)
@@ -1287,7 +1278,7 @@ elif st.session_state.screen == "gastos":
             key="editor_gastos"
         )
 
-        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
         bc1, bc2, bc3 = st.columns([2.5, 0.8, 0.8])
         with bc1:
@@ -1314,10 +1305,10 @@ elif st.session_state.screen == "gastos":
                     use_container_width=True
                 )
 
-        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
         st.markdown(f'<div class="sec-lbl">Resumen rápido</div>', unsafe_allow_html=True)
         st.markdown(f"""
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
   <div class="kpi-card">
     <div class="kpi-lbl">Total egresos</div>
     <div class="kpi-val" style="color:{TEXT}">{fmt_ars(total_ars)}</div>
@@ -1345,7 +1336,7 @@ elif st.session_state.screen == "gastos":
                         _key_btn   = f"qpay_{_i}_{row['Item']}_{row['Periodo']}"
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="font-size:15px;font-weight:600;color:{TEXT};padding:12px 0;">{row["Item"]}</div>', unsafe_allow_html=True)
                         with cm:
                             st.number_input(
                                 "Monto ARS", min_value=0, step=100,
@@ -1369,7 +1360,7 @@ elif st.session_state.screen == "tendencias":
     st.markdown('<div class="sec-lbl">Análisis histórico</div>', unsafe_allow_html=True)
 
     if df_maestro.empty or df_maestro["Periodo"].nunique() < 1:
-        st.markdown(f'<div class="grp" style="padding:28px;text-align:center;color:{TEXT2}">Sin datos históricos todavía.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="grp" style="padding:40px;text-align:center;color:{TEXT3};font-weight:500;">Sin datos históricos todavía.</div>', unsafe_allow_html=True)
     else:
         gasto_m = df_maestro.groupby("Periodo")["Monto (ARS)"].sum().reset_index()
         gasto_m.columns = ["Periodo","Gastos"]
@@ -1433,24 +1424,24 @@ elif st.session_state.screen == "tendencias":
             mes_min_g = hist.loc[hist["Gastos"].idxmin()]
             meses_con_balance = hist[hist["Balance"] != 0] if tiene_ingresos else pd.DataFrame()
 
-            kpi2_html = f"""<div class="kpi-grid-2" style="margin-bottom:14px">
+            kpi2_html = f"""<div class="kpi-grid-2" style="margin-bottom:20px">
               <div class="kpi-card"><div class="kpi-lbl">Mes más caro</div>
-                <div class="kpi-val" style="color:{RED};font-size:17px">{mes_max_g['Label']}</div>
+                <div class="kpi-val" style="color:{RED};font-size:18px">{mes_max_g['Label']}</div>
                 <div class="kpi-sub">{fmt_ars(mes_max_g['Gastos'])}</div></div>
               <div class="kpi-card"><div class="kpi-lbl">Mes más barato</div>
-                <div class="kpi-val" style="color:{GREEN};font-size:17px">{mes_min_g['Label']}</div>
+                <div class="kpi-val" style="color:{GREEN};font-size:18px">{mes_min_g['Label']}</div>
                 <div class="kpi-sub">{fmt_ars(mes_min_g['Gastos'])}</div></div>
             </div>"""
 
             if tiene_ingresos and not meses_con_balance.empty:
                 mejor_bal = meses_con_balance.loc[meses_con_balance["Balance"].idxmax()]
                 peor_bal  = meses_con_balance.loc[meses_con_balance["Balance"].idxmin()]
-                kpi2_html += f"""<div class="kpi-grid-2" style="margin-bottom:14px">
+                kpi2_html += f"""<div class="kpi-grid-2" style="margin-bottom:20px">
                   <div class="kpi-card"><div class="kpi-lbl">Mejor balance</div>
-                    <div class="kpi-val" style="color:{GREEN};font-size:17px">{mejor_bal['Label']}</div>
+                    <div class="kpi-val" style="color:{GREEN};font-size:18px">{mejor_bal['Label']}</div>
                     <div class="kpi-sub">+{fmt_ars(mejor_bal['Balance'])}</div></div>
                   <div class="kpi-card"><div class="kpi-lbl">Peor balance</div>
-                    <div class="kpi-val" style="color:{RED};font-size:17px">{peor_bal['Label']}</div>
+                    <div class="kpi-val" style="color:{RED};font-size:18px">{peor_bal['Label']}</div>
                     <div class="kpi-sub">{fmt_ars(peor_bal['Balance'])}</div></div>
                 </div>"""
             st.markdown(kpi2_html, unsafe_allow_html=True)
@@ -1463,34 +1454,33 @@ elif st.session_state.screen == "tendencias":
                     name="Ingresos", x=hist_graf["Label"], y=hist_graf["Ingresos"],
                     marker_color=GREEN, marker_opacity=0.9,
                     text=[fmt_ars(v) for v in hist_graf["Ingresos"]],
-                    textposition="outside", textfont=dict(size=9, color=GREEN),
+                    textposition="outside", textfont=dict(size=10, color=GREEN, family="Outfit, sans-serif"),
                 ))
             fig.add_trace(go.Bar(
                 name="Gastos", x=hist_graf["Label"], y=hist_graf["Gastos"],
                 marker_color=RED, marker_opacity=0.9,
                 text=[fmt_ars(v) for v in hist_graf["Gastos"]],
-                textposition="outside", textfont=dict(size=9, color=RED),
+                textposition="outside", textfont=dict(size=10, color=RED, family="Outfit, sans-serif"),
             ))
             if tiene_ingresos:
                 fig.add_trace(go.Scatter(
                     name="Balance", x=hist_graf["Label"], y=hist_graf["Balance"],
                     mode="lines+markers",
-                    line=dict(color=ACCENT, width=2, dash="dot"),
-                    marker=dict(size=6, color=[GREEN if v >= 0 else RED for v in hist_graf["Balance"]],
-                                line=dict(color=ACCENT, width=1.5)),
+                    line=dict(color=ACCENT, width=3),
+                    marker=dict(size=8, color=SURFACE, line=dict(color=ACCENT, width=2)),
                 ))
             fig.update_layout(
                 barmode="group", paper_bgcolor=PLOTBG, plot_bgcolor=PLOTBG,
-                font=dict(family="Plus Jakarta Sans, sans-serif", color=TEXT2, size=11),
-                margin=dict(l=0, r=0, t=10, b=0),
+                font=dict(family="Plus Jakarta Sans, sans-serif", color=TEXT2, size=12),
+                margin=dict(l=0, r=0, t=20, b=0),
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1,
-                            font=dict(size=11, color=TEXT2), bgcolor="rgba(0,0,0,0)"),
-                xaxis=dict(showgrid=False, tickfont=dict(size=10, color=TEXT2),
-                           linecolor="#E5E7EB", tickangle=-30),
-                yaxis=dict(showgrid=True, gridcolor="#E5E7EB",
-                           tickfont=dict(size=10, color=TEXT2), zeroline=False,
+                            font=dict(size=12, color=TEXT2), bgcolor="rgba(0,0,0,0)"),
+                xaxis=dict(showgrid=False, tickfont=dict(size=11, color=TEXT2),
+                           linecolor=GLASS_BORDER, tickangle=-30),
+                yaxis=dict(showgrid=True, gridcolor=GLASS_BORDER,
+                           tickfont=dict(size=11, color=TEXT3, family="Outfit, sans-serif"), zeroline=False,
                            tickprefix="$", tickformat=",.0f"),
-                height=280, bargap=0.25, bargroupgap=0.06,
+                height=320, bargap=0.3, bargroupgap=0.1,
             )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
@@ -1522,13 +1512,13 @@ elif st.session_state.screen == "tendencias":
                 if abs(var_g) < 1:
                     var_badge = f'<span class="var-badge-neu">= sin cambio</span>'
                 elif var_g > 0:
-                    var_badge = f'<span class="var-badge-neg">▲ {var_g:+.1f}% vs anterior</span>'
+                    var_badge = f'<span class="var-badge-neg">▲ {var_g:+.1f}% vs ant.</span>'
                 else:
-                    var_badge = f'<span class="var-badge-pos">▼ {var_g:.1f}% vs anterior</span>'
+                    var_badge = f'<span class="var-badge-pos">▼ {var_g:.1f}% vs ant.</span>'
             else:
                 var_badge = f'<span class="var-badge-neu">primer mes</span>'
 
-            actual_badge = f'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(58,143,160,.2);color:{ACCENT};border:0.5px solid rgba(58,143,160,.30);margin-left:6px">actual</span>' if es_actual else ""
+            actual_badge = f'<span style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:99px;background:rgba(129,140,248,.15);color:{ACCENT};margin-left:8px">actual</span>' if es_actual else ""
 
             exp_key    = f"exp_{periodo_r}"
             is_expanded = st.session_state.get(exp_key, es_actual)
@@ -1538,7 +1528,7 @@ elif st.session_state.screen == "tendencias":
             with col_hdr:
                 n_items_r = len(df_maestro[df_maestro["Periodo"]==periodo_r])
                 st.markdown(f"""
-<div class="mes-card-header" style="border-radius:{'20px 20px 0 0' if is_expanded else '20px'};margin-bottom:{'0' if is_expanded else '4px'};">
+<div class="mes-card-header" style="border-radius:{'16px 16px 0 0' if is_expanded else '16px'};margin-bottom:{'0' if is_expanded else '6px'};">
   <div class="mes-dot" style="background:{dot_col};"></div>
   <div class="mes-title">
     <div class="mes-nombre">{label_r}{actual_badge}</div>
@@ -1549,7 +1539,7 @@ elif st.session_state.screen == "tendencias":
   </div>
 </div>""", unsafe_allow_html=True)
             with col_btn:
-                st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
                 if st.button(chevron, key=f"btn_{exp_key}", use_container_width=True):
                     st.session_state[exp_key] = not is_expanded
                     st.rerun()
@@ -1563,7 +1553,7 @@ elif st.session_state.screen == "tendencias":
                 kpi_bal_html = f'<div class="mes-mini-kpi"><div class="mes-mini-lbl">Balance</div><div class="mes-mini-val" style="color:{GREEN if balance_r>=0 else RED}">{bal_sym}{fmt_ars(balance_r)}</div><div class="mes-mini-sub">{"Superávit" if balance_r >= 0 else "Déficit"}</div></div>' if tiene_ingresos else ""
 
                 st.markdown(f"""
-<div style="background:{SURFACE};backdrop-filter:{BLUR};-webkit-backdrop-filter:{BLUR};border-radius:0 0 20px 20px;padding:0 17px 17px;border:0.5px solid {GLASS_BORDER};border-top:none;margin-bottom:4px;">
+<div style="background:{SURFACE};border-radius:0 0 16px 16px;padding:0 20px 20px;border:1px solid {GLASS_BORDER};border-top:none;margin-bottom:6px;box-shadow:0 4px 20px rgba(0,0,0,0.03);">
   <div class="mes-body-grid" style="grid-template-columns:{'1fr 1fr 1fr' if tiene_ingresos else '1fr 1fr'};">
     <div class="mes-mini-kpi">
       <div class="mes-mini-lbl">Gastos</div>
@@ -1576,23 +1566,23 @@ elif st.session_state.screen == "tendencias":
 """, unsafe_allow_html=True)
 
                 if tiene_ingresos and (henry_r > 0 or jaike_r > 0):
-                    st.markdown(f'<div style="font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Aportes</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="font-size:11px;font-weight:700;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Aportes</div>', unsafe_allow_html=True)
                     if henry_r > 0:
                         st.markdown(f"""
 <div class="aporte-row">
-  <div class="aporte-av" style="background:rgba(58,143,160,.18);color:{ACCENT};">H</div>
+  <div class="aporte-av" style="background:rgba(129,140,248,.15);color:{ACCENT};">H</div>
   <div class="aporte-body"><div class="aporte-name">Henry</div><div class="aporte-pct">{pct_h_r}%</div></div>
-  <div><div class="aporte-amt" style="color:{ACCENT};">{fmt_ars(henry_r)}</div></div>
+  <div><div class="aporte-amt" style="color:{TEXT};">{fmt_ars(henry_r)}</div></div>
 </div>
-<div style="margin:3px 0 6px 38px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_h_r}%;background:{ACCENT};"></div></div></div>""", unsafe_allow_html=True)
+<div style="margin:4px 0 8px 44px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_h_r}%;background:{ACCENT};"></div></div></div>""", unsafe_allow_html=True)
                     if jaike_r > 0:
                         st.markdown(f"""
 <div class="aporte-row">
-  <div class="aporte-av" style="background:rgba(201,160,99,.18);color:{GOLD};">J</div>
+  <div class="aporte-av" style="background:rgba(217,119,6,.15);color:{GOLD};">J</div>
   <div class="aporte-body"><div class="aporte-name">Jaike</div><div class="aporte-pct">{pct_j_r}%</div></div>
-  <div><div class="aporte-amt" style="color:{GOLD};">{fmt_ars(jaike_r)}</div></div>
+  <div><div class="aporte-amt" style="color:{TEXT};">{fmt_ars(jaike_r)}</div></div>
 </div>
-<div style="margin:3px 0 10px 38px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_j_r}%;background:{GOLD};"></div></div></div>""", unsafe_allow_html=True)
+<div style="margin:4px 0 16px 44px"><div class="bar-bg"><div class="bar-fill" style="width:{pct_j_r}%;background:{GOLD};"></div></div></div>""", unsafe_allow_html=True)
 
                 if not df_mes_g.empty:
                     cat_mes = df_mes_g.copy()
@@ -1600,7 +1590,7 @@ elif st.session_state.screen == "tendencias":
                     cat_mes["Monto (ARS)"] = cat_mes["Monto (ARS)"].apply(clean_currency)
                     cat_rank_mes = cat_mes.groupby("Cat")["Monto (ARS)"].sum().sort_values(ascending=False).reset_index()
                     max_cat = cat_rank_mes["Monto (ARS)"].max()
-                    st.markdown(f'<div style="font-size:10px;font-weight:600;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px;">Gastos por categoría</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="font-size:11px;font-weight:700;color:{TEXT2};text-transform:uppercase;letter-spacing:.05em;margin:20px 0 8px;">Gastos por categoría</div>', unsafe_allow_html=True)
                     for _, cat_row in cat_rank_mes.iterrows():
                         color_c = cat_color(cat_row["Cat"])
                         bar_w_c = int(cat_row["Monto (ARS)"] / max_cat * 100) if max_cat > 0 else 0
@@ -1609,7 +1599,7 @@ elif st.session_state.screen == "tendencias":
 <div class="cat-bar-row">
   <span class="cat-bar-name">{cat_row['Cat']}</span>
   <div class="cat-bar-track"><div class="cat-bar-fill" style="width:{bar_w_c}%;background:{color_c};"></div></div>
-  <span class="cat-bar-amt" style="color:{color_c};">{fmt_ars(cat_row['Monto (ARS)'])} <span style="color:{TEXT3};font-weight:400">{pct_c}%</span></span>
+  <span class="cat-bar-amt" style="color:{TEXT};">{fmt_ars(cat_row['Monto (ARS)'])} <span style="color:{TEXT3};font-weight:500;margin-left:4px">{pct_c}%</span></span>
 </div>""", unsafe_allow_html=True)
 
                 st.markdown("</div>", unsafe_allow_html=True)
@@ -1617,31 +1607,31 @@ elif st.session_state.screen == "tendencias":
             st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
 
         # ── RANKING ACUMULADO ──
-        st.markdown('<div class="sec-lbl" style="margin-top:18px">Ranking acumulado de categorías</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-lbl" style="margin-top:24px">Ranking acumulado de categorías</div>', unsafe_allow_html=True)
         cat_acum = df_maestro.copy()
         cat_acum["Cat"] = cat_acum["Item"].apply(categorizar)
         cat_acum["Monto (ARS)"] = cat_acum["Monto (ARS)"].apply(clean_currency)
         cat_rank = cat_acum.groupby("Cat")["Monto (ARS)"].sum().sort_values(ascending=False).reset_index()
         cat_rank["Pct"] = (cat_rank["Monto (ARS)"] / cat_rank["Monto (ARS)"].sum() * 100).round(1)
 
-        st.markdown('<div class="grp" style="padding:14px 16px">', unsafe_allow_html=True)
+        st.markdown('<div class="grp" style="padding:20px 24px">', unsafe_allow_html=True)
         max_v = cat_rank["Monto (ARS)"].max()
         for i2, (_, row) in enumerate(cat_rank.iterrows()):
             color = cat_color(row["Cat"])
             bar_w = int(row["Monto (ARS)"] / max_v * 100) if max_v > 0 else 0
-            st.markdown(f"""<div style="margin-bottom:11px">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-                <div style="display:flex;align-items:center;gap:7px">
-                  <span style="font-size:11px;font-weight:700;color:{TEXT3};width:18px">#{i2+1}</span>
-                  <span style="font-size:14px;color:{TEXT}">{row['Cat']}</span>
+            st.markdown(f"""<div style="margin-bottom:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="font-size:12px;font-weight:800;color:{TEXT3};width:20px">#{i2+1}</span>
+                  <span style="font-size:15px;font-weight:600;color:{TEXT}">{row['Cat']}</span>
                 </div>
                 <div>
-                  <span style="font-size:14px;font-weight:600;color:{color}">{fmt_ars(row['Monto (ARS)'])}</span>
-                  <span style="font-size:11px;color:{TEXT2};margin-left:5px">{row['Pct']}%</span>
+                  <span style="font-family:var(--font-num);font-size:16px;font-weight:700;color:{TEXT}">{fmt_ars(row['Monto (ARS)'])}</span>
+                  <span style="font-size:12px;color:{TEXT2};font-weight:500;margin-left:6px">{row['Pct']}%</span>
                 </div>
               </div>
-              <div style="height:3px;background:{SURF2};border-radius:3px;overflow:hidden">
-                <div class="cat-bar-fill" style="width:{bar_w}%;background:{color};border-radius:3px"></div>
+              <div class="cat-bar-track">
+                <div class="cat-bar-fill" style="width:{bar_w}%;background:{color};"></div>
               </div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
