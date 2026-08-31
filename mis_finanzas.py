@@ -580,7 +580,7 @@ def categorizar(item):
     elif any(x in i for x in ["nafta","ypf","shell","axion","uber","cabify","taxi","peaje","sube","transporte"]): return "Transporte"
     elif any(x in i for x in ["netflix","spotify","prime","hbo","disney","youtube","telecentro","fibertel","internet","claro","movistar","meli","google","apple","vpn"]): return "Suscripciones"
     elif any(x in i for x in ["gym","gimnasio","megatlon","sportclub","crossfit"]): return "Fitness"
-    elif any(x in i for x in ["farmacia","osde","swiss","galeno","medico","salud","depilife"]): return "Salud"
+    elif any(x in i for x in ["farmacia","osde","swiss","galeno","CortedeCabello","medico","Corte de Cabello","salud","depilife"]): return "Salud"
     elif any(x in i for x in ["mc","burger","pedidosya","rappi","helado","pizza","restaurante","bar","cafe"]): return "Comida/Delivery"
     elif any(x in i for x in ["ropa","zapat","zara","dafiti","peluqueria","estetica"]): return "Personal/Ocio"
     elif any(x in i for x in ["vuelo","pasaje","hotel","airbnb"]): return "Viajes"
