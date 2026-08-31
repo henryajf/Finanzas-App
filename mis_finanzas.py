@@ -577,7 +577,8 @@ def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuev
 def categorizar(item):
     i = str(item).lower()
     if any(x in i for x in ["mercadocredito","credipersonal","credi personal","tarjeta","visa","mastercard","amex","credito","banco","financiamiento","cuota"]): return "Credito/Financiacion"
-    elif (any(x in i for x in ["afip","monotributo","impuesto","iibb","ingresos brutos","rentas","agip","arba","ganancias","bienes personales","autonomo","f931","sellos","patente","inmobiliario","tasa municipal","dgr"])
+    elif any(x in i for x in ["abl","agip"]): return "Hogar"
+    elif (any(x in i for x in ["afip","monotributo","impuesto","iibb","ingresos brutos","rentas","arba","ganancias","bienes personales","autonomo","f931","sellos","patente","inmobiliario","tasa municipal","dgr"])
           or "arca" in i.split() or "vep" in i.split()): return "Impuestos"
     elif any(x in i for x in ["luz","edenor","edesur","agua","aysa","gas","metrogas","bbva seguro de hogar","bbva seguros de hogar","personal"]): return "Servicios"
     elif any(x in i for x in ["super","coto","carrefour","dia","jumbo","disco","mercado","almacen","chino"]): return "Supermercado"
@@ -646,6 +647,11 @@ def calcular_mes_anterior(periodo_str):
     y, m = map(int, periodo_str.split('-'))
     if m == 1: return f"{y-1}-12"
     else: return f"{y}-{m-1:02d}"
+
+def calcular_mes_siguiente(periodo_str):
+    y, m = map(int, periodo_str.split('-'))
+    if m == 12: return f"{y+1}-01"
+    else: return f"{y}-{m+1:02d}"
 
 
 # ── CARGA INICIAL ──
@@ -1056,59 +1062,62 @@ if st.session_state.screen == "inicio":
             st.markdown(f'<div class="row"><div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} &middot; {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── DUPLICAR MES ANTERIOR (al final de la pantalla) ──
-    if es_mes_actual and not df_maestro.empty:
-        periodos_con_datos = sorted(
-            df_maestro[df_maestro["Periodo"] != periodo_actual]["Periodo"].dropna().unique(),
-            reverse=True
+    # ── DUPLICAR TODO EL MES VISTO → MES SIGUIENTE (al final de la pantalla) ──
+    if not df_base_periodo.empty:
+        periodo_sig = calcular_mes_siguiente(periodo_viendo)
+        df_fuente = df_maestro[df_maestro["Periodo"] == periodo_viendo].copy()
+        items_destino = set(
+            df_maestro[df_maestro["Periodo"] == periodo_sig]["Item"].astype(str).str.strip().str.lower()
         )
-        periodo_ant = periodos_con_datos[0] if periodos_con_datos else None
-        df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant] if periodo_ant else pd.DataFrame()
-        if not df_ant.empty:
-            df_clonables = df_ant.copy()
-            st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-            with st.expander(f"Duplicar todos los ítems de {label_periodo(periodo_ant)} ({len(df_clonables)} ítems)"):
+        pendientes_clonar = [r for _, r in df_fuente.iterrows()
+                             if str(r["Item"]).strip().lower() not in items_destino]
+        ya_existen = len(df_fuente) - len(pendientes_clonar)
+        st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+        with st.expander(f"Duplicar los {len(df_fuente)} ítems de {label_periodo(periodo_viendo)}  →  {label_periodo(periodo_sig)}"):
+            msg = (f'Se agregarán <strong style="color:{TEXT}">{len(pendientes_clonar)} ítems</strong> a '
+                   f'<strong style="color:{TEXT}">{label_periodo(periodo_sig)}</strong>, marcados como pendientes. '
+                   f'Incluye todo lo que tengas cargado hoy en {label_periodo(periodo_viendo)}.')
+            if ya_existen:
+                msg += f' <span style="color:{TEXT3}">({ya_existen} ya están en {label_periodo(periodo_sig)} y se omiten para no duplicar).</span>'
+            st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px;line-height:1.5">{msg}</div>', unsafe_allow_html=True)
+            for _, r in df_fuente.iterrows():
+                existe  = str(r["Item"]).strip().lower() in items_destino
+                color_c = cat_color(categorizar(r["Item"]))
                 st.markdown(
-                    f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px">'
-                    f'Se copiarán <strong style="color:{TEXT}">todos los {len(df_clonables)} ítems</strong> '
-                    f'del mes anterior al período actual, marcados como pendientes.</div>',
+                    f'<div style="font-size:14px;padding:7px 0;border-bottom:1px solid {SEP};'
+                    f'display:flex;justify-content:space-between;align-items:center;opacity:{"0.4" if existe else "1"}">'
+                    f'<span style="color:{TEXT}">{r["Item"]}{" &middot; ya existe" if existe else ""}</span>'
+                    f'<span style="color:{color_c};font-weight:600">{fmt_ars(r["Monto (ARS)"])}</span></div>',
                     unsafe_allow_html=True
                 )
-                for _, r in df_clonables.iterrows():
-                    color_c = cat_color(categorizar(r["Item"]))
-                    st.markdown(
-                        f'<div style="font-size:14px;padding:7px 0;border-bottom:1px solid {SEP};'
-                        f'display:flex;justify-content:space-between;align-items:center">'
-                        f'<span style="color:{TEXT}">{r["Item"]}</span>'
-                        f'<span style="color:{color_c};font-weight:600">{fmt_ars(r["Monto (ARS)"])}</span></div>',
-                        unsafe_allow_html=True
-                    )
-                st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-                if st.button(f"Duplicar {len(df_clonables)} ítems ahora", type="primary", use_container_width=True):
-                    nuevos_registros = []
-                    y_act, m_act = map(int, periodo_actual.split('-'))
-                    for _, r in df_clonables.iterrows():
-                        nueva_fecha = None
-                        if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
-                            try:
-                                old_d = pd.to_datetime(r["Dia Pago"])
-                                dia_seguro = min(old_d.day, 28)
-                                nueva_fecha = date(y_act, m_act, dia_seguro)
-                            except:
-                                pass
-                        nuevos_registros.append({
-                            "Categoria": categorizar(r["Item"]),
-                            "Item": r["Item"],
-                            "Monto (ARS)": r["Monto (ARS)"],
-                            "Dia Pago": nueva_fecha,
-                            "Pagado": False,
-                            "Periodo": periodo_actual,
-                            "Tasa USD": dolar
-                        })
-                    if nuevos_registros:
-                        df_nuevos = pd.DataFrame(nuevos_registros)
-                        guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
-                        st.rerun()
+            st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+            if st.button(f"Duplicar {len(pendientes_clonar)} ítems a {label_periodo(periodo_sig)}",
+                         type="primary", use_container_width=True,
+                         disabled=(len(pendientes_clonar) == 0)):
+                nuevos_registros = []
+                y_sig, m_sig = map(int, periodo_sig.split('-'))
+                for r in pendientes_clonar:
+                    nueva_fecha = None
+                    if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
+                        try:
+                            old_d = pd.to_datetime(r["Dia Pago"])
+                            nueva_fecha = date(y_sig, m_sig, min(old_d.day, 28))
+                        except Exception:
+                            pass
+                    nuevos_registros.append({
+                        "Categoria": categorizar(r["Item"]),
+                        "Item": r["Item"],
+                        "Monto (ARS)": r["Monto (ARS)"],
+                        "Dia Pago": nueva_fecha,
+                        "Pagado": False,
+                        "Periodo": periodo_sig,
+                        "Tasa USD": dolar
+                    })
+                if nuevos_registros:
+                    df_nuevos = pd.DataFrame(nuevos_registros)
+                    guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
+                    st.session_state.periodo_sel = periodo_sig
+                    st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════
