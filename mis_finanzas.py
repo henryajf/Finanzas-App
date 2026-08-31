@@ -144,10 +144,13 @@ html, body, .stApp {{
 *{{box-sizing:border-box;-webkit-font-smoothing:antialiased;font-family:inherit;}}
 
 #MainMenu, footer, header, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="collapsedControl"] {{display:none !important;}}
-.block-container {{padding:0 !important;max-width:100% !important; overflow-x: clip !important;}}
+.block-container, [data-testid="stMainBlockContainer"] {{
+  padding:0.6rem 16px 48px !important; max-width:832px !important; margin:0 auto !important;
+  overflow-x: clip !important;
+}}
 [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"], [data-testid="stMain"],
-.stMainBlockContainer, section.main, section.main > div:first-child {{padding-top:0 !important;margin-top:0 !important;background:{BG} !important;}}
-.wrap {{max-width:820px;margin:0 auto;padding:0 18px 44px;}}
+section.main, section.main > div:first-child {{margin-top:0 !important;background:{BG} !important;}}
+.wrap {{display:contents;}}
 
 /* ── HEADER ── */
 .ios-hdr {{
@@ -155,7 +158,7 @@ html, body, .stApp {{
   background:transparent;
   border-bottom:1px solid {SEP};
   box-shadow:none;
-  padding:20px 2px 14px;
+  padding:8px 0 14px;
   margin:0 0 4px;
 }}
 .ios-hdr-top{{display:flex;justify-content:space-between;align-items:flex-start;}}
@@ -570,7 +573,7 @@ def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuev
 
 def categorizar(item):
     i = str(item).lower()
-    if any(x in i for x in ["mercadocredito","tarjeta","visa","mastercard","amex","credito","banco","financiamiento","cuota"]): return "Credito/Financiacion"
+    if any(x in i for x in ["mercadocredito","credipersonal","credi personal","tarjeta","visa","mastercard","amex","credito","banco","financiamiento","cuota"]): return "Credito/Financiacion"
     elif any(x in i for x in ["luz","edenor","edesur","agua","aysa","gas","metrogas","bbva seguro de hogar","bbva seguros de hogar","personal"]): return "Servicios"
     elif any(x in i for x in ["super","coto","carrefour","dia","jumbo","disco","mercado","almacen","chino"]): return "Supermercado"
     elif any(x in i for x in ["alquiler","expensas","abl","limpieza"]): return "Hogar"
@@ -764,44 +767,63 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAV + TOGGLE DE TEMA (compacto, en una sola fila) ──
+# ── NAV + TOGGLE DE TEMA (compacto, siempre en una fila, también en mobile) ──
 st.markdown(f"""<style>
-div[data-testid="stHorizontalBlock"]:has(.st-key-pill_inicio){{
-  flex-direction:row !important; flex-wrap:nowrap !important; gap:5px !important;
-  border-bottom:1px solid {SEP}; padding:10px 0 10px; margin-bottom:4px;
+.st-key-navbar {{ border-bottom:1px solid {SEP}; padding-bottom:10px; margin-bottom:6px; }}
+.st-key-navbar div[data-testid="stHorizontalBlock"] {{
+  flex-direction:row !important; flex-wrap:nowrap !important; gap:4px !important;
 }}
-div[data-testid="stHorizontalBlock"]:has(.st-key-pill_inicio) div[data-testid="column"]{{
-  flex:1 1 0 !important; min-width:0 !important; width:auto !important;
+.st-key-navbar div[data-testid="stColumn"],
+.st-key-navbar div[data-testid="column"] {{
+  flex:1 1 0 !important; flex-basis:0 !important;
+  min-width:0 !important; width:auto !important;
 }}
-[class*="st-key-pill_"] button, .st-key-theme_toggle button{{
-  background:transparent !important; border:1px solid {GLASS_BORDER} !important;
-  color:{TEXT2} !important; border-radius:9px !important; padding:6px 2px !important;
-  font-size:11.5px !important; font-weight:500 !important; min-height:0 !important;
-  line-height:1.2 !important; box-shadow:none !important; letter-spacing:0 !important;
+.st-key-navbar div[data-testid="stColumn"]:last-child,
+.st-key-navbar div[data-testid="column"]:last-child {{ flex:0 0 40px !important; }}
+.st-key-navbar div[data-testid="stColumn"] > div,
+.st-key-navbar div[data-testid="column"] > div,
+.st-key-navbar .stButton {{ width:100% !important; min-width:0 !important; }}
+.st-key-navbar .stButton button {{
+  width:100% !important; background:{SURF2} !important;
+  border:1px solid transparent !important; color:{TEXT2} !important;
+  border-radius:8px !important; padding:7px 3px !important;
+  font-weight:500 !important; min-height:0 !important;
+  line-height:1.15 !important; box-shadow:none !important; letter-spacing:-.015em !important;
+  overflow:hidden !important; white-space:nowrap !important;
 }}
-[class*="st-key-pill_"] button:hover, .st-key-theme_toggle button:hover{{
-  color:{TEXT} !important; border-color:{GLASS_BORDER_2} !important;
+.st-key-navbar .stButton button p,
+.st-key-navbar .stButton button div {{
+  font-size:11px !important; font-weight:inherit !important; color:inherit !important;
+  overflow:hidden !important; white-space:nowrap !important; text-overflow:clip !important;
 }}
-.st-key-pill_{_sc} button{{
-  background:{rgba(ACCENT,0.14)} !important; border-color:transparent !important;
-  color:{ACCENT} !important; font-weight:600 !important;
+.st-key-navbar .stButton button:hover {{ color:{TEXT} !important; background:{SURF3} !important; }}
+.st-key-pill_{_sc} .stButton button {{
+  background:{rgba(ACCENT,0.16)} !important;
+  color:{ACCENT} !important;
 }}
-.st-key-theme_toggle button{{ color:{TEXT3} !important; }}
-@media(max-width:520px){{
-  [class*="st-key-pill_"] button, .st-key-theme_toggle button{{ font-size:10px !important; padding:6px 1px !important; }}
+.st-key-pill_{_sc} .stButton button p {{ color:{ACCENT} !important; font-weight:600 !important; }}
+.st-key-theme_toggle .stButton button {{ color:{TEXT3} !important; }}
+.st-key-theme_toggle .stButton button p {{ font-size:14px !important; }}
+@media(max-width:460px){{
+  .st-key-navbar .stButton button {{ padding:7px 1px !important; }}
+  .st-key-navbar .stButton button p,
+  .st-key-navbar .stButton button div {{ font-size:9.5px !important; }}
+  .st-key-navbar div[data-testid="stColumn"]:last-child,
+  .st-key-navbar div[data-testid="column"]:last-child {{ flex:0 0 32px !important; }}
 }}
 </style>""", unsafe_allow_html=True)
-_pcols = st.columns([1, 1, 1, 1, 0.85])
-for i, (key, lbl) in enumerate(_nav_items):
-    with _pcols[i]:
-        if st.button(lbl, key=f"pill_{key}", use_container_width=True):
-            st.session_state.screen = key
+with st.container(key="navbar"):
+    _pcols = st.columns([1, 1, 1, 1, 0.5])
+    for i, (key, lbl) in enumerate(_nav_items):
+        with _pcols[i]:
+            if st.button(lbl, key=f"pill_{key}", use_container_width=True):
+                st.session_state.screen = key
+                st.rerun()
+    with _pcols[4]:
+        _ico_tema = "☀" if THEME == "dark" else "☾"
+        if st.button(_ico_tema, key="theme_toggle", use_container_width=True):
+            st.session_state.theme = "light" if THEME == "dark" else "dark"
             st.rerun()
-with _pcols[4]:
-    _ico_tema = "Claro" if THEME == "dark" else "Oscuro"
-    if st.button(_ico_tema, key="theme_toggle", use_container_width=True):
-        st.session_state.theme = "light" if THEME == "dark" else "dark"
-        st.rerun()
 
 opciones_periodos = periodos_disponibles[:8]
 idx_per = opciones_periodos.index(periodo_viendo) if periodo_viendo in opciones_periodos else 0
