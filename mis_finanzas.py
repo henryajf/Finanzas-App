@@ -80,7 +80,8 @@ CAT_COLORS = {
     "Servicios": "#C08552", "Hogar": "#5B9279", "Supermercado": "#6B9E78",
     "Comida": "#C96A5E", "Transporte": "#4E8A98", "Suscripciones": "#B9975B",
     "Fitness": "#C0705A", "Salud": "#6FA694", "Credito": "#A9855E",
-    "Personal": "#7FB0A5", "Viajes": "#5691A0", "Otros": "#8A8A8A",
+    "Impuestos": "#7C8CA8", "Personal": "#7FB0A5", "Viajes": "#5691A0",
+    "Otros": "#8A8A8A",
 }
 
 def cat_color(cat):
@@ -109,6 +110,8 @@ def cat_icon_svg(cat, color, size=34):
         ico = f'<rect x="{s*.06}" y="{s*.38}" width="{s*.14}" height="{s*.24}" rx="{s*.05}" fill="white"/><rect x="{s*.8}" y="{s*.38}" width="{s*.14}" height="{s*.24}" rx="{s*.05}" fill="white"/><rect x="{s*.18}" y="{s*.44}" width="{s*.64}" height="{s*.12}" rx="{s*.04}" fill="white"/>'
     elif "comida" in c or "delivery" in c:
         ico = f'<rect x="{s*.15}" y="{s*.3}" width="{s*.7}" height="{s*.1}" rx="{s*.04}" fill="white"/><rect x="{s*.15}" y="{s*.46}" width="{s*.7}" height="{s*.1}" rx="{s*.04}" fill="white"/><rect x="{s*.15}" y="{s*.62}" width="{s*.7}" height="{s*.1}" rx="{s*.04}" fill="white"/>'
+    elif "impuesto" in c:
+        ico = f'<rect x="{s*.24}" y="{s*.12}" width="{s*.52}" height="{s*.76}" rx="{s*.06}" fill="white" opacity="0.95"/><rect x="{s*.33}" y="{s*.28}" width="{s*.34}" height="{s*.06}" rx="{s*.02}" fill="{color}"/><rect x="{s*.33}" y="{s*.42}" width="{s*.34}" height="{s*.06}" rx="{s*.02}" fill="{color}"/><rect x="{s*.33}" y="{s*.56}" width="{s*.22}" height="{s*.06}" rx="{s*.02}" fill="{color}"/>'
     elif "personal" in c or "ocio" in c:
         ico = f'<circle cx="{s*.5}" cy="{s*.35}" r="{s*.17}" fill="white"/><path d="M{s*.2},{s*.85} Q{s*.2},{s*.6} {s*.5},{s*.6} Q{s*.8},{s*.6} {s*.8},{s*.85}" fill="white"/>'
     elif "viaje" in c:
@@ -574,6 +577,8 @@ def marcar_pagado_maestro(item_nombre, periodo_item, df_full, dolar_actual, nuev
 def categorizar(item):
     i = str(item).lower()
     if any(x in i for x in ["mercadocredito","credipersonal","credi personal","tarjeta","visa","mastercard","amex","credito","banco","financiamiento","cuota"]): return "Credito/Financiacion"
+    elif (any(x in i for x in ["afip","monotributo","impuesto","iibb","ingresos brutos","rentas","agip","arba","ganancias","bienes personales","autonomo","f931","sellos","patente","inmobiliario","tasa municipal","dgr"])
+          or "arca" in i.split() or "vep" in i.split()): return "Impuestos"
     elif any(x in i for x in ["luz","edenor","edesur","agua","aysa","gas","metrogas","bbva seguro de hogar","bbva seguros de hogar","personal"]): return "Servicios"
     elif any(x in i for x in ["super","coto","carrefour","dia","jumbo","disco","mercado","almacen","chino"]): return "Supermercado"
     elif any(x in i for x in ["alquiler","expensas","abl","limpieza"]): return "Hogar"
