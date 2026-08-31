@@ -167,63 +167,7 @@ html, body, .stApp {{
 .dolar-val{{font-family:var(--font-num);font-size:17px;font-weight:600;color:{TEXT};letter-spacing:-.01em;margin-top:1px;}}
 .dolar-trend{{font-size:10px;margin-top:1px;}}
 
-/* ── BARRA DE NAVEGACIÓN ── */
-.pill-outer {{
-  position: relative;
-  display: flex;
-  justify-content: flex-start;
-  padding: 10px 0 6px;
-  z-index: 10;
-}}
-.pill-inner {{
-  display: block;
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid {SEP};
-  padding: 0 0 2px;
-  border-radius: 0;
-  box-shadow: none;
-}}
-.pill-inner [data-testid="stHorizontalBlock"] {{
-  gap: 2px !important;
-  flex-wrap: nowrap !important;
-}}
-.pill-inner [data-testid="column"] {{
-  padding: 0 !important;
-  min-width: 0 !important;
-}}
-.pill-inner .stButton > button {{
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 2px solid transparent !important;
-  color: {TEXT3} !important;
-  border-radius: 0 !important;
-  padding: 7px 4px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  font-family: var(--font-ui) !important;
-  letter-spacing: 0.005em !important;
-  transition: color 0.15s ease, border-color 0.15s ease !important;
-  white-space: nowrap !important;
-  min-height: 0 !important;
-  line-height: 1.3 !important;
-  box-shadow: none !important;
-  width: 100% !important;
-}}
-.pill-inner .stButton > button:hover {{
-  color: {TEXT} !important;
-}}
-.pill-active .stButton > button {{
-  background: transparent !important;
-  border-bottom: 2px solid {ACCENT} !important;
-  color: {TEXT} !important;
-  font-weight: 600 !important;
-  box-shadow: none !important;
-}}
-@media (max-width: 600px) {{
-  .pill-inner .stButton > button {{ padding: 7px 3px !important; font-size: 11px !important; }}
-}}
+/* ── BARRA DE NAVEGACIÓN: ver bloque <style> inyectado antes de las columnas ── */
 
 /* ── SELECTBOX / INPUTS NATIVOS ── */
 div[data-baseweb="select"] > div {{
@@ -273,17 +217,6 @@ div[data-baseweb="menu"] li:hover {{ background: {SURF2} !important; }}
 .c-val{{font-family:var(--font-num);font-size:25px;font-weight:600;letter-spacing:-.015em;line-height:1.1;color:{TEXT};}}
 .c-sub{{font-size:12px;color:{TEXT2};margin-top:4px;}}
 
-/* ── HERO BALANCE ── */
-.hero-balance{{background:{SURFACE};border-radius:var(--r-card);padding:26px 24px;margin-bottom:16px;border:1px solid {GLASS_BORDER};box-shadow:none;text-align:center;}}
-.hero-lbl{{font-size:10px;font-weight:600;color:{TEXT3};text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;}}
-.hero-val{{font-family:var(--font-num);font-size:42px;font-weight:600;letter-spacing:-.02em;line-height:1.02;}}
-.hero-sub{{font-size:12px;color:{TEXT3};margin-top:6px;}}
-.hero-split{{display:flex;justify-content:center;gap:40px;margin-top:20px;padding-top:18px;border-top:1px solid {SEP};flex-wrap:wrap;}}
-.hero-split-item{{display:flex;align-items:center;gap:9px;}}
-.hero-split-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0;}}
-.hero-split-lbl{{font-size:10px;color:{TEXT3};text-align:left;text-transform:uppercase;letter-spacing:.06em;}}
-.hero-split-val{{font-family:var(--font-num);font-size:16px;font-weight:600;text-align:left;}}
-@media(max-width:700px){{.hero-val{{font-size:32px;}}}}
 
 /* ── BOTONES ── */
 .stButton>button[kind="primary"]{{
@@ -831,25 +764,44 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAV + TOGGLE DE TEMA ──
-st.markdown('<div class="pill-outer"><div class="pill-inner">', unsafe_allow_html=True)
-_pcols = st.columns([1, 1, 1, 1, 0.6])
+# ── NAV + TOGGLE DE TEMA (compacto, en una sola fila) ──
+st.markdown(f"""<style>
+div[data-testid="stHorizontalBlock"]:has(.st-key-pill_inicio){{
+  flex-direction:row !important; flex-wrap:nowrap !important; gap:5px !important;
+  border-bottom:1px solid {SEP}; padding:10px 0 10px; margin-bottom:4px;
+}}
+div[data-testid="stHorizontalBlock"]:has(.st-key-pill_inicio) div[data-testid="column"]{{
+  flex:1 1 0 !important; min-width:0 !important; width:auto !important;
+}}
+[class*="st-key-pill_"] button, .st-key-theme_toggle button{{
+  background:transparent !important; border:1px solid {GLASS_BORDER} !important;
+  color:{TEXT2} !important; border-radius:9px !important; padding:6px 2px !important;
+  font-size:11.5px !important; font-weight:500 !important; min-height:0 !important;
+  line-height:1.2 !important; box-shadow:none !important; letter-spacing:0 !important;
+}}
+[class*="st-key-pill_"] button:hover, .st-key-theme_toggle button:hover{{
+  color:{TEXT} !important; border-color:{GLASS_BORDER_2} !important;
+}}
+.st-key-pill_{_sc} button{{
+  background:{rgba(ACCENT,0.14)} !important; border-color:transparent !important;
+  color:{ACCENT} !important; font-weight:600 !important;
+}}
+.st-key-theme_toggle button{{ color:{TEXT3} !important; }}
+@media(max-width:520px){{
+  [class*="st-key-pill_"] button, .st-key-theme_toggle button{{ font-size:10px !important; padding:6px 1px !important; }}
+}}
+</style>""", unsafe_allow_html=True)
+_pcols = st.columns([1, 1, 1, 1, 0.85])
 for i, (key, lbl) in enumerate(_nav_items):
     with _pcols[i]:
-        _active = (_sc == key)
-        if _active:
-            st.markdown('<div class="pill-active">', unsafe_allow_html=True)
         if st.button(lbl, key=f"pill_{key}", use_container_width=True):
             st.session_state.screen = key
             st.rerun()
-        if _active:
-            st.markdown('</div>', unsafe_allow_html=True)
 with _pcols[4]:
     _ico_tema = "Claro" if THEME == "dark" else "Oscuro"
     if st.button(_ico_tema, key="theme_toggle", use_container_width=True):
         st.session_state.theme = "light" if THEME == "dark" else "dark"
         st.rerun()
-st.markdown('</div></div>', unsafe_allow_html=True)
 
 opciones_periodos = periodos_disponibles[:8]
 idx_per = opciones_periodos.index(periodo_viendo) if periodo_viendo in opciones_periodos else 0
@@ -866,26 +818,6 @@ st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
 # PANTALLA: INICIO
 # ══════════════════════════════════════════════════════════════════
 if st.session_state.screen == "inicio":
-
-    _bc = GREEN if balance_ars >= 0 else RED
-    _bs = "+" if balance_ars >= 0 else ""
-    st.markdown(f"""
-<div class="hero-balance">
-  <div class="hero-lbl">Balance &mdash; {label_periodo(periodo_viendo)}</div>
-  <div class="hero-val" style="color:{_bc}">{_bs}{fmt_ars(balance_ars)}</div>
-  <div class="hero-sub">{fmt_usd_from_ars(abs(balance_ars), dolar)} &middot; tasa $ {dolar:,.0f}</div>
-  <div class="hero-split">
-    <div class="hero-split-item">
-      <div class="hero-split-dot" style="background:{GREEN}"></div>
-      <div><div class="hero-split-lbl">Ingresos</div><div class="hero-split-val" style="color:{GREEN}">{fmt_ars(total_ing_ars) if total_ing_ars > 0 else "&mdash;"}</div></div>
-    </div>
-    <div class="hero-split-item">
-      <div class="hero-split-dot" style="background:{ACCENT}"></div>
-      <div><div class="hero-split-lbl">Gastos</div><div class="hero-split-val" style="color:{ACCENT}">{fmt_ars(total_ars) if total_ars > 0 else "&mdash;"}</div></div>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
 
     if not es_mes_actual:
         st.markdown(f'<div class="alert alert-b">Historial &mdash; <strong>{label_periodo(periodo_viendo)}</strong> (solo lectura)</div>', unsafe_allow_html=True)
@@ -939,14 +871,11 @@ if st.session_state.screen == "inicio":
 </div>
 """, unsafe_allow_html=True)
 
-    bc = GREEN if balance_ars >= 0 else RED
-    bs = "+" if balance_ars >= 0 else ""
-
     st.markdown(f'<div class="sec-lbl">Gastos &mdash; {label_periodo(periodo_viendo)}</div>', unsafe_allow_html=True)
     st.markdown(f"""
 <div class="card-gastos">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div><div style="font-size:10px;color:{TEXT3};margin-top:5px">Balance <span style="color:{bc}">{bs}{fmt_ars(balance_ars)}</span></div></div>
+    <div><div class="c-lbl">Total del mes</div><div class="c-val">{fmt_ars(total_ars) if total_ars > 0 else "Sin datos"}</div><div class="c-sub">{fmt_usd_from_ars(total_ars, dolar)}</div></div>
     <div style="text-align:right;padding-top:2px"><div class="c-lbl">Ítems</div><div style="font-family:var(--font-num);font-size:19px;font-weight:600;color:{TEXT}">{len(df)}</div><div class="c-sub">{n_pagados} pag &middot; {n_pendientes} pend</div></div>
   </div>
   <div class="sep"></div>
@@ -971,59 +900,6 @@ if st.session_state.screen == "inicio":
 """, unsafe_allow_html=True)
 
     if es_mes_actual:
-        # ── DUPLICAR: toma el último mes con datos reales ──
-        if not df_maestro.empty:
-            periodos_con_datos = sorted(
-                df_maestro[df_maestro["Periodo"] != periodo_actual]["Periodo"].dropna().unique(),
-                reverse=True
-            )
-            periodo_ant = periodos_con_datos[0] if periodos_con_datos else None
-            df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant] if periodo_ant else pd.DataFrame()
-            if not df_ant.empty:
-                df_clonables = df_ant.copy()
-                with st.expander(f"Duplicar todos los ítems de {label_periodo(periodo_ant)} ({len(df_clonables)} ítems)"):
-                    st.markdown(
-                        f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px">'
-                        f'Se copiarán <strong style="color:{TEXT}">todos los {len(df_clonables)} ítems</strong> '
-                        f'del mes anterior al período actual, marcados como pendientes.</div>',
-                        unsafe_allow_html=True
-                    )
-                    for _, r in df_clonables.iterrows():
-                        color_c = cat_color(categorizar(r["Item"]))
-                        st.markdown(
-                            f'<div style="font-size:14px;padding:7px 0;border-bottom:1px solid {SEP};'
-                            f'display:flex;justify-content:space-between;align-items:center">'
-                            f'<span style="color:{TEXT}">{r["Item"]}</span>'
-                            f'<span style="color:{color_c};font-weight:600">{fmt_ars(r["Monto (ARS)"])}</span></div>',
-                            unsafe_allow_html=True
-                        )
-                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-                    if st.button(f"Duplicar {len(df_clonables)} ítems ahora", type="primary", use_container_width=True):
-                        nuevos_registros = []
-                        y_act, m_act = map(int, periodo_actual.split('-'))
-                        for _, r in df_clonables.iterrows():
-                            nueva_fecha = None
-                            if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
-                                try:
-                                    old_d = pd.to_datetime(r["Dia Pago"])
-                                    dia_seguro = min(old_d.day, 28)
-                                    nueva_fecha = date(y_act, m_act, dia_seguro)
-                                except:
-                                    pass
-                            nuevos_registros.append({
-                                "Categoria": categorizar(r["Item"]),
-                                "Item": r["Item"],
-                                "Monto (ARS)": r["Monto (ARS)"],
-                                "Dia Pago": nueva_fecha,
-                                "Pagado": False,
-                                "Periodo": periodo_actual,
-                                "Tasa USD": dolar
-                            })
-                        if nuevos_registros:
-                            df_nuevos = pd.DataFrame(nuevos_registros)
-                            guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
-                            st.rerun()
-
         if st.session_state.show_add:
             st.markdown('<div class="add-panel">', unsafe_allow_html=True)
             a1, a2, a3, a4 = st.columns([2, 1.2, 1.2, 0.8])
@@ -1152,6 +1028,60 @@ if st.session_state.screen == "inicio":
             usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
             st.markdown(f'<div class="row"><div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="row-name">{row["Item"]}</div><div class="row-sub">{row["Cat"]} &middot; {pct_t}% del total</div></div><div class="row-right"><div class="row-amt">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── DUPLICAR MES ANTERIOR (al final de la pantalla) ──
+    if es_mes_actual and not df_maestro.empty:
+        periodos_con_datos = sorted(
+            df_maestro[df_maestro["Periodo"] != periodo_actual]["Periodo"].dropna().unique(),
+            reverse=True
+        )
+        periodo_ant = periodos_con_datos[0] if periodos_con_datos else None
+        df_ant = df_maestro[df_maestro["Periodo"] == periodo_ant] if periodo_ant else pd.DataFrame()
+        if not df_ant.empty:
+            df_clonables = df_ant.copy()
+            st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+            with st.expander(f"Duplicar todos los ítems de {label_periodo(periodo_ant)} ({len(df_clonables)} ítems)"):
+                st.markdown(
+                    f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px">'
+                    f'Se copiarán <strong style="color:{TEXT}">todos los {len(df_clonables)} ítems</strong> '
+                    f'del mes anterior al período actual, marcados como pendientes.</div>',
+                    unsafe_allow_html=True
+                )
+                for _, r in df_clonables.iterrows():
+                    color_c = cat_color(categorizar(r["Item"]))
+                    st.markdown(
+                        f'<div style="font-size:14px;padding:7px 0;border-bottom:1px solid {SEP};'
+                        f'display:flex;justify-content:space-between;align-items:center">'
+                        f'<span style="color:{TEXT}">{r["Item"]}</span>'
+                        f'<span style="color:{color_c};font-weight:600">{fmt_ars(r["Monto (ARS)"])}</span></div>',
+                        unsafe_allow_html=True
+                    )
+                st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+                if st.button(f"Duplicar {len(df_clonables)} ítems ahora", type="primary", use_container_width=True):
+                    nuevos_registros = []
+                    y_act, m_act = map(int, periodo_actual.split('-'))
+                    for _, r in df_clonables.iterrows():
+                        nueva_fecha = None
+                        if pd.notnull(r["Dia Pago"]) and str(r["Dia Pago"]).strip() != "":
+                            try:
+                                old_d = pd.to_datetime(r["Dia Pago"])
+                                dia_seguro = min(old_d.day, 28)
+                                nueva_fecha = date(y_act, m_act, dia_seguro)
+                            except:
+                                pass
+                        nuevos_registros.append({
+                            "Categoria": categorizar(r["Item"]),
+                            "Item": r["Item"],
+                            "Monto (ARS)": r["Monto (ARS)"],
+                            "Dia Pago": nueva_fecha,
+                            "Pagado": False,
+                            "Periodo": periodo_actual,
+                            "Tasa USD": dolar
+                        })
+                    if nuevos_registros:
+                        df_nuevos = pd.DataFrame(nuevos_registros)
+                        guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
+                        st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════
