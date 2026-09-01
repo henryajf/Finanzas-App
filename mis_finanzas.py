@@ -709,6 +709,18 @@ else:
     vencidos = proximos = pd.DataFrame()
     es_mes_actual = True
 
+# Montos del mes anterior por ítem (referencia para gastos duplicados en $0)
+ref_montos = {}
+if not df_maestro.empty:
+    _dfp = df_maestro[df_maestro["Periodo"] == calcular_mes_anterior(periodo_viendo)]
+    for _, _r in _dfp.iterrows():
+        _k = str(_r["Item"]).strip().lower()
+        if _k:
+            ref_montos[_k] = float(_r["Monto (ARS)"])
+
+def ref_monto(item):
+    return ref_montos.get(str(item).strip().lower(), 0.0)
+
 if not df_ing_todo.empty:
     df_ing_periodo = df_ing_todo[df_ing_todo["Periodo"] == periodo_viendo]
 else:
@@ -1023,8 +1035,15 @@ if st.session_state.screen == "inicio":
                 op   = "0.5" if paid else "1"
                 ico  = cat_icon_svg(cat, color, size=32)
                 tasa_r = row.get("Tasa USD", 0)
-                usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
-                st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right"><div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div><div class="row-usd">U$S {usd_v:,.0f}</div></div></div>', unsafe_allow_html=True)
+                if row["Monto (ARS)"] <= 0 and not paid:
+                    rref = ref_monto(row["Item"])
+                    amt_html = f'<div class="{ac}" style="color:{ORANGE}">A definir</div>'
+                    usd_html = f'<div class="row-usd">mes ant. {fmt_ars(rref)}</div>' if rref > 0 else '<div class="row-usd">&mdash;</div>'
+                else:
+                    usd_v  = row["Monto (ARS)"] / tasa_r if tasa_r > 0 else row["Monto (ARS)"] / dolar
+                    amt_html = f'<div class="{ac}">{fmt_ars(row["Monto (ARS)"])}</div>'
+                    usd_html = f'<div class="row-usd">U$S {usd_v:,.0f}</div>'
+                st.markdown(f'<div class="row" style="opacity:{op}"><div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;overflow:hidden">{ico}</div><div class="row-body"><div class="{nc}">{row["Item"]}</div><div class="row-sub">{badge_venc(row)}</div></div><div class="row-right">{amt_html}{usd_html}</div></div>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
         if es_mes_actual:
@@ -1034,9 +1053,11 @@ if st.session_state.screen == "inicio":
                     for _i, (_, row) in enumerate(pend_items.iterrows()):
                         _key_monto = f"monto_pay_{_i}_{row['Item']}_{row['Periodo']}"
                         _key_btn   = f"pay_{_i}_{row['Item']}_{row['Periodo']}"
+                        _rref      = ref_monto(row["Item"])
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
+                            _sub = f'<div style="font-size:11px;color:{TEXT3};margin-top:1px">mes pasado: {fmt_ars(_rref)}</div>' if _rref > 0 else ''
+                            st.markdown(f'<div style="font-size:14px;padding:8px 0 0">{row["Item"]}{_sub}</div>', unsafe_allow_html=True)
                         with cm:
                             st.number_input(
                                 "Monto ARS", min_value=0, step=100,
@@ -1075,8 +1096,8 @@ if st.session_state.screen == "inicio":
         st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
         with st.expander(f"Duplicar los {len(df_fuente)} ítems de {label_periodo(periodo_viendo)}  →  {label_periodo(periodo_sig)}"):
             msg = (f'Se agregarán <strong style="color:{TEXT}">{len(pendientes_clonar)} ítems</strong> a '
-                   f'<strong style="color:{TEXT}">{label_periodo(periodo_sig)}</strong>, marcados como pendientes. '
-                   f'Incluye todo lo que tengas cargado hoy en {label_periodo(periodo_viendo)}.')
+                   f'<strong style="color:{TEXT}">{label_periodo(periodo_sig)}</strong> con <strong style="color:{TEXT}">monto $0</strong>, '
+                   f'para que cargues lo que se paga ese mes. El monto de {label_periodo(periodo_viendo)} queda como referencia.')
             if ya_existen:
                 msg += f' <span style="color:{TEXT3}">({ya_existen} ya están en {label_periodo(periodo_sig)} y se omiten para no duplicar).</span>'
             st.markdown(f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px;line-height:1.5">{msg}</div>', unsafe_allow_html=True)
@@ -1087,7 +1108,7 @@ if st.session_state.screen == "inicio":
                     f'<div style="font-size:14px;padding:7px 0;border-bottom:1px solid {SEP};'
                     f'display:flex;justify-content:space-between;align-items:center;opacity:{"0.4" if existe else "1"}">'
                     f'<span style="color:{TEXT}">{r["Item"]}{" &middot; ya existe" if existe else ""}</span>'
-                    f'<span style="color:{color_c};font-weight:600">{fmt_ars(r["Monto (ARS)"])}</span></div>',
+                    f'<span style="color:{TEXT3};font-weight:500;font-size:12px">ref. {fmt_ars(r["Monto (ARS)"])}</span></div>',
                     unsafe_allow_html=True
                 )
             st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
@@ -1107,7 +1128,7 @@ if st.session_state.screen == "inicio":
                     nuevos_registros.append({
                         "Categoria": categorizar(r["Item"]),
                         "Item": r["Item"],
-                        "Monto (ARS)": r["Monto (ARS)"],
+                        "Monto (ARS)": 0.0,
                         "Dia Pago": nueva_fecha,
                         "Pagado": False,
                         "Periodo": periodo_sig,
@@ -1117,6 +1138,38 @@ if st.session_state.screen == "inicio":
                     df_nuevos = pd.DataFrame(nuevos_registros)
                     guardar_hoja_maestro(pd.concat([df_maestro, df_nuevos], ignore_index=True), dolar)
                     st.session_state.periodo_sel = periodo_sig
+                    st.rerun()
+
+    # ── PONER PENDIENTES EN $0 (corrección para meses ya duplicados con monto) ──
+    if not df_base_periodo.empty and periodo_viendo >= periodo_actual:
+        pend_con_monto = df_base_periodo[(df_base_periodo["Pagado"] == False) & (df_base_periodo["Monto (ARS)"] > 0)]
+        if not pend_con_monto.empty:
+            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+            with st.expander(f"Poner en $0 los {len(pend_con_monto)} ítems pendientes de {label_periodo(periodo_viendo)}"):
+                st.markdown(
+                    f'<div style="font-size:13px;color:{TEXT2};margin-bottom:10px;line-height:1.5">'
+                    f'Deja en <strong style="color:{TEXT}">$0</strong> los gastos pendientes de {label_periodo(periodo_viendo)} '
+                    f'para que cargues el monto real de este mes. Los ya pagados no se tocan; '
+                    f'el monto de {label_periodo(calcular_mes_anterior(periodo_viendo))} sigue de referencia.</div>',
+                    unsafe_allow_html=True
+                )
+                for _, r in pend_con_monto.iterrows():
+                    st.markdown(
+                        f'<div style="font-size:14px;padding:7px 0;border-bottom:1px solid {SEP};'
+                        f'display:flex;justify-content:space-between;align-items:center">'
+                        f'<span style="color:{TEXT}">{r["Item"]}</span>'
+                        f'<span style="color:{TEXT3};font-size:12px">{fmt_ars(r["Monto (ARS)"])} &rarr; $0</span></div>',
+                        unsafe_allow_html=True
+                    )
+                st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+                if st.button(f"Poner en $0 ({len(pend_con_monto)} ítems)", type="primary",
+                             use_container_width=True, key="reset_cero"):
+                    df_act = df_maestro.copy()
+                    mask = ((df_act["Periodo"] == periodo_viendo)
+                            & (df_act["Pagado"] == False)
+                            & (df_act["Monto (ARS)"] > 0))
+                    df_act.loc[mask, "Monto (ARS)"] = 0.0
+                    guardar_hoja_maestro(df_act, dolar)
                     st.rerun()
 
 
@@ -1387,9 +1440,11 @@ elif st.session_state.screen == "gastos":
                     for _i, (_, row) in enumerate(pend_quick.iterrows()):
                         _key_monto = f"monto_qpay_{_i}_{row['Item']}_{row['Periodo']}"
                         _key_btn   = f"qpay_{_i}_{row['Item']}_{row['Periodo']}"
+                        _rref      = ref_monto(row["Item"])
                         cn, cm, cb = st.columns([2.5, 1.5, 1])
                         with cn:
-                            st.markdown(f'<div style="font-size:14px;padding:5px 0;padding-top:10px">{row["Item"]}</div>', unsafe_allow_html=True)
+                            _sub = f'<div style="font-size:11px;color:{TEXT3};margin-top:1px">mes pasado: {fmt_ars(_rref)}</div>' if _rref > 0 else ''
+                            st.markdown(f'<div style="font-size:14px;padding:8px 0 0">{row["Item"]}{_sub}</div>', unsafe_allow_html=True)
                         with cm:
                             st.number_input(
                                 "Monto ARS", min_value=0, step=100,
